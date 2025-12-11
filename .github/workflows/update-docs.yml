@@ -1,0 +1,201 @@
+name: Update, Version, Publish, and Sync Docs
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Runs every 12 hours
+    - cron: '0 */12 * * *'
+
+env:
+  DOCS_PATH: 'docs'
+  DOCS_CODE_FOLDER_NAME: 'code'
+  DOCS_DEVELOPER_FOLDER_NAME: 'developer'
+  DOCS_RESOURCES_FOLDER_NAME: 'resources'
+  DOCS_API_FOLDER_NAME: 'api'
+  DOCS_IGNORE_PATTERN: 'docs/README\.md$|docs/code/README\.md$|docs/developer/README\.md$|docs/resources/README\.md$|docs/api/README\.md$'
+
+  DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID || '' }}
+  DRIVE_SYNC_SAFE_MODE: ${{ vars.DRIVE_SYNC_SAFE_MODE || 'true' }}
+
+  DRIVE_SYNC_DEVELOPER: ${{ vars.DRIVE_SYNC_DEVELOPER || 'false' }}
+  DRIVE_SYNC_API: ${{ vars.DRIVE_SYNC_API || 'false' }}
+  DRIVE_SYNC_RESOURCES: ${{ vars.DRIVE_SYNC_RESOURCES || 'false' }}
+  DRIVE_SYNC_CODE: ${{ vars.DRIVE_SYNC_CODE || 'false' }}
+
+jobs:
+  update-and-publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      ########################################################################
+      # GENERATE DOCS
+      ########################################################################
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run docs update script
+        run: node scripts/update-docs.js
+
+      - name: Check for file changes
+        id: git_status
+        run: |
+          CHANGED_FILES="$(git status --porcelain "${DOCS_PATH}"/ | grep -vE "${DOCS_IGNORE_PATTERN}" || true)"
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No relevant changes detected."
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Relevant changes detected:"
+            echo "$CHANGED_FILES"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      ########################################################################
+      # VERSION + RELEASE
+      ########################################################################
+      - name: Configure Git user
+        if: steps.git_status.outputs.has_changes == 'true'
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions-bot@github.com"
+
+      - name: Bump package version
+        if: steps.git_status.outputs.has_changes == 'true'
+        id: version
+        run: |
+          npm version patch --no-git-tag-version --commit-hooks false
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "version_number=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Generate Changelog
+        id: changelog_generator
+        if: steps.git_status.outputs.has_changes == 'true'
+        run: |
+          NEW_VERSION="${{ steps.version.outputs.version_number }}"
+          HEADER="## 🤖 v${NEW_VERSION} - $(date +'%d/%m/%Y')"
+
+          echo -e "$HEADER\n\nFile Changes:\n" > new_entry.tmp
+
+          git status --porcelain "${DOCS_PATH}"/ | while IFS= read -r line; do
+            case "$line" in
+              " M "*) echo "- Modified: \`${line:3}\`" >> new_entry.tmp ;;
+              " D "*) echo "- Deleted: \`${line:3}\`" >> new_entry.tmp ;;
+              "?? "*) echo "- Added: \`${line:3}\`" >> new_entry.tmp ;;
+            esac
+          done
+
+          echo "body<<EOF" >> $GITHUB_OUTPUT
+          cat new_entry.tmp >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          tail -n +2 CHANGELOG.md 2>/dev/null > old.tmp
+
+          { echo "# Changelog"; echo ""; cat new_entry.tmp; echo ""; cat old.tmp; } > CHANGELOG.md
+
+          rm new_entry.tmp old.tmp
+
+      - name: Commit, Tag, and Push
+        if: steps.git_status.outputs.has_changes == 'true'
+        run: |
+          git add "${DOCS_PATH}"/ CHANGELOG.md package.json package-lock.json
+          git commit -m "docs: release v${{ steps.version.outputs.version_number }}"
+          git tag "${{ steps.version.outputs.version_number }}"
+          git push
+          git push --tags
+
+      - name: Create GitHub Release
+        if: steps.git_status.outputs.has_changes == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "${{ steps.version.outputs.version_number }}"
+          name: "${{ steps.version.outputs.version_number }}"
+          body: "${{ steps.changelog_generator.outputs.body }}"
+
+      ########################################################################
+      # RCLONE → GOOGLE DRIVE
+      ########################################################################
+      - name: Setup rclone
+        if: steps.git_status.outputs.has_changes == 'true' && env.DRIVE_FOLDER_ID != ''
+        uses: AnimMouse/setup-rclone@v1
+        with:
+          version: 'v1.72.0'
+          rclone_config: "${{ secrets.DRIVE_RCLONE_CONFIG }}"
+          disable_base64: true
+
+      - name: Inject root folder ID
+        if: steps.git_status.outputs.has_changes == 'true' && env.DRIVE_FOLDER_ID != ''
+        run: |
+          CONFIG="$HOME/.config/rclone/rclone.conf"
+
+          if grep -q "^\[drive\]" "$CONFIG"; then
+            # If root_folder_id exists, replace it
+            if grep -q "^root_folder_id" "$CONFIG"; then
+              sed -i "s|^root_folder_id.*|root_folder_id = ${DRIVE_FOLDER_ID}|" "$CONFIG"
+            else
+              # Insert it right after the [drive] block
+              sed -i "/^\[drive\]/a root_folder_id = ${DRIVE_FOLDER_ID}" "$CONFIG"
+            fi
+          fi
+
+          echo "Updated rclone config"
+
+      - name: Upload docs to Google Drive
+        if: steps.git_status.outputs.has_changes == 'true' && env.DRIVE_FOLDER_ID != ''
+        run: |
+          sync_or_copy() {
+            enabled="$1"
+            folder="$2"
+
+            if [ "$enabled" != "true" ] && [ "$enabled" != "1" ]; then
+              echo "→ $folder: skipping (flag=$enabled)"
+              return
+            fi
+
+            mode="copy"
+            if [ "$DRIVE_SYNC_SAFE_MODE" = "false" ]; then
+              mode="sync"
+            fi
+
+            echo "→ $folder: running $mode"
+
+            if [ "$mode" = "sync" ]; then
+              rclone sync "$DOCS_PATH/$folder" "drive:$folder"
+            else
+              rclone copy "$DOCS_PATH/$folder" "drive:$folder" --update
+            fi
+          }
+
+          sync_or_copy "$DRIVE_SYNC_DEVELOPER" "$DOCS_DEVELOPER_FOLDER_NAME"
+          sync_or_copy "$DRIVE_SYNC_API" "$DOCS_API_FOLDER_NAME"
+          sync_or_copy "$DRIVE_SYNC_RESOURCES" "$DOCS_RESOURCES_FOLDER_NAME"
+          sync_or_copy "$DRIVE_SYNC_CODE" "$DOCS_CODE_FOLDER_NAME"
+
+      ########################################################################
+      # TELEGRAM NOTIFICATIONS
+      ########################################################################
+      - name: Send Telegram Notification
+        if: steps.git_status.outputs.has_changes == 'true'
+        uses: appleboy/telegram-action@master
+        with:
+          to: "${{ secrets.TELEGRAM_CHAT_ID }}"
+          token: "${{ secrets.TELEGRAM_BOT_TOKEN }}"
+          format: markdown
+          message: |
+            🤖 New Claude Master update! **v${{ steps.version.outputs.version_number }}** has just been released.
+
+            Check out the changes here:
+            ${{ github.server_url }}/${{ github.repository }}/releases/tag/${{ steps.version.outputs.version_number }}

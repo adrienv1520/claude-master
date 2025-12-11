@@ -1,0 +1,59 @@
+{
+  "name": "claude-master",
+  "version": "1.0.0",
+  "author": "Adrien Valcke <adrienvalcke@icloud.com> (https://github.com/adrienv1520)",
+  "description": "An automatically updated, structured mirror of the official Claude documentation combined with a production-ready system-prompt framework that lets you build a fully grounded, Claude Master assistant inside any Claude Project.",
+  "type": "module",
+  "bin": {},
+  "main": "scripts/update-docs.js",
+  "files": [
+    "/scripts"
+  ],
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "update": "node scripts/update-docs.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:adrienv1520/claude-master.git"
+  },
+  "keywords": [
+    "anthropic",
+    "claude",
+    "master",
+    "claude code",
+    "code",
+    "developer",
+    "api",
+    "resources",
+    "mirror",
+    "official",
+    "docs",
+    "documentation",
+    "markdown",
+    "md"
+  ],
+  "dependencies": {
+    "axios": "^1.4.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.33.0",
+    "@stylistic/eslint-plugin": "^5.2.3",
+    "eslint": "^9.33.0",
+    "eslint-plugin-n": "^17.21.3",
+    "eslint-plugin-perfectionist": "^4.15.0",
+    "eslint-plugin-security-node": "^1.1.4",
+    "eslint-plugin-unicorn": "^60.0.0",
+    "globals": "^16.3.0"
+  },
+  "volta": {
+    "node": "22.18.0"
+  },
+  "private": false,
+  "preferGlobal": false,
+  "analyze": false,
+  "license": "MIT"
+}
