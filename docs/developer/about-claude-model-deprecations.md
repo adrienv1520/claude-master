@@ -8,7 +8,7 @@ This page lists all API deprecations, along with recommended replacements.
 
 ## Overview
 
-Anthropic uses the following terms to describe the lifecycle of our models
+Anthropic uses the following terms to describe the lifecycle of our models:
 - **Active**: The model is fully supported and recommended for use.
 - **Legacy**: The model will no longer receive updates and may be deprecated in the future.
 - **Deprecated**: The model is no longer available for new customers but continues to be available for existing users until retirement. We assign a retirement date at this point.
@@ -112,7 +112,7 @@ On June 30, 2025, we notified developers using Claude Opus 3 model of its upcomi
 These models were retired July 21, 2025.
 </Note>
 
-On January 21, 2025, we notified developers using Claude 2, Claude 2.1, and Claude Sonnet 3 models of their upcoming retirements.
+On January 21, 2025, we notified developers using Claude 2, Claude 2.1, and Claude Sonnet 3 models of their upcoming retirements. 
 
 | Retirement Date             | Deprecated Model            | Recommended Replacement         |
 |:----------------------------|:----------------------------|:--------------------------------|
