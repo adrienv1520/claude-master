@@ -1,5 +1,21 @@
 # Changelog
 
+## 🤖 v1.0.3 - 12/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/README.md`
+- Modified: `docs/code/README.md`
+- Modified: `docs/code/amazon-bedrock.md`
+- Modified: `docs/code/interactive-mode.md`
+- Modified: `docs/developer/README.md`
+- Modified: `docs/developer/agent-sdk-overview.md`
+- Modified: `docs/developer/agent-sdk-typescript-v2-preview.md`
+- Modified: `docs/resources/README.md`
+- Added: `docs/developer/agent-sdk-quickstart.md`
+
+
 ## 🧑‍💻 v1.0.2 - 11/12/2025
 
 - fix: add MAX_REMOVED_FILES_PERCENTAGE variable for safety
