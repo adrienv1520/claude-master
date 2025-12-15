@@ -52,6 +52,31 @@ jobs:
       - name: Run docs update script
         run: node scripts/update-docs.js
 
+      - name: Cleanup README files when docs are unchanged
+        run: |
+          FOLDERS=(
+            "${DOCS_CODE_FOLDER_NAME}"
+            "${DOCS_DEVELOPER_FOLDER_NAME}"
+            "${DOCS_RESOURCES_FOLDER_NAME}"
+            "${DOCS_API_FOLDER_NAME}"
+          )
+
+          for folder_name in "${FOLDERS[@]}"; do
+            README="${DOCS_PATH}/${folder_name}/README.md"
+
+            [ -f "$README" ] || continue
+
+            REAL_CHANGES=$(git status --porcelain "${DOCS_PATH}/${folder_name}/" \
+              | grep -v "README.md" || true)
+
+            if [ -z "$REAL_CHANGES" ]; then
+              echo "No real changes in ${folder_name}, reverting README"
+              git checkout -- "$README"
+            else
+              echo "Real changes detected in ${folder_name}, keeping README"
+            fi
+          done
+
       - name: Check for file changes
         id: git_status
         run: |
@@ -85,8 +110,8 @@ jobs:
             HAVE_HEAD=false
           fi
 
-          for name in "${FOLDERS[@]}"; do
-            FOLDER_PATH="${DOCS_PATH}/${name}"
+          for folder_name in "${FOLDERS[@]}"; do
+            FOLDER_PATH="${DOCS_PATH}/${folder_name}"
 
             if [ ! -d "$FOLDER_PATH" ]; then
               echo "❌ CRITICAL: Folder '${FOLDER_PATH}' is missing in working tree. Aborting."
@@ -119,10 +144,10 @@ jobs:
 
             FOLDER_PERCENTAGE=$(( REMOVED_FOLDER_FILES * 100 / TOTAL_FOLDER_FILES ))
 
-            echo "Folder check: $name → removed ${REMOVED_FOLDER_FILES}/${TOTAL_FOLDER_FILES} (${FOLDER_PERCENTAGE}%)"
+            echo "Folder check: $folder_name → removed ${REMOVED_FOLDER_FILES}/${TOTAL_FOLDER_FILES} (${FOLDER_PERCENTAGE}%)"
 
             if [ "$FOLDER_PERCENTAGE" -ge "$MAX_REMOVED_FILES_PERCENTAGE" ]; then
-              echo "❌ CRITICAL: Folder '${name}' exceeds safe deletion threshold (${FOLDER_PERCENTAGE}% ≥ ${MAX_REMOVED_FILES_PERCENTAGE}%)."
+              echo "❌ CRITICAL: Folder '${folder_name}' exceeds safe deletion threshold (${FOLDER_PERCENTAGE}% ≥ ${MAX_REMOVED_FILES_PERCENTAGE}%)."
               CRITICAL=true
             fi
           done

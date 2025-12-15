@@ -1,5 +1,10 @@
 # Changelog
 
+## 🧑‍💻 v1.0.7 - 15/12/2025
+
+- fix: cleanup README files for each folder when docs are unchanged
+
+
 ## 🤖 v1.0.6 - 15/12/2025
 
 File Changes:
