@@ -1,5 +1,18 @@
 # Changelog
 
+## 🤖 v1.0.6 - 15/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/README.md`
+- Modified: `docs/code/README.md`
+- Modified: `docs/developer/README.md`
+- Modified: `docs/developer/agent-sdk-overview.md`
+- Modified: `docs/developer/agent-sdk-quickstart.md`
+- Modified: `docs/resources/README.md`
+
+
 ## 🤖 v1.0.5 - 13/12/2025
 
 File Changes:
