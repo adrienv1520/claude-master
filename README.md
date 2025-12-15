@@ -9,10 +9,12 @@
 - [Documentation Structure](#documentation-structure)
 - [Master's System Prompt](#masters-system-prompt)
 - [How to Use This Repository](#how-to-use-this-repository)
-  - [1. Automated Setup (Recommended)](#1-automated-setup-recommended)
-    - [Steps](#steps)
-    - [Then, inside Claude Desktop](#then-inside-claude-desktop)
-  - [2. Manual Setup (No Automation)](#2-manual-setup-no-automation)
+  - [1. Documentation Preparation](#1-documentation-preparation)
+    - [Automated Documentation Preparation](#automated-documentation-preparation)
+    - [Manual Documentation Preparation](#manual-documentation-preparation)
+  - [2. Create a Claude Project](#2-create-a-claude-project)
+    - [Manual Documentation Upload](#manual-documentation-upload)
+    - [Automated Documentation Upload](#automated-documentation-upload)
 - [Automated Updates](#automated-updates)
   - [GitHub Actions Workflow](#github-actions-workflow)
   - [Environment Variables Used](#environment-variables-used)
@@ -25,7 +27,7 @@
 - [Contributions](#contributions)
 - [License](#license)
 
-An automatically updated, structured mirror of the official Claude documentation combined with a production-ready system-prompt framework that lets you build a fully grounded, Claude Master assistant inside any Claude Project.
+An automatically updated, structured mirror of the official Claude documentation combined with a production-ready system-prompt framework that lets you build a fully grounded, Claude Master assistant inside any Claude Project. Documentation [is refreshed **every x hours** using GitHub Actions](https://github.com/adrienv1520/claude-master/blob/main/.github/workflows/update-docs.yml#L7).
 
 <div align="center">
 
@@ -59,7 +61,7 @@ This repository provides:
 - **A complete, automatically updated mirror of the Claude documentation**
   - **Claude Platform** → Developer, API, Resources (Release Notes excluded)
   - **Claude Code**
-- **Optional Google Drive synchronization**, allowing you to keep your Claude Project’s knowledge base always up to date.
+- **Optional Google Drive synchronization**, allowing you to keep your knowledge base always up to date (manual upload to a Claude Project still required).
 - **Optional Telegram notifications** every time new documentation is fetched and published.
 - **A system-prompt framework** used to build a `Claude Master` inside a Claude Project.
   This Master can help you:
@@ -95,7 +97,6 @@ docs/
 ```
 
 - No subfolders inside each documentation directory (everything is flat).
-- Documentation is refreshed **every 12 hours** (configurable) using GitHub Actions.
 - Only the selected doc scopes (e.g., Developer, API, Code) are exported to your Google Drive.
 
 ---
@@ -290,11 +291,14 @@ You succeed when:
 
 ## How to Use This Repository
 
-### 1. Automated Setup (Recommended)
+### 1. Documentation Preparation
 
-This method keeps your Claude Master **always up-to-date** using GitHub Actions + Google Drive sync.
+#### Automated Documentation Preparation
 
-#### Steps
+This method automatically fetches and prepares the latest Claude documentation
+using GitHub Actions, and optionally exports it to Google Drive.
+
+**Steps**:
 
 1. **Clone this repository**
 2. **Configure [environment variables](#environment-variables-used)**
@@ -304,30 +308,47 @@ This method keeps your Claude Master **always up-to-date** using GitHub Actions 
    - commit changes to the repo,
    - and push selected folders to your **Google Drive**.
 
-#### Then, inside Claude Desktop
-
-1. Create a new **Claude Project** (recommended over Skills).
-2. Connect your **Google Drive** to the project
-   *(Left sidebar → **Knowledge** → Connect Google Drive)*.
-3. Select the Drive folder containing the synced documentation.
-4. Paste the [Master's system prompt](#masters-system-prompt).
-
-Your Claude Project will now **stay synced automatically** every time the workflow updates your Drive folder.
-
 ---
 
-### 2. Manual Setup (No Automation)
+#### Manual Documentation Preparation
 
 This is the simplest approach if you don’t want automation.
 
-1. **Download** the documentation folders you need from this repo (see [github-docs-extractor](https://github.com/adrienv1520/github-docs-extractor)).
-2. Create a new **Claude Project**.
-3. Upload the documentation folders directly into the project.
-4. Paste the [Master’s system prompt](#masters-system-prompt).
-
-You now have a fully functional Claude Master — just without automatic updates.
+**Download** the documentation folders you need from this repo. You can check [github-docs-extractor](https://github.com/adrienv1520/github-docs-extractor) for that.
 
 ---
+
+### 2. Create a Claude Project
+
+1. Inside Claude Desktop, create a new **Claude Project**.
+2. Paste the [Master’s system prompt](#masters-system-prompt).
+
+#### Manual Documentation Upload
+
+> ⚠️ **Important limitation**
+>
+> Claude Projects do **not** automatically sync with Google Drive.
+> Drive is used here only as a convenient staging location for prepared documentation.
+
+1. Download the documentation folders you want from the step [1. Documentation Preparation](#1-documentation-preparation).
+2. Upload those folders manually into the Claude Project
+   *(Project → Knowledge → Upload files)*.
+
+Whenever the workflow updates the docs, you can re-upload the updated folders to keep your Project current.
+
+---
+
+#### Automated Documentation Upload
+
+Tools like [ClaudeSync](https://github.com/jahwag/ClaudeSync) (third-party CLI) or `n8n` can sync files to a Claude Project using the Anthropic API.
+
+This requires:
+
+- An Anthropic API key.
+- Token usage (**potential cost** since Claude's total documentation in this repo is more than 500 files).
+- Trust in a third-party tool.
+
+This repository intentionally avoids requiring an API key or paid usage but **it is totally possible to automate this part in Github Actions**.
 
 ## Automated Updates
 
@@ -346,7 +367,7 @@ The automation performs the following steps:
 6. **Optionally sends a Telegram notification when a new version is released**
    (if Telegram credentials are configured)
 
-This keeps your Claude Master’s knowledge base continuously refreshed.
+This keeps your knowledge base continuously refreshed.
 
 ---
 
@@ -365,7 +386,10 @@ This keeps your Claude Master’s knowledge base continuously refreshed.
 | `TELEGRAM_BOT_TOKEN` | **secret** | Telegram bot API token used to send messages | No | *none* | `123456789:ABCdefGhIJkLmNoPqRsTuVwxyZ` |
 | `MAX_REMOVED_FILES_PERCENTAGE` | variable | Maximum allowed percentage of removed files for each docs folder before the workflow aborts for safety. Prevents accidental mass-deletions from being committed or synced to Google Drive | No | `25` | `30` |
 
-Clone this repository, set the variables you want, and the workflow takes care of the rest.
+Notes:
+
+- Clone this repository, set the variables you want, and the workflow takes care of the rest
+- Google Drive sync prepares files only, files **must still be manually uploaded into a Claude Project**.
 
 ---
 
