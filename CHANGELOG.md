@@ -1,5 +1,27 @@
 # Changelog
 
+## 🤖 v1.0.9 - 16/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/README.md`
+- Modified: `docs/api/ip-addresses.md`
+- Modified: `docs/code/README.md`
+- Modified: `docs/code/cli-reference.md`
+- Modified: `docs/code/headless.md`
+- Modified: `docs/code/iam.md`
+- Modified: `docs/code/plugin-marketplaces.md`
+- Modified: `docs/code/plugins-reference.md`
+- Modified: `docs/code/plugins.md`
+- Modified: `docs/code/security.md`
+- Modified: `docs/code/settings.md`
+- Modified: `docs/code/statusline.md`
+- Modified: `docs/developer/README.md`
+- Modified: `docs/developer/agents-and-tools-tool-use-overview.md`
+- Modified: `docs/developer/build-with-claude-effort.md`
+
+
 ## 🧑‍💻 v1.0.8 - 15/12/2025
 
 - docs: clarify Claude Project setup and Drive sync limitations
