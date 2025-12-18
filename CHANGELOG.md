@@ -1,5 +1,16 @@
 # Changelog
 
+## 🤖 v1.1.2 - 18/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/resources/resources-README.md`
+
+
 ## 🤖 v1.1.1 - 18/12/2025
 
 File Changes:
