@@ -1,5 +1,10 @@
 # Changelog
 
+## 🧑‍💻 v1.1.4 - 19/12/2025
+
+- fix(ci): ignore generated README files in docs change detection
+
+
 ## 🤖 v1.1.3 - 19/12/2025
 
 File Changes:

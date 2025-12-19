@@ -12,7 +12,7 @@ env:
   DOCS_DEVELOPER_FOLDER_NAME: 'developer'
   DOCS_RESOURCES_FOLDER_NAME: 'resources'
   DOCS_API_FOLDER_NAME: 'api'
-  DOCS_IGNORE_PATTERN: 'docs/README\.md$|docs/code/README\.md$|docs/developer/README\.md$|docs/resources/README\.md$|docs/api/README\.md$'
+  DOCS_IGNORE_PATTERN: '(^.. )?docs/README\.md$|(^.. )?docs/[^/]+/[^/]+-README\.md$'
 
   DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID || '' }}
   DRIVE_SYNC_SAFE_MODE: ${{ vars.DRIVE_SYNC_SAFE_MODE || 'true' }}
@@ -62,7 +62,7 @@ jobs:
           )
 
           for folder_name in "${FOLDERS[@]}"; do
-            README="${DOCS_PATH}/${folder_name}/README.md"
+            README="${DOCS_PATH}/${folder_name}/${folder_name}-README.md"
 
             [ -f "$README" ] || continue
 
