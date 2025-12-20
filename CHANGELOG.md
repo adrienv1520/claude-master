@@ -1,5 +1,17 @@
 # Changelog
 
+## 🤖 v1.1.6 - 20/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-code-execution-tool.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-computer-use-tool.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-programmatic-tool-calling.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-tool-search-tool.md`
+
+
 ## 🤖 v1.1.5 - 20/12/2025
 
 File Changes:
