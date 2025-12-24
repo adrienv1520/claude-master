@@ -1,5 +1,14 @@
 # Changelog
 
+## 🤖 v1.1.7 - 24/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-discover-plugins.md`
+
+
 ## 🤖 v1.1.6 - 20/12/2025
 
 File Changes:
