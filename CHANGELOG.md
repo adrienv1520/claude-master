@@ -1,5 +1,17 @@
 # Changelog
 
+## 🤖 v1.1.8 - 27/12/2025
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-discover-plugins.md`
+- Modified: `docs/code/code-plugins.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-sub-agents.md`
+
+
 ## 🤖 v1.1.7 - 24/12/2025
 
 File Changes:
