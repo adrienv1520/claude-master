@@ -1,5 +1,16 @@
 # Changelog
 
+## 🤖 v1.1.11 - 04/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-sub-agents.md`
+
+
 ## 🤖 v1.1.10 - 30/12/2025
 
 File Changes:
