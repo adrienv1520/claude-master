@@ -185,7 +185,7 @@ In newer Claude models (starting with Claude Sonnet 3.7), if the sum of prompt t
 
 To plan your token usage and ensure you stay within context window limits, you can use the [token counting API](./developer-build-with-claude-token-counting.md) to estimate how many tokens your messages will use before sending them to Claude.
 
-See our [model comparison](./developer-about-claude-models-overview.md#model-comparison-table) table for a list of context window sizes by model.
+See our [model comparison](./developer-about-claude-models-overview.md#latest-models-comparison) table for a list of context window sizes by model.
 
 # Next steps
 <CardGroup cols={2}>

@@ -1,5 +1,26 @@
 # Changelog
 
+## 🤖 v1.1.12 - 06/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/api/api-rate-limits.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-interactive-mode.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-about-claude-model-deprecations.md`
+- Modified: `docs/developer/developer-agents-and-tools-mcp-connector.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-implement-tool-use.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-overview.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-tool-search-tool.md`
+- Modified: `docs/developer/developer-build-with-claude-claude-on-amazon-bedrock.md`
+- Modified: `docs/developer/developer-build-with-claude-claude-on-vertex-ai.md`
+- Modified: `docs/developer/developer-build-with-claude-context-windows.md`
+- Modified: `docs/developer/developer-build-with-claude-prompt-caching.md`
+
+
 ## 🤖 v1.1.11 - 04/01/2026
 
 File Changes:
