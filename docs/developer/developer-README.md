@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Tue, 06 Jan 2026 01:20:15 GMT
+**Last updated:** Wed, 07 Jan 2026 01:20:28 GMT
 
 ---
 
@@ -100,6 +100,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Prompt Engineering | Long Context Tips](./developer-build-with-claude-prompt-engineering-long-context-tips.md)
 - [Prompt Engineering | Extended Thinking Tips](./developer-build-with-claude-prompt-engineering-extended-thinking-tips.md)
 - [Administration Api](./developer-build-with-claude-administration-api.md)
+- [Workspaces](./developer-build-with-claude-workspaces.md)
 - [Usage Cost Api](./developer-build-with-claude-usage-cost-api.md)
 - [Claude Code Analytics Api](./developer-build-with-claude-claude-code-analytics-api.md)
 

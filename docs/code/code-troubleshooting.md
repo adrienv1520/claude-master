@@ -182,7 +182,7 @@ On Windows, `~` refers to your user home directory, such as `C:\Users\YourName`.
 
 * macOS: `/Library/Application Support/ClaudeCode/`
 * Linux/WSL: `/etc/claude-code/`
-* Windows: `C:\ProgramData\ClaudeCode\`
+* Windows: `C:\Program Files\ClaudeCode\`
 
 For details on configuring these files, see [Settings](./code-settings.md) and [MCP](./code-mcp.md).
 

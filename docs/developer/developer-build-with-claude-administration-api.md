@@ -100,6 +100,8 @@ curl --request DELETE "https://api.anthropic.com/v1/organizations/invites/{invit
 
 ### Workspaces
 
+For a comprehensive guide to workspaces, see [Workspaces](./developer-build-with-claude-workspaces.md).
+
 Create and manage [workspaces](https://platform.claude.com/docs/en/api/admin-api/workspaces/get-workspace.md) ([console](/settings/workspaces)) to organize your resources:
 
 <CodeGroup>

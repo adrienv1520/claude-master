@@ -1,5 +1,50 @@
 # Changelog
 
+## 🤖 v1.1.14 - 07/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/api/api-get-started.md`
+- Modified: `docs/api/api-rate-limits.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-data-usage.md`
+- Modified: `docs/code/code-mcp.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/code/code-troubleshooting.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-cost-tracking.md`
+- Modified: `docs/developer/developer-agent-sdk-skills.md`
+- Modified: `docs/developer/developer-agent-sdk-typescript-v2-preview.md`
+- Modified: `docs/developer/developer-agents-and-tools-agent-skills-overview.md`
+- Modified: `docs/developer/developer-agents-and-tools-agent-skills-quickstart.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-computer-use-tool.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-implement-tool-use.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-overview.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-tool-search-tool.md`
+- Modified: `docs/developer/developer-build-with-claude-administration-api.md`
+- Modified: `docs/developer/developer-build-with-claude-claude-in-microsoft-foundry.md`
+- Modified: `docs/developer/developer-build-with-claude-embeddings.md`
+- Modified: `docs/developer/developer-build-with-claude-extended-thinking.md`
+- Modified: `docs/developer/developer-build-with-claude-pdf-support.md`
+- Modified: `docs/developer/developer-build-with-claude-prompt-caching.md`
+- Modified: `docs/developer/developer-build-with-claude-prompt-engineering-claude-4-best-practices.md`
+- Modified: `docs/developer/developer-build-with-claude-prompt-engineering-extended-thinking-tips.md`
+- Modified: `docs/developer/developer-build-with-claude-usage-cost-api.md`
+- Modified: `docs/developer/developer-build-with-claude-vision.md`
+- Modified: `docs/developer/developer-intro.md`
+- Modified: `docs/developer/developer-test-and-evaluate-develop-tests.md`
+- Modified: `docs/resources/resources-README.md`
+- Modified: `docs/resources/resources-about-claude-use-case-guides-content-moderation.md`
+- Modified: `docs/resources/resources-about-claude-use-case-guides-customer-support-chat.md`
+- Modified: `docs/resources/resources-about-claude-use-case-guides-legal-summarization.md`
+- Modified: `docs/resources/resources-about-claude-use-case-guides-ticket-routing.md`
+- Modified: `docs/resources/resources-overview.md`
+- Added: `docs/developer/developer-build-with-claude-workspaces.md`
+
+
 ## 🤖 v1.1.13 - 06/01/2026
 
 File Changes:
