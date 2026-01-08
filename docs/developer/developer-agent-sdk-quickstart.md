@@ -311,7 +311,7 @@ With `Bash` enabled, try: `"Write unit tests for utils.py, run them, and fix any
 | `bypassPermissions` | Runs without prompts | CI/CD pipelines, automation |
 | `default` | Requires a `canUseTool` callback to handle approval | Custom approval flows |
 
-The example above uses `acceptEdits` mode, which auto-approves file operations so the agent can run without interactive prompts. If you want to prompt users for approval, use `default` mode and provide a [`canUseTool` callback](./developer-agent-sdk-permissions.md#canusetool) that collects user input. For more control, see [Permissions](./developer-agent-sdk-permissions.md).
+The example above uses `acceptEdits` mode, which auto-approves file operations so the agent can run without interactive prompts. If you want to prompt users for approval, use `default` mode and provide a [`canUseTool` callback](./developer-agent-sdk-user-input.md) that collects user input. For more control, see [Permissions](./developer-agent-sdk-permissions.md).
 
 ## Next steps
 

@@ -7,7 +7,7 @@ Complete API reference for the TypeScript Agent SDK, including all functions, ty
 <script src="/components/typescript-sdk-type-links.js" defer />
 
 <Note>
-**Try the new V2 interface (preview):** A simplified interface with `send()` and `receive()` patterns is now available, making multi-turn conversations easier. [Learn more](./developer-agent-sdk-typescript-v2-preview.md)
+**Try the new V2 interface (preview):** A simplified interface with `send()` and `receive()` patterns is now available, making multi-turn conversations easier. [Learn more about the TypeScript V2 preview](./developer-agent-sdk-typescript-v2-preview.md)
 </Note>
 
 ## Installation
@@ -916,7 +916,7 @@ interface AskUserQuestionInput {
 }
 ```
 
-Asks the user clarifying questions during execution. See [Handling the AskUserQuestion Tool](./developer-agent-sdk-permissions.md#handling-the-askuserquestion-tool) for usage details.
+Asks the user clarifying questions during execution. See [Handle approvals and user input](./developer-agent-sdk-user-input.md#handle-clarifying-questions) for usage details.
 
 ### Bash
 

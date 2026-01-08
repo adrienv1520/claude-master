@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Wed, 07 Jan 2026 01:20:28 GMT
+**Last updated:** Thu, 08 Jan 2026 01:21:02 GMT
 
 ---
 
@@ -25,6 +25,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Migration Guide](./developer-agent-sdk-migration-guide.md)
 - [Streaming Vs Single Mode](./developer-agent-sdk-streaming-vs-single-mode.md)
 - [Permissions](./developer-agent-sdk-permissions.md)
+- [User Input](./developer-agent-sdk-user-input.md)
 - [Hooks](./developer-agent-sdk-hooks.md)
 - [Sessions](./developer-agent-sdk-sessions.md)
 - [File Checkpointing](./developer-agent-sdk-file-checkpointing.md)

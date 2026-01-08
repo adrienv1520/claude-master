@@ -1,5 +1,38 @@
 # Changelog
 
+## 🤖 v1.1.16 - 08/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-claude-code-on-the-web.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-common-workflows.md`
+- Modified: `docs/code/code-discover-plugins.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-mcp.md`
+- Modified: `docs/code/code-memory.md`
+- Modified: `docs/code/code-plugin-marketplaces.md`
+- Modified: `docs/code/code-plugins-reference.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-security.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-slash-commands.md`
+- Modified: `docs/code/code-terminal-config.md`
+- Modified: `docs/code/code-troubleshooting.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-overview.md`
+- Modified: `docs/developer/developer-agent-sdk-permissions.md`
+- Modified: `docs/developer/developer-agent-sdk-python.md`
+- Modified: `docs/developer/developer-agent-sdk-quickstart.md`
+- Modified: `docs/developer/developer-agent-sdk-typescript.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-implement-tool-use.md`
+- Added: `docs/developer/developer-agent-sdk-user-input.md`
+
+
 ## 🤖 v1.1.15 - 07/01/2026
 
 File Changes:
