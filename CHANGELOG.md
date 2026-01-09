@@ -1,5 +1,29 @@
 # Changelog
 
+## 🤖 v1.1.18 - 09/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/api/api-overview.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-overview.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-slash-commands.md`
+- Modified: `docs/code/code-sub-agents.md`
+- Modified: `docs/code/code-third-party-integrations.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-overview.md`
+- Modified: `docs/developer/developer-agent-sdk-quickstart.md`
+- Modified: `docs/resources/resources-README.md`
+- Modified: `docs/resources/resources-about-claude-glossary.md`
+
+
 ## 🤖 v1.1.17 - 08/01/2026
 
 File Changes:
