@@ -1,5 +1,19 @@
 # Changelog
 
+## 🤖 v1.1.19 - 10/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-sub-agents.md`
+- Modified: `docs/code/code-third-party-integrations.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-hosting.md`
+
+
 ## 🤖 v1.1.18 - 09/01/2026
 
 File Changes:
