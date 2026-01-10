@@ -1,5 +1,15 @@
 # Changelog
 
+## 🤖 v1.1.20 - 10/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-plugins-reference.md`
+
+
 ## 🤖 v1.1.19 - 10/01/2026
 
 File Changes:
