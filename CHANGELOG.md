@@ -1,5 +1,23 @@
 # Changelog
 
+## 🤖 v1.1.21 - 11/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-discover-plugins.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-memory.md`
+- Modified: `docs/code/code-overview.md`
+- Modified: `docs/code/code-plugin-marketplaces.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/code/code-sub-agents.md`
+
+
 ## 🤖 v1.1.20 - 10/01/2026
 
 File Changes:
