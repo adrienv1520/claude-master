@@ -1,5 +1,18 @@
 # Changelog
 
+## 🤖 v1.1.22 - 12/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-desktop.md`
+- Modified: `docs/code/code-interactive-mode.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-slash-commands.md`
+- Modified: `docs/code/code-sub-agents.md`
+
+
 ## 🤖 v1.1.21 - 11/01/2026
 
 File Changes:
