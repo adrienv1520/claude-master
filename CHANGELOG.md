@@ -1,5 +1,21 @@
 # Changelog
 
+## 🤖 v1.1.23 - 13/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-gitlab-ci-cd.md`
+- Modified: `docs/code/code-overview.md`
+- Modified: `docs/code/code-plugin-marketplaces.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-overview.md`
+- Modified: `docs/developer/developer-agent-sdk-quickstart.md`
+
+
 ## 🤖 v1.1.22 - 12/01/2026
 
 File Changes:
