@@ -1,5 +1,18 @@
 # Changelog
 
+## 🤖 v1.1.24 - 14/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-common-workflows.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-computer-use-tool.md`
+
+
 ## 🤖 v1.1.23 - 13/01/2026
 
 File Changes:
