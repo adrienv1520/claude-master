@@ -1,5 +1,20 @@
 # Changelog
 
+## 🤖 v1.1.25 - 16/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-claude-code-on-the-web.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-migration-guide.md`
+- Modified: `docs/developer/developer-agent-sdk-modifying-system-prompts.md`
+- Modified: `docs/developer/developer-agent-sdk-structured-outputs.md`
+- Modified: `docs/developer/developer-agent-sdk-subagents.md`
+- Modified: `docs/developer/developer-agent-sdk-typescript.md`
+
+
 ## 🤖 v1.1.24 - 14/01/2026
 
 File Changes:
