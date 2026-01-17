@@ -216,7 +216,7 @@ For implementation details and source code, visit the [GitHub repository](https:
 * [Security](./code-security.md) - Comprehensive security features and best practices
 * [IAM](./code-iam.md) - Permission configuration and access control
 * [Settings](./code-settings.md) - Complete configuration reference
-* [CLI reference](./code-cli-reference.md) - Command-line options including `-sb`
+* [CLI reference](./code-cli-reference.md) - Command-line options
 
 
 ---

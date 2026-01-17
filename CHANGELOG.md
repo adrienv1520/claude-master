@@ -1,5 +1,34 @@
 # Changelog
 
+## 🤖 v1.1.26 - 17/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-common-workflows.md`
+- Modified: `docs/code/code-costs.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-mcp.md`
+- Modified: `docs/code/code-overview.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-sandboxing.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-slash-commands.md`
+- Modified: `docs/code/code-statusline.md`
+- Modified: `docs/code/code-sub-agents.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-hooks.md`
+- Modified: `docs/developer/developer-agent-sdk-mcp.md`
+- Modified: `docs/developer/developer-agent-sdk-permissions.md`
+- Modified: `docs/developer/developer-agent-sdk-python.md`
+- Modified: `docs/developer/developer-agent-sdk-typescript.md`
+
+
 ## 🤖 v1.1.25 - 16/01/2026
 
 File Changes:
