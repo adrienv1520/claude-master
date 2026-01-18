@@ -1,5 +1,15 @@
 # Changelog
 
+## 🤖 v1.1.27 - 18/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-permissions.md`
+- Modified: `docs/developer/developer-agent-sdk-user-input.md`
+
+
 ## 🤖 v1.1.26 - 17/01/2026
 
 File Changes:
