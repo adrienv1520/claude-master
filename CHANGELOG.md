@@ -1,5 +1,17 @@
 # Changelog
 
+## 🤖 v1.1.28 - 19/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-headless.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-settings.md`
+
+
 ## 🤖 v1.1.27 - 18/01/2026
 
 File Changes:
