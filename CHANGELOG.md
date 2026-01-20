@@ -1,5 +1,19 @@
 # Changelog
 
+## 🤖 v1.1.29 - 20/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-common-workflows.md`
+- Modified: `docs/code/code-interactive-mode.md`
+- Modified: `docs/code/code-mcp.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-slash-commands.md`
+- Modified: `docs/code/code-troubleshooting.md`
+
+
 ## 🤖 v1.1.28 - 19/01/2026
 
 File Changes:
