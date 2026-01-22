@@ -1,5 +1,52 @@
 # Changelog
 
+## 🤖 v1.1.30 - 22/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-amazon-bedrock.md`
+- Modified: `docs/code/code-checkpointing.md`
+- Modified: `docs/code/code-chrome.md`
+- Modified: `docs/code/code-claude-code-on-the-web.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-common-workflows.md`
+- Modified: `docs/code/code-costs.md`
+- Modified: `docs/code/code-desktop.md`
+- Modified: `docs/code/code-discover-plugins.md`
+- Modified: `docs/code/code-github-actions.md`
+- Modified: `docs/code/code-headless.md`
+- Modified: `docs/code/code-hooks-guide.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-interactive-mode.md`
+- Modified: `docs/code/code-mcp.md`
+- Modified: `docs/code/code-memory.md`
+- Modified: `docs/code/code-output-styles.md`
+- Modified: `docs/code/code-plugin-marketplaces.md`
+- Modified: `docs/code/code-plugins-reference.md`
+- Modified: `docs/code/code-plugins.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-sandboxing.md`
+- Modified: `docs/code/code-security.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/code/code-skills.md`
+- Deleted: `docs/code/code-slash-commands.md`
+- Modified: `docs/code/code-sub-agents.md`
+- Modified: `docs/code/code-troubleshooting.md`
+- Modified: `docs/code/code-vs-code.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-agent-sdk-modifying-system-prompts.md`
+- Modified: `docs/developer/developer-agent-sdk-python.md`
+- Modified: `docs/developer/developer-agents-and-tools-tool-use-tool-search-tool.md`
+- Modified: `docs/developer/developer-build-with-claude-context-editing.md`
+- Added: `docs/code/code-best-practices.md`
+- Added: `docs/code/code-features-overview.md`
+- Added: `docs/code/code-how-claude-code-works.md`
+
+
 ## 🤖 v1.1.29 - 20/01/2026
 
 File Changes:

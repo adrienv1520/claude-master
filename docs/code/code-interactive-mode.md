@@ -72,11 +72,50 @@
 
 ### Quick commands
 
-| Shortcut     | Description       | Notes                                                         |
-| :----------- | :---------------- | :------------------------------------------------------------ |
-| `/` at start | Slash command     | See [slash commands](./code-slash-commands.md)                      |
-| `!` at start | Bash mode         | Run commands directly and add execution output to the session |
-| `@`          | File path mention | Trigger file path autocomplete                                |
+| Shortcut     | Description       | Notes                                                                |
+| :----------- | :---------------- | :------------------------------------------------------------------- |
+| `/` at start | Command or skill  | See [built-in commands](#built-in-commands) and [skills](./code-skills.md) |
+| `!` at start | Bash mode         | Run commands directly and add execution output to the session        |
+| `@`          | File path mention | Trigger file path autocomplete                                       |
+
+## Built-in commands
+
+Built-in commands are shortcuts for common actions. The table below covers commonly used commands but not all available options. Type `/` in Claude Code to see the full list, or type `/` followed by any letters to filter.
+
+To create your own commands you can invoke with `/`, see [skills](./code-skills.md).
+
+| Command                   | Purpose                                                                                                                     |
+| :------------------------ | :-------------------------------------------------------------------------------------------------------------------------- |
+| `/clear`                  | Clear conversation history                                                                                                  |
+| `/compact [instructions]` | Compact conversation with optional focus instructions                                                                       |
+| `/config`                 | Open the Settings interface (Config tab)                                                                                    |
+| `/context`                | Visualize current context usage as a colored grid                                                                           |
+| `/cost`                   | Show token usage statistics. See [cost tracking guide](./code-costs.md#using-the-cost-command) for subscription-specific details. |
+| `/doctor`                 | Checks the health of your Claude Code installation                                                                          |
+| `/exit`                   | Exit the REPL                                                                                                               |
+| `/export [filename]`      | Export the current conversation to a file or clipboard                                                                      |
+| `/help`                   | Get usage help                                                                                                              |
+| `/init`                   | Initialize project with `CLAUDE.md` guide                                                                                   |
+| `/mcp`                    | Manage MCP server connections and OAuth authentication                                                                      |
+| `/memory`                 | Edit `CLAUDE.md` memory files                                                                                               |
+| `/model`                  | Select or change the AI model                                                                                               |
+| `/permissions`            | View or update [permissions](./code-iam.md#configuring-permissions)                                                               |
+| `/plan`                   | Enter plan mode directly from the prompt                                                                                    |
+| `/rename <name>`          | Rename the current session for easier identification                                                                        |
+| `/resume [session]`       | Resume a conversation by ID or name, or open the session picker                                                             |
+| `/rewind`                 | Rewind the conversation and/or code                                                                                         |
+| `/stats`                  | Visualize daily usage, session history, streaks, and model preferences                                                      |
+| `/status`                 | Open the Settings interface (Status tab) showing version, model, account, and connectivity                                  |
+| `/statusline`             | Set up Claude Code's status line UI                                                                                         |
+| `/tasks`                  | List and manage background tasks                                                                                            |
+| `/teleport`               | Resume a remote session from claude.ai (subscribers only)                                                                   |
+| `/theme`                  | Change the color theme                                                                                                      |
+| `/todos`                  | List current TODO items                                                                                                     |
+| `/usage`                  | For subscription plans only: show plan usage limits and rate limit status                                                   |
+
+### MCP prompts
+
+MCP servers can expose prompts that appear as commands. These use the format `/mcp__<server>__<prompt>` and are dynamically discovered from connected servers. See [MCP prompts](./code-mcp.md#use-mcp-prompts-as-commands) for details.
 
 ## Vim editor mode
 
@@ -218,12 +257,13 @@ Bash mode:
 * Shows real-time progress and output
 * Supports the same `Ctrl+B` backgrounding for long-running commands
 * Does not require Claude to interpret or approve the command
+* Supports history-based autocomplete: type a partial command and press **Tab** to complete from previous `!` commands in the current project
 
 This is useful for quick shell operations while maintaining conversation context.
 
 ## See also
 
-* [Slash commands](./code-slash-commands.md) - Interactive session commands
+* [Skills](./code-skills.md) - Custom prompts and workflows
 * [Checkpointing](./code-checkpointing.md) - Rewind Claude's edits and restore previous states
 * [CLI reference](./code-cli-reference.md) - Command-line flags and options
 * [Settings](./code-settings.md) - Configuration options

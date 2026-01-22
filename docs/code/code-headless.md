@@ -94,7 +94,7 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 The `--allowedTools` flag uses [permission rule syntax](./code-settings.md#permission-rule-syntax). The `:*` suffix enables prefix matching, so `Bash(git diff:*)` allows any command starting with `git diff`.
 
 <Note>
-  [Slash commands](./code-slash-commands.md) like `/commit` are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
+  User-invoked [skills](./code-skills.md) like `/commit` and [built-in commands](./code-interactive-mode.md#built-in-commands) are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
 </Note>
 
 ### Customize the system prompt

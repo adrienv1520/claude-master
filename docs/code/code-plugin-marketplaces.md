@@ -19,21 +19,26 @@ Once your marketplace is live, you can update it by pushing changes to your repo
 
 ## Walkthrough: create a local marketplace
 
-This example creates a marketplace with one plugin: a `/review` command for code reviews. You'll create the directory structure, add a slash command, create the plugin manifest and marketplace catalog, then install and test it.
+This example creates a marketplace with one plugin: a `/review` skill for code reviews. You'll create the directory structure, add a skill, create the plugin manifest and marketplace catalog, then install and test it.
 
 <Steps>
   <Step title="Create the directory structure">
     ```bash  theme={null}
     mkdir -p my-marketplace/.claude-plugin
     mkdir -p my-marketplace/plugins/review-plugin/.claude-plugin
-    mkdir -p my-marketplace/plugins/review-plugin/commands
+    mkdir -p my-marketplace/plugins/review-plugin/skills/review
     ```
   </Step>
 
-  <Step title="Create the plugin command">
-    Create a Markdown file that defines what the `/review` command does.
+  <Step title="Create the skill">
+    Create a `SKILL.md` file that defines what the `/review` skill does.
 
-    ```markdown my-marketplace/plugins/review-plugin/commands/review.md theme={null}
+    ```markdown my-marketplace/plugins/review-plugin/skills/review/SKILL.md theme={null}
+    ---
+    description: Review code for bugs, security, and performance
+    disable-model-invocation: true
+    ---
+
     Review the code I've selected or the recent changes for:
     - Potential bugs or edge cases
     - Security concerns
@@ -50,7 +55,7 @@ This example creates a marketplace with one plugin: a `/review` command for code
     ```json my-marketplace/plugins/review-plugin/.claude-plugin/plugin.json theme={null}
     {
       "name": "review-plugin",
-      "description": "Adds a /review command for quick code reviews",
+      "description": "Adds a /review skill for quick code reviews",
       "version": "1.0.0"
     }
     ```
@@ -69,7 +74,7 @@ This example creates a marketplace with one plugin: a `/review` command for code
         {
           "name": "review-plugin",
           "source": "./plugins/review-plugin",
-          "description": "Adds a /review command for quick code reviews"
+          "description": "Adds a /review skill for quick code reviews"
         }
       ]
     }
@@ -233,6 +238,26 @@ For plugins in the same repository:
 }
 ```
 
+You can pin to a specific branch, tag, or commit:
+
+```json  theme={null}
+{
+  "name": "github-plugin",
+  "source": {
+    "source": "github",
+    "repo": "owner/plugin-repo",
+    "ref": "v2.0.0",
+    "sha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+  }
+}
+```
+
+| Field  | Type   | Description                                                           |
+| :----- | :----- | :-------------------------------------------------------------------- |
+| `repo` | string | Required. GitHub repository in `owner/repo` format                    |
+| `ref`  | string | Optional. Git branch or tag (defaults to repository default branch)   |
+| `sha`  | string | Optional. Full 40-character git commit SHA to pin to an exact version |
+
 ### Git repositories
 
 ```json  theme={null}
@@ -244,6 +269,26 @@ For plugins in the same repository:
   }
 }
 ```
+
+You can pin to a specific branch, tag, or commit:
+
+```json  theme={null}
+{
+  "name": "git-plugin",
+  "source": {
+    "source": "url",
+    "url": "https://gitlab.com/team/plugin.git",
+    "ref": "main",
+    "sha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+  }
+}
+```
+
+| Field | Type   | Description                                                           |
+| :---- | :----- | :-------------------------------------------------------------------- |
+| `url` | string | Required. Full git repository URL (must end with `.git`)              |
+| `ref` | string | Optional. Git branch or tag (defaults to repository default branch)   |
+| `sha` | string | Optional. Full 40-character git commit SHA to pin to an exact version |
 
 ### Advanced plugin entries
 
@@ -438,7 +483,7 @@ The allowlist uses exact matching. For a marketplace to be allowed, all specifie
 * For GitHub sources: `repo` is required, and `ref` or `path` must also match if specified in the allowlist
 * For URL sources: the full URL must match exactly
 
-Because `strictKnownMarketplaces` is set in [managed settings](./code-settings.md#settings-file-locations), individual users and project configurations cannot override these restrictions.
+Because `strictKnownMarketplaces` is set in [managed settings](./code-settings.md#settings-files), individual users and project configurations cannot override these restrictions.
 
 For complete configuration details including all supported source types and comparison with `extraKnownMarketplaces`, see the [strictKnownMarketplaces reference](./code-settings.md#strictknownmarketplaces).
 
