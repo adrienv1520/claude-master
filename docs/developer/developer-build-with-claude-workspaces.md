@@ -177,6 +177,10 @@ Resources scoped to workspaces include:
 - **Message Batches** created via the [Batch API](./developer-build-with-claude-batch-processing.md)
 - **Skills** created via the [Skills API](./developer-build-with-claude-skills-guide.md)
 
+<Note>
+Starting February 5, 2026, [prompt caches](./developer-build-with-claude-prompt-caching.md) will also be isolated per workspace (applies to the Claude API and Azure only).
+</Note>
+
 <Tip>
 To retrieve your organization's workspace IDs, use the [List Workspaces](https://platform.claude.com/docs/en/api/admin-api/workspaces/list-workspaces.md) endpoint, or find them in the [Claude Console](/settings/workspaces).
 </Tip>
