@@ -316,7 +316,7 @@ Tell Claude to use subagents explicitly: *"Use a subagent to review this code fo
   Run `/plugin` to browse the marketplace. Plugins add skills, tools, and integrations without configuration.
 </Tip>
 
-[Plugins](./code-plugins.md) bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic.
+[Plugins](./code-plugins.md) bundle skills, hooks, subagents, and MCP servers into a single installable unit from the community and Anthropic. If you work with a typed language, install a [code intelligence plugin](./code-discover-plugins.md#code-intelligence) to give Claude precise symbol navigation and automatic error detection after edits.
 
 For guidance on choosing between skills, subagents, hooks, and MCP, see [Extend Claude Code](./code-features-overview.md#match-features-to-your-goal).
 
