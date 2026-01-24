@@ -1,3 +1,7 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
+> Use this file to discover all available pages before exploring further.
+
 # Sandboxing
 
 > Learn how Claude Code's sandboxed bash tool provides filesystem and network isolation for safer, more autonomous agent execution.
@@ -240,8 +244,3 @@ For implementation details and source code, visit the [GitHub repository](https:
 * [IAM](./code-iam.md) - Permission configuration and access control
 * [Settings](./code-settings.md) - Complete configuration reference
 * [CLI reference](./code-cli-reference.md) - Command-line options
-
-
----
-
-> To find navigation and other pages in this documentation, fetch the llms.txt file at: https://code.claude.com/docs/llms.txt

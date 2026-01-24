@@ -1,3 +1,7 @@
+> ## Documentation Index
+> Fetch the complete documentation index at: https://code.claude.com/docs/llms.txt
+> Use this file to discover all available pages before exploring further.
+
 # Extend Claude with skills
 
 > Create, manage, and share skills to extend Claude's capabilities in Claude Code. Includes custom slash commands.
@@ -638,8 +642,3 @@ To increase the limit, set the `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment vari
 * **[Memory](./code-memory.md)**: manage CLAUDE.md files for persistent context
 * **[Interactive mode](./code-interactive-mode.md#built-in-commands)**: built-in commands and shortcuts
 * **[Permissions](./code-iam.md)**: control tool and skill access
-
-
----
-
-> To find navigation and other pages in this documentation, fetch the llms.txt file at: https://code.claude.com/docs/llms.txt

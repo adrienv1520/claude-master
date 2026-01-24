@@ -1,5 +1,109 @@
 # Changelog
 
+## 🤖 v1.1.34 - 24/01/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/api/api-kotlin-beta-files-delete.md`
+- Modified: `docs/api/api-kotlin-beta-files-download.md`
+- Modified: `docs/api/api-kotlin-beta-files-list.md`
+- Modified: `docs/api/api-kotlin-beta-files-retrieve_metadata.md`
+- Modified: `docs/api/api-kotlin-beta-files-upload.md`
+- Modified: `docs/api/api-kotlin-beta-files.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-cancel.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-create.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-delete.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-list.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-results.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches.md`
+- Modified: `docs/api/api-kotlin-beta-messages-count_tokens.md`
+- Modified: `docs/api/api-kotlin-beta-messages-create.md`
+- Modified: `docs/api/api-kotlin-beta-messages.md`
+- Modified: `docs/api/api-kotlin-beta-models-list.md`
+- Modified: `docs/api/api-kotlin-beta-models-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-models.md`
+- Modified: `docs/api/api-kotlin-beta-skills-create.md`
+- Modified: `docs/api/api-kotlin-beta-skills-delete.md`
+- Modified: `docs/api/api-kotlin-beta-skills-list.md`
+- Modified: `docs/api/api-kotlin-beta-skills-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-create.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-delete.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-list.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions.md`
+- Modified: `docs/api/api-kotlin-beta-skills.md`
+- Modified: `docs/api/api-kotlin-beta.md`
+- Modified: `docs/api/api-kotlin-completions-create.md`
+- Modified: `docs/api/api-kotlin-completions.md`
+- Modified: `docs/api/api-kotlin-messages-batches-cancel.md`
+- Modified: `docs/api/api-kotlin-messages-batches-create.md`
+- Modified: `docs/api/api-kotlin-messages-batches-delete.md`
+- Modified: `docs/api/api-kotlin-messages-batches-list.md`
+- Modified: `docs/api/api-kotlin-messages-batches-results.md`
+- Modified: `docs/api/api-kotlin-messages-batches-retrieve.md`
+- Modified: `docs/api/api-kotlin-messages-batches.md`
+- Modified: `docs/api/api-kotlin-messages-count_tokens.md`
+- Modified: `docs/api/api-kotlin-messages-create.md`
+- Modified: `docs/api/api-kotlin-messages.md`
+- Modified: `docs/api/api-kotlin-models-list.md`
+- Modified: `docs/api/api-kotlin-models-retrieve.md`
+- Modified: `docs/api/api-kotlin-models.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-amazon-bedrock.md`
+- Modified: `docs/code/code-analytics.md`
+- Modified: `docs/code/code-best-practices.md`
+- Modified: `docs/code/code-checkpointing.md`
+- Modified: `docs/code/code-chrome.md`
+- Modified: `docs/code/code-claude-code-on-the-web.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-common-workflows.md`
+- Modified: `docs/code/code-costs.md`
+- Modified: `docs/code/code-data-usage.md`
+- Modified: `docs/code/code-desktop.md`
+- Modified: `docs/code/code-devcontainer.md`
+- Modified: `docs/code/code-discover-plugins.md`
+- Modified: `docs/code/code-features-overview.md`
+- Modified: `docs/code/code-github-actions.md`
+- Modified: `docs/code/code-gitlab-ci-cd.md`
+- Modified: `docs/code/code-google-vertex-ai.md`
+- Modified: `docs/code/code-headless.md`
+- Modified: `docs/code/code-hooks-guide.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-how-claude-code-works.md`
+- Modified: `docs/code/code-iam.md`
+- Modified: `docs/code/code-interactive-mode.md`
+- Modified: `docs/code/code-jetbrains.md`
+- Modified: `docs/code/code-legal-and-compliance.md`
+- Modified: `docs/code/code-llm-gateway.md`
+- Modified: `docs/code/code-mcp.md`
+- Modified: `docs/code/code-memory.md`
+- Modified: `docs/code/code-microsoft-foundry.md`
+- Modified: `docs/code/code-model-config.md`
+- Modified: `docs/code/code-monitoring-usage.md`
+- Modified: `docs/code/code-network-config.md`
+- Modified: `docs/code/code-output-styles.md`
+- Modified: `docs/code/code-overview.md`
+- Modified: `docs/code/code-plugin-marketplaces.md`
+- Modified: `docs/code/code-plugins-reference.md`
+- Modified: `docs/code/code-plugins.md`
+- Modified: `docs/code/code-quickstart.md`
+- Modified: `docs/code/code-sandboxing.md`
+- Modified: `docs/code/code-security.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-setup.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-slack.md`
+- Modified: `docs/code/code-statusline.md`
+- Modified: `docs/code/code-sub-agents.md`
+- Modified: `docs/code/code-terminal-config.md`
+- Modified: `docs/code/code-third-party-integrations.md`
+- Modified: `docs/code/code-troubleshooting.md`
+- Modified: `docs/code/code-vs-code.md`
+
+
 ## 🤖 v1.1.33 - 24/01/2026
 
 File Changes:
