@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Fri, 23 Jan 2026 12:38:19 GMT
+**Last updated:** Wed, 28 Jan 2026 01:22:13 GMT
 
 ---
 
@@ -59,6 +59,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Agent Skills | Overview](./developer-agents-and-tools-agent-skills-overview.md)
 - [Agent Skills | Quickstart](./developer-agents-and-tools-agent-skills-quickstart.md)
 - [Agent Skills | Best Practices](./developer-agents-and-tools-agent-skills-best-practices.md)
+- [Agent Skills | Enterprise](./developer-agents-and-tools-agent-skills-enterprise.md)
 - [Mcp Connector](./developer-agents-and-tools-mcp-connector.md)
 - [Remote Mcp Servers](./developer-agents-and-tools-remote-mcp-servers.md)
 
