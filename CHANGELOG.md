@@ -1,5 +1,58 @@
 # Changelog
 
+## 🤖 v1.1.48 - 02/02/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/api/api-kotlin-beta-files-delete.md`
+- Modified: `docs/api/api-kotlin-beta-files-download.md`
+- Modified: `docs/api/api-kotlin-beta-files-list.md`
+- Modified: `docs/api/api-kotlin-beta-files-retrieve_metadata.md`
+- Modified: `docs/api/api-kotlin-beta-files-upload.md`
+- Modified: `docs/api/api-kotlin-beta-files.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-cancel.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-create.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-delete.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-list.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-results.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches.md`
+- Modified: `docs/api/api-kotlin-beta-messages-count_tokens.md`
+- Modified: `docs/api/api-kotlin-beta-messages-create.md`
+- Modified: `docs/api/api-kotlin-beta-messages.md`
+- Modified: `docs/api/api-kotlin-beta-models-list.md`
+- Modified: `docs/api/api-kotlin-beta-models-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-models.md`
+- Modified: `docs/api/api-kotlin-beta-skills-create.md`
+- Modified: `docs/api/api-kotlin-beta-skills-delete.md`
+- Modified: `docs/api/api-kotlin-beta-skills-list.md`
+- Modified: `docs/api/api-kotlin-beta-skills-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-create.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-delete.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-list.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions.md`
+- Modified: `docs/api/api-kotlin-beta-skills.md`
+- Modified: `docs/api/api-kotlin-beta.md`
+- Modified: `docs/api/api-kotlin-completions-create.md`
+- Modified: `docs/api/api-kotlin-completions.md`
+- Modified: `docs/api/api-kotlin-messages-batches-cancel.md`
+- Modified: `docs/api/api-kotlin-messages-batches-create.md`
+- Modified: `docs/api/api-kotlin-messages-batches-delete.md`
+- Modified: `docs/api/api-kotlin-messages-batches-list.md`
+- Modified: `docs/api/api-kotlin-messages-batches-results.md`
+- Modified: `docs/api/api-kotlin-messages-batches-retrieve.md`
+- Modified: `docs/api/api-kotlin-messages-batches.md`
+- Modified: `docs/api/api-kotlin-messages-count_tokens.md`
+- Modified: `docs/api/api-kotlin-messages-create.md`
+- Modified: `docs/api/api-kotlin-messages.md`
+- Modified: `docs/api/api-kotlin-models-list.md`
+- Modified: `docs/api/api-kotlin-models-retrieve.md`
+- Modified: `docs/api/api-kotlin-models.md`
+
+
 ## 🤖 v1.1.47 - 02/02/2026
 
 File Changes:
