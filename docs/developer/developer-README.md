@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Sat, 31 Jan 2026 12:37:57 GMT
+**Last updated:** Wed, 04 Feb 2026 01:43:52 GMT
 
 ---
 
@@ -106,6 +106,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Workspaces](./developer-build-with-claude-workspaces.md)
 - [Usage Cost Api](./developer-build-with-claude-usage-cost-api.md)
 - [Claude Code Analytics Api](./developer-build-with-claude-claude-code-analytics-api.md)
+- [Zero Data Retention](./developer-build-with-claude-zero-data-retention.md)
 
 ## Intro
 

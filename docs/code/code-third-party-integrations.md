@@ -109,8 +109,8 @@ If your organization has specific infrastructure requirements, compare the optio
 
 Select a deployment option to view setup instructions:
 
-* [Claude for Teams or Enterprise](./code-iam.md#claude-for-teams-or-enterprise-recommended)
-* [Anthropic Console](./code-iam.md#claude-console-authentication)
+* [Claude for Teams or Enterprise](./code-authentication.md#claude-for-teams-or-enterprise)
+* [Anthropic Console](./code-authentication.md#claude-console-authentication)
 * [Amazon Bedrock](./code-amazon-bedrock.md)
 * [Google Vertex AI](./code-google-vertex-ai.md)
 * [Microsoft Foundry](./code-microsoft-foundry.md)

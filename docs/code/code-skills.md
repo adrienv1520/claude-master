@@ -76,12 +76,12 @@ This example creates a skill that teaches Claude to explain code using visual di
 
 Where you store a skill determines who can use it:
 
-| Location   | Path                                             | Applies to                     |
-| :--------- | :----------------------------------------------- | :----------------------------- |
-| Enterprise | See [managed settings](./code-iam.md#managed-settings) | All users in your organization |
-| Personal   | `~/.claude/skills/<skill-name>/SKILL.md`         | All your projects              |
-| Project    | `.claude/skills/<skill-name>/SKILL.md`           | This project only              |
-| Plugin     | `<plugin>/skills/<skill-name>/SKILL.md`          | Where plugin is enabled        |
+| Location   | Path                                                     | Applies to                     |
+| :--------- | :------------------------------------------------------- | :----------------------------- |
+| Enterprise | See [managed settings](./code-permissions.md#managed-settings) | All users in your organization |
+| Personal   | `~/.claude/skills/<skill-name>/SKILL.md`                 | All your projects              |
+| Project    | `.claude/skills/<skill-name>/SKILL.md`                   | This project only              |
+| Plugin     | `<plugin>/skills/<skill-name>/SKILL.md`                  | Where plugin is enabled        |
 
 When skills share the same name across levels, higher-priority locations win: enterprise > personal > project. Plugin skills use a `plugin-name:skill-name` namespace, so they cannot conflict with other levels. If you have files in `.claude/commands/`, those work the same way, but if a skill and a command share the same name, the skill takes precedence.
 
@@ -409,7 +409,7 @@ The `agent` field specifies which subagent configuration to use. Options include
 
 ### Restrict Claude's skill access
 
-By default, Claude can invoke any skill that doesn't have `disable-model-invocation: true` set. Skills that define `allowed-tools` grant Claude access to those tools without per-use approval when the skill is active. Your [permission settings](./code-iam.md) still govern baseline approval behavior for all other tools. Built-in commands like `/compact` and `/init` are not available through the Skill tool.
+By default, Claude can invoke any skill that doesn't have `disable-model-invocation: true` set. Skills that define `allowed-tools` grant Claude access to those tools without per-use approval when the skill is active. Your [permission settings](./code-permissions.md) still govern baseline approval behavior for all other tools. Built-in commands like `/compact` and `/init` are not available through the Skill tool.
 
 Three ways to control which skills Claude can invoke:
 
@@ -420,7 +420,7 @@ Three ways to control which skills Claude can invoke:
 Skill
 ```
 
-**Allow or deny specific skills** using [permission rules](./code-iam.md):
+**Allow or deny specific skills** using [permission rules](./code-permissions.md):
 
 ```
 # Allow only specific skills
@@ -445,7 +445,7 @@ Skills can be distributed at different scopes depending on your audience:
 
 * **Project skills**: Commit `.claude/skills/` to version control
 * **Plugins**: Create a `skills/` directory in your [plugin](./code-plugins.md)
-* **Managed**: Deploy organization-wide through [managed settings](./code-iam.md#managed-settings)
+* **Managed**: Deploy organization-wide through [managed settings](./code-permissions.md#managed-settings)
 
 ### Generate visual output
 
@@ -667,4 +667,4 @@ To increase the limit, set the `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment vari
 * **[Hooks](./code-hooks.md)**: automate workflows around tool events
 * **[Memory](./code-memory.md)**: manage CLAUDE.md files for persistent context
 * **[Interactive mode](./code-interactive-mode.md#built-in-commands)**: built-in commands and shortcuts
-* **[Permissions](./code-iam.md)**: control tool and skill access
+* **[Permissions](./code-permissions.md)**: control tool and skill access

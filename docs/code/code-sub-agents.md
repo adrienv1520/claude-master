@@ -336,7 +336,7 @@ This works for both built-in and custom subagents. You can also use the `--disal
 claude --disallowedTools "Task(Explore)"
 ```
 
-See [IAM documentation](./code-iam.md#tool-specific-permission-rules) for more details on permission rules.
+See [Permissions documentation](./code-permissions.md#tool-specific-permission-rules) for more details on permission rules.
 
 ### Define hooks for subagents
 
