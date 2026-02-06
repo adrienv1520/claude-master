@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Thu, 05 Feb 2026 01:45:23 GMT
+**Last updated:** Fri, 06 Feb 2026 01:44:51 GMT
 
 ---
 
@@ -10,8 +10,8 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 
 - [Models | Overview](./developer-about-claude-models-overview.md)
 - [Models | Choosing A Model](./developer-about-claude-models-choosing-a-model.md)
-- [Models | Whats New Claude 4 5](./developer-about-claude-models-whats-new-claude-4-5.md)
-- [Models | Migrating To Claude 4](./developer-about-claude-models-migrating-to-claude-4.md)
+- [Models | Whats New Claude 4 6](./developer-about-claude-models-whats-new-claude-4-6.md)
+- [Models | Migration Guide](./developer-about-claude-models-migration-guide.md)
 - [Model Deprecations](./developer-about-claude-model-deprecations.md)
 - [Pricing](./developer-about-claude-pricing.md)
 
@@ -25,6 +25,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Migration Guide](./developer-agent-sdk-migration-guide.md)
 - [Streaming Vs Single Mode](./developer-agent-sdk-streaming-vs-single-mode.md)
 - [Streaming Output](./developer-agent-sdk-streaming-output.md)
+- [Stop Reasons](./developer-agent-sdk-stop-reasons.md)
 - [Permissions](./developer-agent-sdk-permissions.md)
 - [User Input](./developer-agent-sdk-user-input.md)
 - [Hooks](./developer-agent-sdk-hooks.md)
@@ -68,11 +69,14 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 
 - [Overview](./developer-build-with-claude-overview.md)
 - [Working With Messages](./developer-build-with-claude-working-with-messages.md)
+- [Handling Stop Reasons](./developer-build-with-claude-handling-stop-reasons.md)
+- [Prompt Engineering | Claude Prompting Best Practices](./developer-build-with-claude-prompt-engineering-claude-prompting-best-practices.md)
 - [Context Windows](./developer-build-with-claude-context-windows.md)
-- [Prompt Engineering | Claude 4 Best Practices](./developer-build-with-claude-prompt-engineering-claude-4-best-practices.md)
-- [Prompt Caching](./developer-build-with-claude-prompt-caching.md)
+- [Compaction](./developer-build-with-claude-compaction.md)
 - [Context Editing](./developer-build-with-claude-context-editing.md)
+- [Prompt Caching](./developer-build-with-claude-prompt-caching.md)
 - [Extended Thinking](./developer-build-with-claude-extended-thinking.md)
+- [Adaptive Thinking](./developer-build-with-claude-adaptive-thinking.md)
 - [Effort](./developer-build-with-claude-effort.md)
 - [Streaming](./developer-build-with-claude-streaming.md)
 - [Batch Processing](./developer-build-with-claude-batch-processing.md)
@@ -98,11 +102,11 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Prompt Engineering | Chain Of Thought](./developer-build-with-claude-prompt-engineering-chain-of-thought.md)
 - [Prompt Engineering | Use Xml Tags](./developer-build-with-claude-prompt-engineering-use-xml-tags.md)
 - [Prompt Engineering | System Prompts](./developer-build-with-claude-prompt-engineering-system-prompts.md)
-- [Prompt Engineering | Prefill Claudes Response](./developer-build-with-claude-prompt-engineering-prefill-claudes-response.md)
 - [Prompt Engineering | Chain Prompts](./developer-build-with-claude-prompt-engineering-chain-prompts.md)
 - [Prompt Engineering | Long Context Tips](./developer-build-with-claude-prompt-engineering-long-context-tips.md)
 - [Prompt Engineering | Extended Thinking Tips](./developer-build-with-claude-prompt-engineering-extended-thinking-tips.md)
 - [Administration Api](./developer-build-with-claude-administration-api.md)
+- [Data Residency](./developer-build-with-claude-data-residency.md)
 - [Workspaces](./developer-build-with-claude-workspaces.md)
 - [Usage Cost Api](./developer-build-with-claude-usage-cost-api.md)
 - [Claude Code Analytics Api](./developer-build-with-claude-claude-code-analytics-api.md)
