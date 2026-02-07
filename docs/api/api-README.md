@@ -2,16 +2,23 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Api). It is updated automatically._
 
-**Last updated:** Fri, 06 Feb 2026 01:44:51 GMT
+**Last updated:** Sat, 07 Feb 2026 01:42:25 GMT
 
 ---
 
 ## Api
 
 - [Overview](./api-overview.md)
-- [Client Sdks](./api-client-sdks.md)
 - [Beta Headers](./api-beta-headers.md)
 - [Errors](./api-errors.md)
+- [Client Sdks](./api-client-sdks.md)
+- [Sdks | Python](./api-sdks-python.md)
+- [Sdks | Typescript](./api-sdks-typescript.md)
+- [Sdks | Java](./api-sdks-java.md)
+- [Sdks | Go](./api-sdks-go.md)
+- [Sdks | Ruby](./api-sdks-ruby.md)
+- [Sdks | Csharp](./api-sdks-csharp.md)
+- [Sdks | Php](./api-sdks-php.md)
 - [Rate Limits](./api-rate-limits.md)
 - [Service Tiers](./api-service-tiers.md)
 - [Versioning](./api-versioning.md)

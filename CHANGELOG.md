@@ -1,5 +1,90 @@
 # Changelog
 
+## 🤖 v1.1.54 - 07/02/2026
+
+File Changes:
+
+- Modified: `docs/README.md`
+- Modified: `docs/api/api-README.md`
+- Modified: `docs/api/api-client-sdks.md`
+- Modified: `docs/api/api-kotlin-beta-files-delete.md`
+- Modified: `docs/api/api-kotlin-beta-files-download.md`
+- Modified: `docs/api/api-kotlin-beta-files-list.md`
+- Modified: `docs/api/api-kotlin-beta-files-retrieve_metadata.md`
+- Modified: `docs/api/api-kotlin-beta-files-upload.md`
+- Modified: `docs/api/api-kotlin-beta-files.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-cancel.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-create.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-delete.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-list.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-results.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-messages-batches.md`
+- Modified: `docs/api/api-kotlin-beta-messages-count_tokens.md`
+- Modified: `docs/api/api-kotlin-beta-messages-create.md`
+- Modified: `docs/api/api-kotlin-beta-messages.md`
+- Modified: `docs/api/api-kotlin-beta-models-list.md`
+- Modified: `docs/api/api-kotlin-beta-models-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-models.md`
+- Modified: `docs/api/api-kotlin-beta-skills-create.md`
+- Modified: `docs/api/api-kotlin-beta-skills-delete.md`
+- Modified: `docs/api/api-kotlin-beta-skills-list.md`
+- Modified: `docs/api/api-kotlin-beta-skills-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-create.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-delete.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-list.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions-retrieve.md`
+- Modified: `docs/api/api-kotlin-beta-skills-versions.md`
+- Modified: `docs/api/api-kotlin-beta-skills.md`
+- Modified: `docs/api/api-kotlin-beta.md`
+- Modified: `docs/api/api-kotlin-completions-create.md`
+- Modified: `docs/api/api-kotlin-completions.md`
+- Modified: `docs/api/api-kotlin-messages-batches-cancel.md`
+- Modified: `docs/api/api-kotlin-messages-batches-create.md`
+- Modified: `docs/api/api-kotlin-messages-batches-delete.md`
+- Modified: `docs/api/api-kotlin-messages-batches-list.md`
+- Modified: `docs/api/api-kotlin-messages-batches-results.md`
+- Modified: `docs/api/api-kotlin-messages-batches-retrieve.md`
+- Modified: `docs/api/api-kotlin-messages-batches.md`
+- Modified: `docs/api/api-kotlin-messages-count_tokens.md`
+- Modified: `docs/api/api-kotlin-messages-create.md`
+- Modified: `docs/api/api-kotlin-messages.md`
+- Modified: `docs/api/api-kotlin-models-list.md`
+- Modified: `docs/api/api-kotlin-models-retrieve.md`
+- Modified: `docs/api/api-kotlin-models.md`
+- Modified: `docs/code/code-README.md`
+- Modified: `docs/code/code-agent-teams.md`
+- Modified: `docs/code/code-amazon-bedrock.md`
+- Modified: `docs/code/code-best-practices.md`
+- Modified: `docs/code/code-checkpointing.md`
+- Modified: `docs/code/code-cli-reference.md`
+- Modified: `docs/code/code-hooks-guide.md`
+- Modified: `docs/code/code-hooks.md`
+- Modified: `docs/code/code-how-claude-code-works.md`
+- Modified: `docs/code/code-interactive-mode.md`
+- Modified: `docs/code/code-keybindings.md`
+- Modified: `docs/code/code-memory.md`
+- Modified: `docs/code/code-plugins-reference.md`
+- Modified: `docs/code/code-settings.md`
+- Modified: `docs/code/code-skills.md`
+- Modified: `docs/code/code-sub-agents.md`
+- Modified: `docs/developer/developer-README.md`
+- Modified: `docs/developer/developer-build-with-claude-batch-processing.md`
+- Modified: `docs/developer/developer-build-with-claude-citations.md`
+- Modified: `docs/developer/developer-build-with-claude-claude-on-amazon-bedrock.md`
+- Modified: `docs/developer/developer-build-with-claude-claude-on-vertex-ai.md`
+- Modified: `docs/developer/developer-build-with-claude-files.md`
+- Modified: `docs/developer/developer-build-with-claude-structured-outputs.md`
+- Modified: `docs/developer/developer-build-with-claude-vision.md`
+- Added: `docs/api/api-sdks-csharp.md`
+- Added: `docs/api/api-sdks-go.md`
+- Added: `docs/api/api-sdks-java.md`
+- Added: `docs/api/api-sdks-php.md`
+- Added: `docs/api/api-sdks-python.md`
+- Added: `docs/api/api-sdks-ruby.md`
+- Added: `docs/api/api-sdks-typescript.md`
+
+
 ## 🤖 v1.1.53 - 06/02/2026
 
 File Changes:
