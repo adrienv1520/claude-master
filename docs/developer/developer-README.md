@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Sat, 07 Feb 2026 01:42:25 GMT
+**Last updated:** Sun, 08 Feb 2026 02:08:23 GMT
 
 ---
 
@@ -78,6 +78,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Extended Thinking](./developer-build-with-claude-extended-thinking.md)
 - [Adaptive Thinking](./developer-build-with-claude-adaptive-thinking.md)
 - [Effort](./developer-build-with-claude-effort.md)
+- [Fast Mode](./developer-build-with-claude-fast-mode.md)
 - [Streaming](./developer-build-with-claude-streaming.md)
 - [Batch Processing](./developer-build-with-claude-batch-processing.md)
 - [Citations](./developer-build-with-claude-citations.md)

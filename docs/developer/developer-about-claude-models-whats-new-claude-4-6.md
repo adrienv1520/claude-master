@@ -41,13 +41,27 @@ The [effort parameter](./developer-build-with-claude-effort.md) is now generally
 
 [Compaction](./developer-build-with-claude-compaction.md) provides automatic, server-side context summarization, enabling effectively infinite conversations. When context approaches the window limit, the API automatically summarizes earlier parts of the conversation.
 
+### Fast mode (research preview)
+
+[Fast mode](./developer-build-with-claude-fast-mode.md) (`speed: "fast"`) delivers significantly faster output token generation for Opus models. Fast mode is up to 2.5x as fast at premium pricing ($30/$150 per MTok). This is the same model running with faster inference (no change to intelligence or capabilities).
+
+```python
+response = client.beta.messages.create(
+    model="claude-opus-4-6",
+    max_tokens=4096,
+    speed="fast",
+    betas=["fast-mode-2026-02-01"],
+    messages=[{"role": "user", "content": "Refactor this module..."}]
+)
+```
+
 ### Fine-grained tool streaming (GA)
 
 [Fine-grained tool streaming](./developer-agents-and-tools-tool-use-fine-grained-tool-streaming.md) is now generally available on all models and platforms. No beta header is required.
 
 ### 128K output tokens
 
-Opus 4.6 supports up to 128K output tokens, doubling the previous 64K limit. This enables longer thinking budgets and more comprehensive responses. The SDKs require streaming for requests with large `max_tokens` values to avoid HTTP timeouts. If you don't need to process events incrementally, use `.stream()` with `.get_final_message()` to get the complete response — see [Streaming Messages](./developer-build-with-claude-streaming.md#get-the-final-message-without-handling-events) for details.
+Opus 4.6 supports up to 128K output tokens, doubling the previous 64K limit. This enables longer thinking budgets and more comprehensive responses. The SDKs require streaming for requests with large `max_tokens` values to avoid HTTP timeouts. If you don't need to process events incrementally, use `.stream()` with `.get_final_message()` to get the complete response. See [Streaming Messages](./developer-build-with-claude-streaming.md#get-the-final-message-without-handling-events) for details.
 
 ### Data residency controls
 
@@ -111,6 +125,9 @@ For step-by-step migration instructions, see [Migrating to Claude 4.6](./develop
   </Card>
   <Card title="Compaction" icon="compress" href="./developer-build-with-claude-compaction.md">
     Explore server-side context compaction.
+  </Card>
+  <Card title="Fast mode" icon="bolt" href="./developer-build-with-claude-fast-mode.md">
+    Faster output token generation for Opus models.
   </Card>
   <Card title="Migration guide" icon="arrow-right" href="./developer-about-claude-models-migration-guide.md">
     Step-by-step migration instructions.
