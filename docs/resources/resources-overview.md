@@ -72,7 +72,7 @@
   </h2>
   
 
-    <Card title="API primer for Claude ingestion" icon="settings" href="https://platform.claude.com/docs/en/claude_api_primer.md.md">
+    <Card title="API primer for Claude ingestion" icon="settings" href="https://platform.claude.com/docs/en/claude_api_primer.md">
       Concise API guide meant for ingestion by Claude.
     </Card>
 
