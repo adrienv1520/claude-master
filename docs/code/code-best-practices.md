@@ -488,7 +488,7 @@ claude -p "Analyze this log file" --output-format stream-json
 
 There are three main ways to run parallel sessions:
 
-* [Claude Desktop](./code-desktop.md): Manage multiple local sessions visually. Each session gets its own isolated worktree.
+* [Claude Code desktop app](./code-desktop.md#work-in-parallel-with-sessions): Manage multiple local sessions visually. Each session gets its own isolated worktree.
 * [Claude Code on the web](./code-claude-code-on-the-web.md): Run on Anthropic's secure cloud infrastructure in isolated VMs.
 * [Agent teams](./code-agent-teams.md): Automated coordination of multiple sessions with shared tasks, messaging, and a team lead.
 
