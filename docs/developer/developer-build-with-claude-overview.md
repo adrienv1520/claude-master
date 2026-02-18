@@ -29,9 +29,9 @@ Built-in tools that Claude invokes via `tool_use`. Server-side tools are run by 
 
 | Feature | Description | Availability |
 |---------|-------------|--------------|
-| [Code execution](./developer-agents-and-tools-tool-use-code-execution-tool.md) | Run Python code in a sandboxed environment for advanced data analysis. | <PlatformAvailability claudeApiBeta azureAiBeta /> |
-| [Memory](./developer-agents-and-tools-tool-use-memory-tool.md) | Enable Claude to store and retrieve information across conversations. Build knowledge bases over time, maintain project context, and learn from past interactions. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
-| [Web fetch](./developer-agents-and-tools-tool-use-web-fetch-tool.md) | Retrieve full content from specified web pages and PDF documents for in-depth analysis. | <PlatformAvailability claudeApiBeta azureAiBeta /> |
+| [Code execution](./developer-agents-and-tools-tool-use-code-execution-tool.md) | Run code in a sandboxed environment for advanced data analysis, calculations, and file processing. Free when used with web search or web fetch. | <PlatformAvailability claudeApi azureAi /> |
+| [Memory](./developer-agents-and-tools-tool-use-memory-tool.md) | Enable Claude to store and retrieve information across conversations. Build knowledge bases over time, maintain project context, and learn from past interactions. | <PlatformAvailability claudeApi bedrock vertexAi azureAi /> |
+| [Web fetch](./developer-agents-and-tools-tool-use-web-fetch-tool.md) | Retrieve full content from specified web pages and PDF documents for in-depth analysis. | <PlatformAvailability claudeApi azureAi /> |
 | [Web search](./developer-agents-and-tools-tool-use-web-search-tool.md) | Augment Claude's comprehensive knowledge with current, real-world data from across the web. | <PlatformAvailability claudeApi vertexAi azureAi /> |
 
 ### Client-side tools
@@ -51,8 +51,8 @@ Infrastructure that supports discovering, orchestrating, and scaling tool use.
 | [Agent Skills](./developer-agents-and-tools-agent-skills-overview.md) | Extend Claude's capabilities with Skills. Use pre-built Skills (PowerPoint, Excel, Word, PDF) or create custom Skills with instructions and scripts. Skills use progressive disclosure to efficiently manage context. | <PlatformAvailability claudeApiBeta azureAiBeta /> |
 | [Fine-grained tool streaming](./developer-agents-and-tools-tool-use-fine-grained-tool-streaming.md) | Stream tool use parameters without buffering/JSON validation, reducing latency for receiving large parameters. | <PlatformAvailability claudeApi bedrock vertexAi azureAi /> |
 | [MCP connector](./developer-agents-and-tools-mcp-connector.md) | Connect to remote [MCP](https://platform.claude.com/docs/en/mcp.md) servers directly from the Messages API without a separate MCP client. | <PlatformAvailability claudeApiBeta azureAiBeta /> |
-| [Programmatic tool calling](./developer-agents-and-tools-tool-use-programmatic-tool-calling.md) | Enable Claude to call your tools programmatically from within code execution containers, reducing latency and token consumption for multi-tool workflows. | <PlatformAvailability claudeApiBeta azureAiBeta /> |
-| [Tool search](./developer-agents-and-tools-tool-use-tool-search-tool.md) | Scale to thousands of tools by dynamically discovering and loading tools on-demand using regex-based search, optimizing context usage and improving tool selection accuracy. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
+| [Programmatic tool calling](./developer-agents-and-tools-tool-use-programmatic-tool-calling.md) | Enable Claude to call your tools programmatically from within code execution containers, reducing latency and token consumption for multi-tool workflows. | <PlatformAvailability claudeApi azureAi /> |
+| [Tool search](./developer-agents-and-tools-tool-use-tool-search-tool.md) | Scale to thousands of tools by dynamically discovering and loading tools on-demand using regex-based search, optimizing context usage and improving tool selection accuracy. | <PlatformAvailability claudeApi bedrock vertexAi azureAi /> |
 
 ## Context management
 

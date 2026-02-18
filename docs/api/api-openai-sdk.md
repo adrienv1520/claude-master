@@ -96,7 +96,7 @@ You can enable [extended thinking](../developer/developer-build-with-claude-exte
 <CodeGroup>
     ```python Python
     response = client.chat.completions.create(
-        model="claude-sonnet-4-5",
+        model="claude-sonnet-4-6",
         messages=...,
         extra_body={"thinking": {"type": "enabled", "budget_tokens": 2000}},
     )
@@ -107,7 +107,7 @@ You can enable [extended thinking](../developer/developer-build-with-claude-exte
       messages: [
         { role: "user", content: "Who are you?" }
       ],
-      model: "claude-sonnet-4-5",
+      model: "claude-sonnet-4-6",
       // @ts-expect-error
       thinking: { type: "enabled", budget_tokens: 2000 }
     });

@@ -12,6 +12,10 @@ For complete API reference including request/response schemas and all parameters
 - [Skill Versions API Reference](https://platform.claude.com/docs/en/api/skills/list-skill-versions.md) - Version management
 </Note>
 
+<Note>
+This feature is in beta and is **not** covered by [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements. Beta features are excluded from ZDR.
+</Note>
+
 ## Quick Links
 
 <CardGroup cols={2}>

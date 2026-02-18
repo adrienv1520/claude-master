@@ -17,6 +17,10 @@ Compaction extends the effective context length for long-running conversations a
 Compaction is currently in beta. Include the [beta header](../api/api-beta-headers.md) `compact-2026-01-12` in your API requests to use this feature.
 </Note>
 
+<Note>
+This feature is in beta and is **not** covered by [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements. Beta features are excluded from ZDR.
+</Note>
+
 ## Supported models
 
 Compaction is supported on the following models:

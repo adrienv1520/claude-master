@@ -8,6 +8,10 @@ The Files API lets you upload and manage files to use with the Claude API withou
 The Files API is currently in beta. Please reach out through our [feedback form](https://forms.gle/tisHyierGwgN4DUE9) to share your experience with the Files API.
 </Note>
 
+<Note>
+This feature is in beta and is **not** covered by [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements. Beta features are excluded from ZDR.
+</Note>
+
 ## Supported models
 
 Referencing a `file_id` in a Messages request is supported in all models that support the given file type. For example, [images](./developer-build-with-claude-vision.md) are supported in all Claude 3+ models, [PDFs](./developer-build-with-claude-pdf-support.md) in all Claude 3.5+ models, and [various other file types](./developer-agents-and-tools-tool-use-code-execution-tool.md#supported-file-types) for the code execution tool in Claude Haiku 4.5 plus all Claude 3.7+ models.
