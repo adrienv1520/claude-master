@@ -18,7 +18,7 @@ Compaction is currently in beta. Include the [beta header](../api/api-beta-heade
 </Note>
 
 <Note>
-This feature is in beta and is **not** covered by [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements. Beta features are excluded from ZDR.
+Compaction is eligible for [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements.
 </Note>
 
 ## Supported models
@@ -26,6 +26,7 @@ This feature is in beta and is **not** covered by [Zero Data Retention (ZDR)](./
 Compaction is supported on the following models:
 
 - Claude Opus 4.6 (`claude-opus-4-6`)
+- Claude Sonnet 4.6 (`claude-sonnet-4-6`)
 
 ## How compaction works
 
