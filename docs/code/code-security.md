@@ -121,6 +121,7 @@ For more details on cloud execution, see [Claude Code on the web](./code-claude-
 * Share approved permission configurations through version control
 * Train team members on security best practices
 * Monitor Claude Code usage through [OpenTelemetry metrics](./code-monitoring-usage.md)
+* Audit or block settings changes during sessions with [`ConfigChange` hooks](./code-hooks.md#configchange)
 
 ### Reporting security issues
 
