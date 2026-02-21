@@ -405,6 +405,10 @@ See [tool use pricing](./developer-agents-and-tools-tool-use-overview.md#pricing
 
 The bash tool is most powerful when combined with the [text editor](./developer-agents-and-tools-tool-use-text-editor-tool.md) and other tools.
 
+<Note>
+If you're also using the [code execution tool](./developer-agents-and-tools-tool-use-code-execution-tool.md), Claude has access to two separate execution environments: your local bash session and Anthropic's sandboxed container. State is not shared between them. See [Using code execution with other execution tools](./developer-agents-and-tools-tool-use-code-execution-tool.md#using-code-execution-with-other-execution-tools) for guidance on prompting Claude to distinguish between environments.
+</Note>
+
 ## Next steps
 
 <CardGroup cols={2}>

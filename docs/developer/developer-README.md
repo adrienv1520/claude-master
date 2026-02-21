@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Fri, 20 Feb 2026 01:46:29 GMT
+**Last updated:** Sat, 21 Feb 2026 12:37:51 GMT
 
 ---
 
@@ -119,7 +119,6 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 
 ## Test And Evaluate
 
-- [Define Success](./developer-test-and-evaluate-define-success.md)
 - [Develop Tests](./developer-test-and-evaluate-develop-tests.md)
 - [Eval Tool](./developer-test-and-evaluate-eval-tool.md)
 - [Strengthen Guardrails | Reduce Latency](./developer-test-and-evaluate-strengthen-guardrails-reduce-latency.md)
@@ -128,5 +127,4 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Strengthen Guardrails | Mitigate Jailbreaks](./developer-test-and-evaluate-strengthen-guardrails-mitigate-jailbreaks.md)
 - [Strengthen Guardrails | Handle Streaming Refusals](./developer-test-and-evaluate-strengthen-guardrails-handle-streaming-refusals.md)
 - [Strengthen Guardrails | Reduce Prompt Leak](./developer-test-and-evaluate-strengthen-guardrails-reduce-prompt-leak.md)
-- [Strengthen Guardrails | Keep Claude In Character](./developer-test-and-evaluate-strengthen-guardrails-keep-claude-in-character.md)
 

@@ -97,7 +97,7 @@ Here are the key tasks associated with the example insurance interaction above:
 
 ### Establish success criteria
 
-Work with your support team to [define clear success criteria](../developer/developer-test-and-evaluate-define-success.md) and write [detailed evaluations](../developer/developer-test-and-evaluate-develop-tests.md) with measurable benchmarks and goals.
+Work with your support team to [define success criteria and write detailed evaluations](../developer/developer-test-and-evaluate-develop-tests.md) with measurable benchmarks and goals.
 
 Here are criteria and benchmarks that can be used to evaluate how successfully Claude performs the defined tasks:
 
@@ -583,7 +583,7 @@ When deploying a chatbot, especially in customer service scenarios, it's crucial
 - Avoid contractual commitments: Ensure the agent doesn't make promises or enter into agreements it's not authorized to make.
 - [Mitigate jailbreaks](../developer/developer-test-and-evaluate-strengthen-guardrails-mitigate-jailbreaks.md): Use methods like harmlessness screens and input validation to prevent users from exploiting model vulnerabilities, aiming to generate inappropriate content.
 - Avoid mentioning competitors: Implement a competitor mention filter to maintain brand focus and not mention any competitor's products or services.
-- [Keep Claude in character](../developer/developer-test-and-evaluate-strengthen-guardrails-keep-claude-in-character.md): Prevent Claude from changing their style of context, even during long, complex interactions.
+- [Increase output consistency](../developer/developer-test-and-evaluate-strengthen-guardrails-increase-consistency.md): Prevent Claude from changing style or going out of character, even during long, complex interactions.
 - Remove Personally Identifiable Information (PII): Unless explicitly required and authorized, strip out any PII from responses.
 
 #### Reduce perceived response time with streaming

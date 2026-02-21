@@ -4,6 +4,16 @@ Explore Claude's advanced features and capabilities.
 
 ---
 
+Claude's API surface is organized into five areas:
+
+- **Model capabilities:** Control how Claude reasons and formats responses.
+- **Tools:** Let Claude take actions on the web or in your environment.
+- **Tool infrastructure:** Handles discovery and orchestration at scale.
+- **Context management:** Keeps long-running sessions efficient.
+- **Files and assets:** Manage the documents and data you provide to Claude.
+
+If you're new, start with [model capabilities](#model-capabilities) and [tools](#tools). Return to the other sections when you're ready to optimize cost, latency, or scale.
+
 ## Model capabilities
 
 Ways to steer Claude and Claude's direct outputs, including response format, reasoning depth, and input modalities.
@@ -12,7 +22,7 @@ Ways to steer Claude and Claude's direct outputs, including response format, rea
 |---------|-------------|--------------|
 | [1M token context window](./developer-build-with-claude-context-windows.md#1m-token-context-window) | An extended context window that allows you to process much larger documents, maintain longer conversations, and work with more extensive codebases. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
 | [Adaptive thinking](./developer-build-with-claude-adaptive-thinking.md) | Let Claude dynamically decide when and how much to think. The recommended thinking mode for Opus 4.6. Use the effort parameter to control thinking depth. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
-| [Batch processing](./developer-build-with-claude-batch-processing.md) | Process large volumes of requests asynchronously for cost savings. Send batches with a large number of queries per batch. Batch API calls costs 50% less than standard API calls. | <PlatformAvailability claudeApi bedrock vertexAi /> |
+| [Batch processing](./developer-build-with-claude-batch-processing.md) | Process large volumes of requests asynchronously for cost savings. Send batches with a large number of queries per batch. Batch API calls cost 50% less than standard API calls. | <PlatformAvailability claudeApi bedrock vertexAi /> |
 | [Citations](./developer-build-with-claude-citations.md) | Ground Claude's responses in source documents. With Citations, Claude can provide detailed references to the exact sentences and passages it uses to generate responses, leading to more verifiable, trustworthy outputs. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 | [Data residency](./developer-build-with-claude-data-residency.md) | Control where model inference runs using geographic controls. Specify `"global"` or `"us"` routing per request via the `inference_geo` parameter. | <PlatformAvailability claudeApi /> |
 | [Effort](./developer-build-with-claude-effort.md) | Control how many tokens Claude uses when responding with the effort parameter, trading off between response thoroughness and token efficiency. Supported on Opus 4.6 and Opus 4.5. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
@@ -67,7 +77,7 @@ Infrastructure for controlling and optimizing Claude's context window.
 | [Prompt caching (1hr)](./developer-build-with-claude-prompt-caching.md#1-hour-cache-duration) | Extended 1-hour cache duration for less frequently accessed but important context, complementing the standard 5-minute cache. | <PlatformAvailability claudeApi azureAiBeta /> |
 | [Token counting](https://platform.claude.com/docs/en/api/messages-count-tokens.md) | Token counting enables you to determine the number of tokens in a message before sending it to Claude, helping you make informed decisions about your prompts and usage. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 
-## Files & assets
+## Files and assets
 
 Manage files and assets for use with Claude.
 
