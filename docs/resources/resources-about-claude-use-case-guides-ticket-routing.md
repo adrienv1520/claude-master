@@ -58,7 +58,7 @@ Consider questions like:
 * How are edge cases or ambiguous tickets handled?
 * How does the team prioritize tickets?
 
-The more you know about how humans handle certain cases, the better you will be able to work with Claude to do the task.
+The more you know about how humans handle certain cases, the better you can work with Claude to do the task.
 
 ### Define user intent categories
 A well-defined list of user intent categories is crucial for accurate support ticket classification with Claude. Claude’s ability to route tickets effectively within your system is directly proportional to how well-defined your system’s categories are.
@@ -271,7 +271,8 @@ Try the [prompt generator](https://platform.claude.com/docs/en/prompt-generator.
 </Tip>
 
 Here's an example ticket routing classification prompt:
-```python
+
+```python nocheck
 def classify_support_request(ticket_contents):
     # Define the prompt for the classification task
     classification_prompt = f"""You will be acting as a customer support ticket classification system. Your task is to analyze customer support requests and output the appropriate classification intent for each request, along with your reasoning.
@@ -343,7 +344,7 @@ It’s hard to know how well your prompt works without deploying it in a test pr
 
 Let’s build the deployment structure. Start by defining the method signature for wrapping our call to Claude. We'll take the method we’ve already begun to write, which has `ticket_contents` as input, and now return a tuple of `reasoning` and `intent` as output. If you have an existing automation using traditional ML, you'll want to follow that method signature instead.
 
-```python
+```python nocheck hidelines={1}
 import anthropic
 import re
 
@@ -384,7 +385,7 @@ def classify_support_request(ticket_contents):
 ```
 
 This code:
-* Imports the Anthropic library and creates a client instance using your API key.
+* Creates a client instance using your API key.
 * Defines a `classify_support_request` function that takes a `ticket_contents` string.
 * Sends the `ticket_contents` to Claude for classification using the `classification_prompt`
 * Returns the model's `reasoning` and `intent` extracted from the response.
@@ -397,7 +398,7 @@ Since we need to wait for the entire reasoning and intent text to be generated b
 
 Prompting often requires testing and optimization for it to be production ready. To determine the readiness of your solution, evaluate performance based on the success criteria and thresholds you established earlier.
 
-To run your evaluation, you will need test cases to run it on. The rest of this guide assumes you have already [developed your test cases](../developer/developer-test-and-evaluate-develop-tests.md).
+To run your evaluation, you need test cases to run it on. The rest of this guide assumes you have already [developed your test cases](../developer/developer-test-and-evaluate-develop-tests.md).
 
 ### Build an evaluation function
 
@@ -409,7 +410,7 @@ You may need to assess Claude on other axes depending on what factors that are i
 
 To assess this, we first have to modify the script we wrote and add a function to compare the predicted intent with the actual intent and calculate the percentage of correct predictions. We also have to add in cost calculation and time measurement functionality.
 
-```python
+```python nocheck hidelines={1}
 import anthropic
 import re
 
@@ -459,7 +460,7 @@ Let’s break down the edits we’ve made:
 
 ### Run your evaluation
 
-A proper evaluation requires clear thresholds and benchmarks to determine what is a good result. The script above will give us the runtime values for accuracy, response time, and cost per classification, but we still would need clearly established thresholds. For example:
+A proper evaluation requires clear thresholds and benchmarks to determine what is a good result. The script above gives us the runtime values for accuracy, response time, and cost per classification, but we still would need clearly established thresholds. For example:
 * **Accuracy:** 95% (out of 100 tests)
 * **Cost per classification:** 50% reduction on average (across 100 tests) from current routing method
 
@@ -526,7 +527,7 @@ Proper integration requires that you make some decisions regarding how your Clau
 * **Pull-Based:** Your code pulls for the latest tickets based on a given schedule and routes them at pull time.
     * This approach is easier to implement but might make unnecessary calls to the support ticket system when the pull frequency is too high or might be overly slow when the pull frequency is too low.
 
-For either of these approaches, you will need to wrap your script in a service. The choice of approach depends on what APIs your support ticketing system provides.
+For either of these approaches, you need to wrap your script in a service. The choice of approach depends on what APIs your support ticketing system provides.
 
 ***
 

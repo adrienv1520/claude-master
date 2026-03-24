@@ -8,6 +8,7 @@ The API follows a predictable HTTP error code format:
 
 * 400 - `invalid_request_error`: There was an issue with the format or content of your request. This error type may also be used for other 4XX status codes not listed below.
 * 401 - `authentication_error`: There's an issue with your API key.
+* 402 - `billing_error`: There's an issue with your billing or payment information. Check your payment details in the [Console](https://platform.claude.com).
 * 403 - `permission_error`: Your API key does not have permission to use the specified resource.
 * 404 - `not_found_error`: The requested resource was not found.
 * 413 - `request_too_large`: Request exceeds the maximum allowed number of bytes. The maximum request size is 32 MB for standard API endpoints.
@@ -55,12 +56,12 @@ In accordance with the [versioning](./api-versioning.md) policy, the values with
 
 ## Request id
 
-Every API response includes a unique `request-id` header. This header contains a value such as `req_018EeWyXxfu5pfWkrYcMdjWG`. When contacting support about a specific request, please include this ID to help quickly resolve your issue.
+Every API response includes a unique `request-id` header. This header contains a value such as `req_018EeWyXxfu5pfWkrYcMdjWG`. When contacting support about a specific request, include this ID to help quickly resolve your issue.
 
 The official SDKs provide this value as a property on top-level response objects, containing the value of the `request-id` header:
 
 <CodeGroup>
-  ```python Python
+  ```python Python hidelines={1..2}
   import anthropic
 
   client = anthropic.Anthropic()
@@ -73,7 +74,7 @@ The official SDKs provide this value as a property on top-level response objects
   print(f"Request ID: {message._request_id}")
   ```
 
-  ```typescript TypeScript
+  ```typescript TypeScript hidelines={1..2}
   import Anthropic from "@anthropic-ai/sdk";
 
   const client = new Anthropic();
@@ -81,9 +82,7 @@ The official SDKs provide this value as a property on top-level response objects
   const message = await client.messages.create({
     model: "claude-opus-4-6",
     max_tokens: 1024,
-    messages: [
-      { role: "user", content: "Hello, Claude" }
-    ]
+    messages: [{ role: "user", content: "Hello, Claude" }]
   });
   console.log("Request ID:", message._request_id);
   ```

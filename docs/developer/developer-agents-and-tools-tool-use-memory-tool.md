@@ -4,14 +4,16 @@
 
 The memory tool enables Claude to store and retrieve information across conversations through a memory file directory. Claude can create, read, update, and delete files that persist between sessions, allowing it to build knowledge over time without keeping everything in the context window.
 
+This is the key primitive for just-in-time context retrieval: rather than loading all relevant information upfront, agents store what they learn in memory and pull it back on demand. This keeps the active context focused on what's currently relevant, critical for long-running workflows where loading everything at once would overwhelm the context window. See [Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) for the broader pattern.
+
 The memory tool operates client-side: you control where and how the data is stored through your own infrastructure.
 
 <Note>
-Please reach out through the [feedback form](https://forms.gle/YXC2EKGMhjN1c4L88) to share your feedback on this feature.
+Reach out through the [feedback form](https://forms.gle/YXC2EKGMhjN1c4L88) to share your feedback on this feature.
 </Note>
 
 <Note>
-This feature is [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) eligible. When your organization has a ZDR arrangement, data sent through this feature is not stored after the API response is returned.
+This feature is eligible for [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md). When your organization has a ZDR arrangement, data sent through this feature is not stored after the API response is returned.
 </Note>
 
 ## Use cases
@@ -122,7 +124,7 @@ For working examples, see:
 
 <CodeGroup>
 
-```bash cURL
+```bash Shell
 curl https://api.anthropic.com/v1/messages \
     --header "x-api-key: $ANTHROPIC_API_KEY" \
     --header "anthropic-version: 2023-06-01" \
@@ -143,7 +145,7 @@ curl https://api.anthropic.com/v1/messages \
     }'
 ```
 
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -161,7 +163,7 @@ message = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
@@ -174,14 +176,152 @@ const message = await anthropic.messages.create({
   messages: [
     {
       role: "user",
+      content:
+        "I'm working on a Python web scraper that keeps crashing with a timeout error. Here's the problematic function:\n\n```python\ndef fetch_page(url, retries=3):\n    for i in range(retries):\n        try:\n            response = requests.get(url, timeout=5)\n            return response.text\n        except requests.exceptions.Timeout:\n            if i == retries - 1:\n                raise\n            time.sleep(1)\n```\n\nPlease help me debug this."
+    }
+  ],
+  tools: [{ type: "memory_20250818", name: "memory" }]
+});
+```
+
+```csharp C#
+using System;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+public class Program
+{
+    public static async Task Main(string[] args)
+    {
+        AnthropicClient client = new()
+        {
+            ApiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY")
+        };
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 2048,
+            Messages = [
+                new()
+                {
+                    Role = Role.User,
+                    Content = "I'm working on a Python web scraper that keeps crashing with a timeout error. Here's the problematic function:\n\n```python\ndef fetch_page(url, retries=3):\n    for i in range(retries):\n        try:\n            response = requests.get(url, timeout=5)\n            return response.text\n        except requests.exceptions.Timeout:\n            if i == retries - 1:\n                raise\n            time.sleep(1)\n```\n\nPlease help me debug this."
+                }
+            ],
+            Tools = [new ToolUnion(new MemoryTool20250818())]
+        };
+
+        var message = await client.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 2048,
+		Messages: []anthropic.BetaMessageParam{
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("I'm working on a Python web scraper that keeps crashing with a timeout error. Here's the problematic function:\n\n```python\ndef fetch_page(url, retries=3):\n    for i in range(retries):\n        try:\n            response = requests.get(url, timeout=5)\n            return response.text\n        except requests.exceptions.Timeout:\n            if i == retries - 1:\n                raise\n            time.sleep(1)\n```\n\nPlease help me debug this.")),
+		},
+		Tools: []anthropic.BetaToolUnionParam{
+			{OfMemoryTool20250818: &anthropic.BetaMemoryTool20250818Param{}},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..2,4..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.messages.MemoryTool20250818;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+
+public class MemoryToolExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(2048L)
+            .addUserMessage("I'm working on a Python web scraper that keeps crashing with a timeout error. Here's the problematic function:\n\n```python\ndef fetch_page(url, retries=3):\n    for i in range(retries):\n        try:\n            response = requests.get(url, timeout=5)\n            return response.text\n        except requests.exceptions.Timeout:\n            if i == retries - 1:\n                raise\n            time.sleep(1)\n```\n\nPlease help me debug this.")
+            .addTool(MemoryTool20250818.builder().build())
+            .build();
+
+        Message response = client.messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->messages->create(
+    maxTokens: 2048,
+    messages: [
+        [
+            'role' => 'user',
+            'content' => "I'm working on a Python web scraper that keeps crashing with a timeout error. Here's the problematic function:\n\n```python\ndef fetch_page(url, retries=3):\n    for i in range(retries):\n        try:\n            response = requests.get(url, timeout=5)\n            return response.text\n        except requests.exceptions.Timeout:\n            if i == retries - 1:\n                raise\n            time.sleep(1)\n```\n\nPlease help me debug this.",
+        ],
+    ],
+    model: 'claude-opus-4-6',
+    tools: [
+        [
+            'type' => 'memory_20250818',
+            'name' => 'memory',
+        ],
+    ],
+);
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+message = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 2048,
+  messages: [
+    {
+      role: "user",
       content: "I'm working on a Python web scraper that keeps crashing with a timeout error. Here's the problematic function:\n\n```python\ndef fetch_page(url, retries=3):\n    for i in range(retries):\n        try:\n            response = requests.get(url, timeout=5)\n            return response.text\n        except requests.exceptions.Timeout:\n            if i == retries - 1:\n                raise\n            time.sleep(1)\n```\n\nPlease help me debug this."
     }
   ],
-  tools: [{
-    type: "memory_20250818",
-    name: "memory"
-  }]
-});
+  tools: [
+    {
+      type: "memory_20250818",
+      name: "memory"
+    }
+  ]
+)
+puts message
 ```
 
 </CodeGroup>
@@ -197,7 +337,7 @@ Shows directory contents or file contents with optional line ranges:
 {
   "command": "view",
   "path": "/memories",
-  "view_range": [1, 10]  // Optional: view specific lines
+  "view_range": [1, 10] // Optional: view specific lines
 }
 ```
 
@@ -439,7 +579,7 @@ To use both features together:
 
 <CodeGroup>
 
-```python Python
+```python Python nocheck
 response = client.messages.create(
     model="claude-opus-4-6",
     max_tokens=4096,
@@ -460,7 +600,7 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic({
@@ -470,7 +610,9 @@ const anthropic = new Anthropic({
 const response = await anthropic.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 4096,
-  messages: [/* ... */],
+  messages: [
+    // ...
+  ],
   tools: [
     {
       type: "memory_20250818",
@@ -496,19 +638,212 @@ const response = await anthropic.messages.create({
 });
 ```
 
+```csharp C# nocheck
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+AnthropicClient client = new();
+
+var parameters = new MessageCreateParams
+{
+    Model = Model.ClaudeOpus4_6,
+    MaxTokens = 4096,
+    Messages = [/* ... */],
+    Tools = [
+        new ToolUnion(new MemoryTool20250818()),
+        // Your other tools
+    ],
+    ContextManagement = new BetaContextManagementConfig
+    {
+        Edits = [
+            new BetaClearToolUses20250919Edit
+            {
+                Trigger = new InputTokensTrigger
+                {
+                    Type = "input_tokens",
+                    Value = 100000
+                },
+                Keep = new KeepToolUses
+                {
+                    Type = "tool_uses",
+                    Value = 3
+                }
+            }
+        ]
+    },
+    Betas = ["context-management-2025-06-27"]
+};
+
+var response = await client.Beta.Messages.Create(parameters);
+Console.WriteLine(response);
+```
+
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages: []anthropic.BetaMessageParam{
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("What do you remember about me?")),
+		},
+		Tools: []anthropic.BetaToolUnionParam{
+			{OfMemoryTool20250818: &anthropic.BetaMemoryTool20250818Param{}},
+			// Your other tools
+		},
+		Betas: []anthropic.AnthropicBeta{anthropic.AnthropicBetaContextManagement2025_06_27},
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{{
+				OfClearToolUses20250919: &anthropic.BetaClearToolUses20250919EditParam{
+					Trigger: anthropic.BetaClearToolUses20250919EditTriggerUnionParam{
+						OfInputTokens: &anthropic.BetaInputTokensTriggerParam{
+							Value: 100000,
+						},
+					},
+					Keep: anthropic.BetaToolUsesKeepParam{
+						Value: 3,
+					},
+				},
+			}},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java nocheck hidelines={1..2,7..12,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.AnthropicBeta;
+import com.anthropic.models.beta.messages.BetaClearToolUses20250919Edit;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaMemoryTool20250818;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+
+public class ContextManagementExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(4096L)
+            .addTool(BetaMemoryTool20250818.builder().build())
+            .addUserMessage("Help me with a task.")
+            .addBeta(AnthropicBeta.CONTEXT_MANAGEMENT_2025_06_27)
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaClearToolUses20250919Edit.builder()
+                    .inputTokensTrigger(100000L)
+                    .toolUsesKeep(3L)
+                    .build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..4} nocheck
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: [],
+    model: 'claude-opus-4-6',
+    tools: [
+        [
+            'type' => 'memory_20250818',
+            'name' => 'memory',
+        ],
+    ],
+    betas: ['context-management-2025-06-27'],
+    contextManagement: [
+        'edits' => [
+            [
+                'type' => 'clear_tool_uses_20250919',
+                'trigger' => [
+                    'type' => 'input_tokens',
+                    'value' => 100000,
+                ],
+                'keep' => [
+                    'type' => 'tool_uses',
+                    'value' => 3,
+                ],
+            ],
+        ],
+    ],
+);
+```
+
+```ruby Ruby nocheck hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+message = client.beta.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: [],
+  tools: [
+    {
+      type: "memory_20250818",
+      name: "memory"
+    }
+  ],
+  betas: ["context-management-2025-06-27"],
+  context_management: {
+    edits: [
+      {
+        type: "clear_tool_uses_20250919",
+        trigger: {
+          type: "input_tokens",
+          value: 100000
+        },
+        keep: {
+          type: "tool_uses",
+          value: 3
+        }
+      }
+    ]
+  }
+)
+puts message
+```
+
 </CodeGroup>
 
 You can also exclude memory tool calls from being cleared to ensure Claude always has access to recent memory operations:
 
 <CodeGroup>
 
-```python Python
+```python Python nocheck
 context_management = {
     "edits": [{"type": "clear_tool_uses_20250919", "exclude_tools": ["memory"]}]
 }
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck
 context_management: {
   edits: [
     {
@@ -519,6 +854,43 @@ context_management: {
 }
 ```
 
+```csharp C# nocheck
+var contextManagement = new BetaContextManagementConfig
+{
+    Edits = [new BetaClearToolUses20250919Edit { ExcludeTools = ["memory"] }]
+};
+```
+
+```go Go nocheck
+contextManagement := anthropic.BetaContextManagementConfigParam{
+	Edits: []anthropic.BetaContextManagementConfigEditUnionParam{{
+		OfClearToolUses20250919: &anthropic.BetaClearToolUses20250919EditParam{
+			ExcludeTools: []string{"memory"},
+		},
+	}},
+}
+```
+
+```java Java nocheck
+BetaContextManagementConfig contextManagement = BetaContextManagementConfig.builder()
+    .addEdit(BetaClearToolUses20250919Edit.builder()
+        .addExcludeTool("memory")
+        .build())
+    .build();
+```
+
+```php PHP nocheck
+$contextManagement = [
+    'edits' => [['type' => 'clear_tool_uses_20250919', 'exclude_tools' => ['memory']]]
+];
+```
+
+```ruby Ruby nocheck
+context_management = {
+  edits: [{ type: "clear_tool_uses_20250919", exclude_tools: ["memory"] }]
+}
+```
+
 </CodeGroup>
 
 ## Using with Compaction
@@ -526,3 +898,23 @@ context_management: {
 The memory tool can also be paired with [compaction](./developer-build-with-claude-compaction.md), which provides server-side summarization of older conversation context. While context editing clears specific tool results on the client side, compaction automatically summarizes the entire conversation on the server side when it approaches the context window limit.
 
 For long-running agentic workflows, consider using both: compaction keeps the active context manageable without client-side bookkeeping, and memory persists important information across compaction boundaries so that nothing critical is lost in the summary.
+
+## Multi-session software development pattern
+
+For long-running software projects that span multiple agent sessions, memory files need to be bootstrapped deliberately, not just written ad hoc as work progresses. The pattern below turns memory into a structured recovery mechanism, so each new session can pick up exactly where the last one left off.
+
+### How it works
+
+1. **Initializer session:** The first session sets up the memory artifacts before any substantive work begins. This includes a progress log (tracking what has been done and what comes next), a feature checklist (defining the scope of work), and a reference to any startup or initialization script the project needs.
+
+2. **Subsequent sessions:** Each new session opens by reading those memory artifacts. This recovers the full state of the project in seconds, without needing to re-explore the codebase or retrace earlier decisions.
+
+3. **End-of-session update:** Before a session ends, it updates the progress log with what was completed and what remains. This ensures the next session has an accurate starting point.
+
+### Key principle
+
+Work on one feature at a time. Only mark a feature complete after end-to-end verification confirms it works, not just after the code is written. This keeps the progress log trustworthy and prevents scope creep from compounding across sessions.
+
+<Tip>
+For a detailed case study of this pattern in practice, including the initializer script, progress file structure, and git-based recovery, see [Effective harnesses for long-running agents](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents).
+</Tip>

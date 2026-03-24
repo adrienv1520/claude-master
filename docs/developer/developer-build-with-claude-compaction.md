@@ -8,13 +8,20 @@ Server-side context compaction for managing long conversations that approach con
 Server-side compaction is the recommended strategy for managing context in long-running conversations and agentic workflows. It handles context management automatically with minimal integration work.
 </Tip>
 
-Compaction extends the effective context length for long-running conversations and tasks by automatically summarizing older context when approaching the context window limit. This is ideal for:
+Compaction extends the effective context length for long-running conversations and tasks by automatically summarizing older context when approaching the context window limit. This isn't just about staying under a token cap. As conversations get longer, models struggle to maintain focus across the full history. Compaction keeps the active context focused and performant by replacing stale content with concise summaries.
+
+<Tip>
+For a deeper look at why long contexts degrade and how compaction helps, see
+[Effective context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents).
+</Tip>
+
+This is ideal for:
 
 - Chat-based, multi-turn conversations where you want users to use one chat for a long period of time
-- Task-oriented prompts that require a lot of follow-up work (often tool use) that may exceed the 200K context window
+- Task-oriented prompts that require a lot of follow-up work (often tool use) that may exceed the context window
 
 <Note>
-Compaction is currently in beta. Include the [beta header](../api/api-beta-headers.md) `compact-2026-01-12` in your API requests to use this feature.
+Compaction is in beta. Include the [beta header](../api/api-beta-headers.md) `compact-2026-01-12` in your API requests to use this feature.
 </Note>
 
 <Note>
@@ -72,7 +79,7 @@ curl https://api.anthropic.com/v1/messages \
 }'
 ```
 
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -91,12 +98,14 @@ response = client.beta.messages.create(
 messages.append({"role": "assistant", "content": response.content})
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
 
-const messages = [{ role: "user", content: "Help me build a website" }];
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [
+  { role: "user", content: "Help me build a website" }
+];
 
 const response = await client.beta.messages.create({
   betas: ["compact-2026-01-12"],
@@ -110,10 +119,182 @@ const response = await client.beta.messages.create({
       }
     ]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
 
 // Append the response (including any compaction block) to continue the conversation
-messages.push({ role: "assistant", content: response.content });
+messages.push({
+  role: "assistant",
+  content: response.content as unknown as Anthropic.Beta.Messages.BetaContentBlockParam[]
+});
+```
+
+```csharp C#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var messages = new List<BetaMessageParam>
+        {
+            new() { Role = Role.User, Content = "Help me build a website" }
+        };
+
+        var parameters = new MessageCreateParams
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit()]
+            }
+        };
+
+        var response = await client.Beta.Messages.Create(parameters);
+
+        // Append the response (including any compaction block) to continue the conversation
+        messages.Add(new BetaMessageParam
+        {
+            Role = Role.Assistant,
+            Content = response.Content.Select(b => new BetaContentBlockParam(b.Json)).ToList()
+        });
+
+        Console.WriteLine(response);
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	messages := []anthropic.BetaMessageParam{
+		anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Help me build a website")),
+	}
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages:  messages,
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Append the response (including any compaction block) to continue the conversation
+	messages = append(messages, response.ToParam())
+
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..4,7..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+
+public class CompactionExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .addBeta("compact-2026-01-12")
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addUserMessage("Help me build a website")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder().build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+
+        // Append the response (including any compaction block) to continue the conversation
+        // by including it in the next request's messages
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$messages = [
+    ['role' => 'user', 'content' => 'Help me build a website']
+];
+
+$response = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [
+            ['type' => 'compact_20260112']
+        ]
+    ]
+);
+
+// Append the response (including any compaction block) to continue the conversation
+$messages[] = ['role' => 'assistant', 'content' => $response->content];
+
+echo $response->content[0]->text;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+messages = [
+  { role: "user", content: "Help me build a website" }
+]
+
+response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: messages,
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+)
+
+# Append the response (including any compaction block) to continue the conversation
+messages << { role: "assistant", content: response.content }
+
+puts response
 ```
 </CodeGroup>
 
@@ -131,7 +312,11 @@ messages.push({ role: "assistant", content: response.content });
 Configure when compaction triggers using the `trigger` parameter:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 response = client.beta.messages.create(
     betas=["compact-2026-01-12"],
     model="claude-opus-4-6",
@@ -148,7 +333,12 @@ response = client.beta.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
+
 const response = await client.beta.messages.create({
   betas: ["compact-2026-01-12"],
   model: "claude-opus-4-6",
@@ -165,7 +355,164 @@ const response = await client.beta.messages.create({
       }
     ]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
+```
+
+```csharp C# hidelines={1..13,-2..}
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+        List<BetaMessageParam> messages = [new() { Role = Role.User, Content = "Hello" }];
+
+        var parameters = new MessageCreateParams
+        {
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Betas = ["compact-2026-01-12"],
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit
+                {
+                    Trigger = new BetaInputTokensTrigger(150000)
+                }]
+            }
+        };
+
+        var message = await client.Beta.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+	messages := []anthropic.BetaMessageParam{anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello, Claude"))}
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages:  messages,
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{
+					Trigger: anthropic.BetaInputTokensTriggerParam{Value: 150000},
+				}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..4,8..10,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+import com.anthropic.models.beta.messages.BetaInputTokensTrigger;
+
+public class CompactionExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addBeta("compact-2026-01-12")
+            .addUserMessage("Hello, Claude")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder()
+                    .trigger(BetaInputTokensTrigger.builder()
+                        .value(150000L)
+                        .build())
+                    .build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [['role' => 'user', 'content' => 'Hello, Claude']];
+
+$message = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [
+            [
+                'type' => 'compact_20260112',
+                'trigger' => [
+                    'type' => 'input_tokens',
+                    'value' => 150000
+                ]
+            ]
+        ]
+    ]
+);
+
+echo $message;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = [{ role: "user", content: "Hello, Claude" }]
+
+response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: messages,
+  context_management: {
+    edits: [
+      {
+        type: "compact_20260112",
+        trigger: {
+          type: "input_tokens",
+          value: 150000
+        }
+      }
+    ]
+  }
+)
+puts response
 ```
 </CodeGroup>
 
@@ -180,7 +527,11 @@ You have written a partial transcript for the initial task above. Please write a
 You can provide custom instructions via the `instructions` parameter to replace this prompt entirely. Custom instructions don't supplement the default; they completely replace it:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 response = client.beta.messages.create(
     betas=["compact-2026-01-12"],
     model="claude-opus-4-6",
@@ -197,7 +548,12 @@ response = client.beta.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
+
 const response = await client.beta.messages.create({
   betas: ["compact-2026-01-12"],
   model: "claude-opus-4-6",
@@ -207,11 +563,175 @@ const response = await client.beta.messages.create({
     edits: [
       {
         type: "compact_20260112",
-        instructions: "Focus on preserving code snippets, variable names, and technical decisions."
+        instructions:
+          "Focus on preserving code snippets, variable names, and technical decisions."
       }
     ]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
+```
+
+```csharp C#
+using System;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages =
+            [
+                new BetaMessageParam { Role = Role.User, Content = "Help me build a Python web scraper" },
+                new BetaMessageParam { Role = Role.Assistant, Content = "I'll help you build a web scraper..." },
+                new BetaMessageParam { Role = Role.User, Content = "Add support for JavaScript-rendered pages" }
+            ],
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit
+                {
+                    Instructions = "Focus on preserving code snippets, variable names, and technical decisions."
+                }]
+            }
+        };
+
+        var message = await client.Beta.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages: []anthropic.BetaMessageParam{
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Help me build a Python web scraper")),
+			{Role: anthropic.BetaMessageParamRoleAssistant, Content: []anthropic.BetaContentBlockParamUnion{anthropic.NewBetaTextBlock("I'll help you build a web scraper...")}},
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Add support for JavaScript-rendered pages")),
+		},
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{
+					Instructions: anthropic.String("Focus on preserving code snippets, variable names, and technical decisions."),
+				}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..4,7..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+
+public class CompactionExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .addBeta("compact-2026-01-12")
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addUserMessage("Help me build a Python web scraper")
+            .addAssistantMessage("I'll help you build a web scraper...")
+            .addUserMessage("Add support for JavaScript-rendered pages")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder()
+                    .instructions("Focus on preserving code snippets, variable names, and technical decisions.")
+                    .build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..3}
+<?php
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$response = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: [
+        ['role' => 'user', 'content' => 'Help me build a Python web scraper'],
+        ['role' => 'assistant', 'content' => "I'll help you build a web scraper..."],
+        ['role' => 'user', 'content' => 'Add support for JavaScript-rendered pages']
+    ],
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [
+            [
+                'type' => 'compact_20260112',
+                'instructions' => 'Focus on preserving code snippets, variable names, and technical decisions.'
+            ]
+        ]
+    ]
+);
+
+echo $response->content[0]->text;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: [
+    { role: "user", content: "Help me build a Python web scraper" },
+    { role: "assistant", content: "I'll help you build a web scraper..." },
+    { role: "user", content: "Add support for JavaScript-rendered pages" }
+  ],
+  context_management: {
+    edits: [
+      {
+        type: "compact_20260112",
+        instructions:
+          "Focus on preserving code snippets, variable names, and technical decisions."
+      }
+    ]
+  }
+)
+
+puts response
 ```
 </CodeGroup>
 
@@ -222,7 +742,11 @@ Use `pause_after_compaction` to pause the API after generating the compaction su
 When enabled, the API returns a message with the `compaction` stop reason after generating the compaction block:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 response = client.beta.messages.create(
     betas=["compact-2026-01-12"],
     model="claude-opus-4-6",
@@ -248,7 +772,12 @@ if response.stop_reason == "compaction":
     )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
+
 let response = await client.beta.messages.create({
   betas: ["compact-2026-01-12"],
   model: "claude-opus-4-6",
@@ -262,12 +791,15 @@ let response = await client.beta.messages.create({
       }
     ]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
 
 // Check if compaction triggered a pause
-if (response.stop_reason === "compaction") {
+if ((response.stop_reason as string) === "compaction") {
   // Response contains only the compaction block
-  messages.push({ role: "assistant", content: response.content });
+  messages.push({
+    role: "assistant",
+    content: response.content as unknown as Anthropic.Beta.Messages.BetaContentBlockParam[]
+  });
 
   // Continue the request
   response = await client.beta.messages.create({
@@ -278,8 +810,258 @@ if (response.stop_reason === "compaction") {
     context_management: {
       edits: [{ type: "compact_20260112" }]
     }
-  });
+  } as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
 }
+```
+
+```csharp C#
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        var client = new AnthropicClient();
+        var messages = new List<BetaMessageParam>();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Betas = ["compact-2026-01-12"],
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit
+                {
+                    PauseAfterCompaction = true
+                }]
+            }
+        };
+
+        var response = await client.Beta.Messages.Create(parameters);
+
+        if (response.StopReason == BetaStopReason.Compaction)
+        {
+            messages.Add(new BetaMessageParam
+            {
+                Role = Role.Assistant,
+                Content = response.Content.Select(b => new BetaContentBlockParam(b.Json)).ToList()
+            });
+
+            parameters = new()
+            {
+                Model = "claude-opus-4-6",
+                MaxTokens = 4096,
+                Betas = ["compact-2026-01-12"],
+                Messages = messages,
+                ContextManagement = new BetaContextManagementConfig
+                {
+                    Edits = [new BetaCompact20260112Edit()]
+                }
+            };
+
+            response = await client.Beta.Messages.Create(parameters);
+        }
+
+        Console.WriteLine(response);
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+	messages := []anthropic.BetaMessageParam{anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello, Claude"))}
+
+	compactEdit := anthropic.BetaContextManagementConfigParam{
+		Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+			{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{
+				PauseAfterCompaction: anthropic.Bool(true),
+			}},
+		},
+	}
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:             anthropic.ModelClaudeOpus4_6,
+		MaxTokens:         4096,
+		Messages:          messages,
+		ContextManagement: compactEdit,
+		Betas:             []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if response.StopReason == "compaction" {
+		messages = append(messages, response.ToParam())
+
+		response, err = client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+			Model:     anthropic.ModelClaudeOpus4_6,
+			MaxTokens: 4096,
+			Messages:  messages,
+			ContextManagement: anthropic.BetaContextManagementConfigParam{
+				Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+					{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+				},
+			},
+			Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..4,8..10,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+import com.anthropic.models.beta.messages.BetaStopReason;
+
+public class CompactionPauseExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addBeta("compact-2026-01-12")
+            .addUserMessage("Help me build a website")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder()
+                    .pauseAfterCompaction(true)
+                    .build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+
+        // Check if compaction triggered a pause
+        if (response.stopReason().isPresent()
+                && response.stopReason().get().equals(BetaStopReason.COMPACTION)) {
+            // Append the compaction block and continue the request
+            // by building a new request with the compacted context
+            MessageCreateParams continueParams = MessageCreateParams.builder()
+                .model("claude-opus-4-6")
+                .maxTokens(4096L)
+                .addBeta("compact-2026-01-12")
+                .addUserMessage("Help me build a website")
+                .addMessage(response)
+                .contextManagement(BetaContextManagementConfig.builder()
+                    .addEdit(BetaCompact20260112Edit.builder().build())
+                    .build())
+                .build();
+
+            response = client.beta().messages().create(continueParams);
+        }
+
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [];
+
+$response = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [
+            [
+                'type' => 'compact_20260112',
+                'pauseAfterCompaction' => true
+            ]
+        ]
+    ]
+);
+
+if ($response->stopReason === 'compaction') {
+    $messages[] = [
+        'role' => 'assistant',
+        'content' => $response->content
+    ];
+
+    $response = $client->beta->messages->create(
+        maxTokens: 4096,
+        messages: $messages,
+        model: 'claude-opus-4-6',
+        betas: ['compact-2026-01-12'],
+        contextManagement: [
+            'edits' => [
+                ['type' => 'compact_20260112']
+            ]
+        ]
+    );
+}
+
+echo $response;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = []
+
+response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: messages,
+  context_management: {
+    edits: [
+      {
+        type: "compact_20260112",
+        pause_after_compaction: true
+      }
+    ]
+  }
+)
+
+if response.stop_reason == :compaction
+  messages << { role: "assistant", content: response.content }
+
+  response = client.beta.messages.create(
+    betas: ["compact-2026-01-12"],
+    model: "claude-opus-4-6",
+    max_tokens: 4096,
+    messages: messages,
+    context_management: {
+      edits: [{ type: "compact_20260112" }]
+    }
+  )
+end
+
+puts response
 ```
 </CodeGroup>
 
@@ -287,7 +1069,11 @@ if (response.stop_reason === "compaction") {
 
 When a model works on long tasks with many tool-use iterations, total token consumption can grow significantly. You can combine `pause_after_compaction` with a compaction counter to estimate cumulative usage and gracefully wrap up the task once a budget is reached:
 
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 TRIGGER_THRESHOLD = 100_000
 TOTAL_TOKEN_BUDGET = 3_000_000
 n_compactions = 0
@@ -348,7 +1134,18 @@ A long-running conversation may result in multiple compactions. The last compact
 You must pass the `compaction` block back to the API on subsequent requests to continue the conversation with the shortened prompt. The simplest approach is to append the entire response content to your messages:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
+response = client.beta.messages.create(
+    betas=["compact-2026-01-12"],
+    model="claude-opus-4-6",
+    max_tokens=4096,
+    messages=messages,
+    context_management={"edits": [{"type": "compact_20260112"}]},
+)
 # After receiving a response with a compaction block
 messages.append({"role": "assistant", "content": response.content})
 
@@ -364,9 +1161,28 @@ response = client.beta.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
+
+// Assume we already have a response from a previous request
+const response = await client.beta.messages.create({
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages,
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
+
 // After receiving a response with a compaction block
-messages.push({ role: "assistant", content: response.content });
+messages.push({
+  role: "assistant",
+  content: response.content as unknown as Anthropic.Beta.Messages.BetaContentBlockParam[]
+});
 
 // Continue the conversation
 messages.push({ role: "user", content: "Now add error handling" });
@@ -379,7 +1195,234 @@ const nextResponse = await client.beta.messages.create({
   context_management: {
     edits: [{ type: "compact_20260112" }]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
+```
+
+```csharp C#
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var messages = new List<BetaMessageParam>
+        {
+            new() { Role = Role.User, Content = "Help me build a web scraper" }
+        };
+
+        var response = await client.Beta.Messages.Create(new()
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit()]
+            }
+        });
+
+        messages.Add(new BetaMessageParam
+        {
+            Role = Role.Assistant,
+            Content = response.Content.Select(b => new BetaContentBlockParam(b.Json)).ToList()
+        });
+
+        messages.Add(new BetaMessageParam { Role = Role.User, Content = "Now add error handling" });
+
+        var nextResponse = await client.Beta.Messages.Create(new()
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit()]
+            }
+        });
+
+        Console.WriteLine(nextResponse);
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	messages := []anthropic.BetaMessageParam{
+		anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Help me build a web scraper")),
+	}
+
+	compactEdit := anthropic.BetaContextManagementConfigParam{
+		Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+			{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+		},
+	}
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:             anthropic.ModelClaudeOpus4_6,
+		MaxTokens:         4096,
+		Messages:          messages,
+		ContextManagement: compactEdit,
+		Betas:             []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	messages = append(messages, response.ToParam())
+
+	messages = append(messages, anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Now add error handling")))
+
+	nextResponse, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:             anthropic.ModelClaudeOpus4_6,
+		MaxTokens:         4096,
+		Messages:          messages,
+		ContextManagement: compactEdit,
+		Betas:             []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(nextResponse)
+}
+```
+
+```java Java hidelines={1..4,7..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+
+public class CompactionExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        // First request
+        BetaMessage response = client.beta().messages().create(
+            MessageCreateParams.builder()
+                .addBeta("compact-2026-01-12")
+                .model("claude-opus-4-6")
+                .maxTokens(4096L)
+                .addUserMessage("Help me build a web scraper")
+                .contextManagement(BetaContextManagementConfig.builder()
+                    .addEdit(BetaCompact20260112Edit.builder().build())
+                    .build())
+                .build());
+
+        // After receiving a response with a compaction block, append the full
+        // content (including compaction blocks) and continue the conversation
+        BetaMessage nextResponse = client.beta().messages().create(
+            MessageCreateParams.builder()
+                .addBeta("compact-2026-01-12")
+                .model("claude-opus-4-6")
+                .maxTokens(4096L)
+                .addUserMessage("Help me build a web scraper")
+                .addMessage(response)
+                .addUserMessage("Now add error handling")
+                .contextManagement(BetaContextManagementConfig.builder()
+                    .addEdit(BetaCompact20260112Edit.builder().build())
+                    .build())
+                .build());
+
+        System.out.println(nextResponse);
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$messages = [
+    ['role' => 'user', 'content' => 'Help me build a web scraper']
+];
+
+$response = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [['type' => 'compact_20260112']]
+    ]
+);
+
+$messages[] = ['role' => 'assistant', 'content' => $response->content];
+
+$messages[] = ['role' => 'user', 'content' => 'Now add error handling'];
+
+$nextResponse = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [['type' => 'compact_20260112']]
+    ]
+);
+
+echo $nextResponse->content[0]->text;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+messages = [
+  { role: "user", content: "Help me build a web scraper" }
+]
+
+response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: messages,
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+)
+
+messages << { role: "assistant", content: response.content }
+
+messages << { role: "user", content: "Now add error handling" }
+
+next_response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: messages,
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+)
+
+puts next_response.content
 ```
 </CodeGroup>
 
@@ -393,10 +1436,11 @@ When the API receives a `compaction` block, all content blocks before it are ign
 When streaming responses with compaction enabled, you'll receive a `content_block_start` event when compaction begins. The compaction block streams differently from text blocks. You'll receive a `content_block_start` event, followed by a single `content_block_delta` with the complete summary content (no intermediate streaming), and then a `content_block_stop` event.
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 
 with client.beta.messages.stream(
     betas=["compact-2026-01-12"],
@@ -423,10 +1467,11 @@ with client.beta.messages.stream(
     messages.append({"role": "assistant", "content": message.content})
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
 
 const stream = await client.beta.messages.stream({
   betas: ["compact-2026-01-12"],
@@ -436,18 +1481,20 @@ const stream = await client.beta.messages.stream({
   context_management: {
     edits: [{ type: "compact_20260112" }]
   }
-});
+} as unknown as Anthropic.Beta.Messages.BetaMessageStreamParams);
 
 for await (const event of stream) {
   if (event.type === "content_block_start") {
-    if (event.content_block.type === "compaction") {
+    if ((event.content_block as { type: string }).type === "compaction") {
       console.log("Compaction started...");
     } else if (event.content_block.type === "text") {
       console.log("Text response started...");
     }
   } else if (event.type === "content_block_delta") {
-    if (event.delta.type === "compaction_delta") {
-      console.log(`Compaction complete: ${event.delta.content.length} chars`);
+    if ((event.delta as { type: string }).type === "compaction_delta") {
+      console.log(
+        `Compaction complete: ${(event.delta as unknown as { content: string }).content.length} chars`
+      );
     } else if (event.delta.type === "text_delta") {
       process.stdout.write(event.delta.text);
     }
@@ -456,7 +1503,233 @@ for await (const event of stream) {
 
 // Get the final accumulated message
 const message = await stream.finalMessage();
-messages.push({ role: "assistant", content: message.content });
+messages.push({
+  role: "assistant",
+  content: message.content as unknown as Anthropic.Beta.Messages.BetaContentBlockParam[]
+});
+```
+
+```csharp C# hidelines={1..13,-2..}
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        var client = new AnthropicClient();
+        List<BetaMessageParam> messages = [new() { Role = Role.User, Content = "Hello" }];
+
+        var parameters = new MessageCreateParams
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit()]
+            }
+        };
+
+        await foreach (var streamEvent in client.Beta.Messages.CreateStreaming(parameters))
+        {
+            if (streamEvent.TryPickContentBlockStart(out var startEvent))
+            {
+                if (startEvent.ContentBlock.TryPickBetaCompaction(out _))
+                {
+                    Console.WriteLine("Compaction started...");
+                }
+                else if (startEvent.ContentBlock.TryPickBetaText(out _))
+                {
+                    Console.WriteLine("Text response started...");
+                }
+            }
+            else if (streamEvent.TryPickContentBlockDelta(out var deltaEvent))
+            {
+                if (deltaEvent.Delta.TryPickCompaction(out var compactionDelta))
+                {
+                    Console.WriteLine($"Compaction complete: {compactionDelta.Content?.Length ?? 0} chars");
+                }
+                else if (deltaEvent.Delta.TryPickText(out var textDelta))
+                {
+                    Console.Write(textDelta.Text);
+                }
+            }
+        }
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+	messages := []anthropic.BetaMessageParam{anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello, Claude"))}
+
+	stream := client.Beta.Messages.NewStreaming(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages:  messages,
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+
+	for stream.Next() {
+		event := stream.Current()
+		switch eventVariant := event.AsAny().(type) {
+		case anthropic.BetaRawContentBlockStartEvent:
+			switch eventVariant.ContentBlock.AsAny().(type) {
+			case anthropic.BetaCompactionBlock:
+				fmt.Println("Compaction started...")
+			case anthropic.BetaTextBlock:
+				fmt.Println("Text response started...")
+			}
+		case anthropic.BetaRawContentBlockDeltaEvent:
+			switch deltaVariant := eventVariant.Delta.AsAny().(type) {
+			case anthropic.BetaCompactionContentBlockDelta:
+				fmt.Printf("Compaction complete: %d chars\n", len(deltaVariant.Content))
+			case anthropic.BetaTextDelta:
+				fmt.Print(deltaVariant.Text)
+			}
+		}
+	}
+	if err := stream.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+```java Java hidelines={1..3,6..8,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+
+public class CompactionStreamingExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addBeta("compact-2026-01-12")
+            .addUserMessage("Hello, Claude")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder().build())
+                .build())
+            .build();
+
+        try (var streamResponse = client.beta().messages().createStreaming(params)) {
+            streamResponse.stream().forEach(event -> {
+                event.contentBlockStart().ifPresent(startEvent -> {
+                    startEvent.contentBlock().compaction().ifPresent(c ->
+                        System.out.println("Compaction started...")
+                    );
+                    startEvent.contentBlock().text().ifPresent(t ->
+                        System.out.println("Text response started...")
+                    );
+                });
+
+                event.contentBlockDelta().ifPresent(deltaEvent -> {
+                    deltaEvent.delta().compaction().ifPresent(cd ->
+                        System.out.println("Compaction complete: " + cd.content().map(String::length).orElse(0) + " chars")
+                    );
+                    deltaEvent.delta().text().ifPresent(td ->
+                        System.out.print(td.text())
+                    );
+                });
+            });
+        }
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [['role' => 'user', 'content' => 'Hello, Claude']];
+
+$stream = $client->beta->messages->createStream(
+    maxTokens: 4096,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [
+            ['type' => 'compact_20260112']
+        ]
+    ]
+);
+
+foreach ($stream as $event) {
+    if ($event->type === 'content_block_start') {
+        if ($event->contentBlock->type === 'compaction') {
+            echo "Compaction started...\n";
+        } elseif ($event->contentBlock->type === 'text') {
+            echo "Text response started...\n";
+        }
+    } elseif ($event->type === 'content_block_delta') {
+        if ($event->delta->type === 'compaction_delta') {
+            echo "Compaction complete: " . strlen($event->delta->content) . " chars\n";
+        } elseif ($event->delta->type === 'text_delta') {
+            echo $event->delta->text;
+        }
+    }
+}
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = [{ role: "user", content: "Hello, Claude" }]
+
+stream = client.beta.messages.stream(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: messages,
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+)
+
+stream.each do |event|
+  case event.type
+  when :content_block_start
+    if event.content_block.type == :compaction
+      puts "Compaction started..."
+    elsif event.content_block.type == :text
+      puts "Text response started..."
+    end
+  when :content_block_delta
+    if event.delta.type == :compaction_delta
+      puts "Compaction complete: #{event.delta.content.length} chars"
+    elsif event.delta.type == :text_delta
+      print event.delta.text
+    end
+  end
+end
 ```
 </CodeGroup>
 
@@ -466,18 +1739,18 @@ Compaction works well with [prompt caching](./developer-build-with-claude-prompt
 
 ```json
 {
-    "role": "assistant",
-    "content": [
-        {
-            "type": "compaction",
-            "content": "[summary text]",
-            "cache_control": {"type": "ephemeral"}
-        },
-        {
-            "type": "text",
-            "text": "Based on our conversation..."
-        }
-    ]
+  "role": "assistant",
+  "content": [
+    {
+      "type": "compaction",
+      "content": "[summary text]",
+      "cache_control": { "type": "ephemeral" }
+    },
+    {
+      "type": "text",
+      "text": "Based on our conversation..."
+    }
+  ]
 }
 ```
 
@@ -491,7 +1764,11 @@ To maximize cache hit rates, add a `cache_control` breakpoint at the end of your
 - Only the compaction summary needs to be written as a new cache entry
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 response = client.beta.messages.create(
     betas=["compact-2026-01-12"],
     model="claude-opus-4-6",
@@ -510,7 +1787,12 @@ response = client.beta.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [];
+
 const response = await client.beta.messages.create({
   betas: ["compact-2026-01-12"],
   model: "claude-opus-4-6",
@@ -526,7 +1808,176 @@ const response = await client.beta.messages.create({
   context_management: {
     edits: [{ type: "compact_20260112" }]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCreateParamsNonStreaming);
+```
+
+```csharp C#
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        var client = new AnthropicClient();
+
+        var parameters = new MessageCreateParams
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            System = new List<BetaTextBlockParam>
+            {
+                new()
+                {
+                    Text = "You are a helpful coding assistant...",
+                    CacheControl = new BetaCacheControlEphemeral()
+                }
+            },
+            Messages = [],
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit()]
+            }
+        };
+
+        var response = await client.Beta.Messages.Create(parameters);
+        Console.WriteLine(response);
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		System: []anthropic.BetaTextBlockParam{
+			{
+				Text:         "You are a helpful coding assistant...",
+				CacheControl: anthropic.NewBetaCacheControlEphemeralParam(),
+			},
+		},
+		Messages: []anthropic.BetaMessageParam{anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello, Claude"))},
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..5,9..12,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaTextBlockParam;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+import com.anthropic.models.beta.messages.BetaCacheControlEphemeral;
+import java.util.List;
+
+public class CompactionExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addBeta("compact-2026-01-12")
+            .systemOfBetaTextBlockParams(List.of(
+                BetaTextBlockParam.builder()
+                    .text("You are a helpful coding assistant...")
+                    .cacheControl(BetaCacheControlEphemeral.builder().build())
+                    .build()
+            ))
+            .addUserMessage("Hello, Claude")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder().build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..3}
+<?php
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$response = $client->beta->messages->create(
+    maxTokens: 4096,
+    messages: [['role' => 'user', 'content' => 'Hello, Claude']],
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    system: [
+        [
+            'type' => 'text',
+            'text' => 'You are a helpful coding assistant...',
+            'cache_control' => [
+                'type' => 'ephemeral'
+            ]
+        ]
+    ],
+    contextManagement: [
+        'edits' => [
+            ['type' => 'compact_20260112']
+        ]
+    ]
+);
+
+echo $response->content[0]->text;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+response = client.beta.messages.create(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  system: [
+    {
+      type: "text",
+      text: "You are a helpful coding assistant...",
+      cache_control: {
+        type: "ephemeral"
+      }
+    }
+  ],
+  messages: [],
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+)
+puts response
 ```
 </CodeGroup>
 
@@ -560,7 +2011,7 @@ Compaction requires an additional sampling step, which contributes to rate limit
 The `iterations` array shows usage for each sampling iteration. When compaction occurs, you'll see a `compaction` iteration followed by the main `message` iteration. The final iteration's token counts reflect the effective context size after compaction.
 
 <Note>
-The top-level `input_tokens` and `output_tokens` do not include compaction iteration usage—they reflect the sum of all non-compaction iterations. To calculate total tokens consumed and billed for a request, sum across all entries in the `usage.iterations` array.
+The top-level `input_tokens` and `output_tokens` do not include compaction iteration usage. They reflect the sum of all non-compaction iterations. To calculate total tokens consumed and billed for a request, sum across all entries in the `usage.iterations` array.
 
 If you previously relied on `usage.input_tokens` and `usage.output_tokens` for cost tracking or auditing, you'll need to update your tracking logic to aggregate across `usage.iterations` when compaction is enabled. The `iterations` array is only populated when a new compaction is triggered during the request. Re-applying a previous `compaction` block incurs no additional compaction cost, and the top-level usage fields remain accurate in that case.
 </Note>
@@ -576,7 +2027,11 @@ When using server tools (like web search), the compaction trigger is checked at 
 The token counting endpoint (`/v1/messages/count_tokens`) applies existing `compaction` blocks in your prompt but does not trigger new compactions. Use it to check your effective token count after previous compactions:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "Hello, Claude"}]
 count_response = client.beta.messages.count_tokens(
     betas=["compact-2026-01-12"],
     model="claude-opus-4-6",
@@ -588,7 +2043,14 @@ print(f"Current tokens: {count_response.input_tokens}")
 print(f"Original tokens: {count_response.context_management.original_input_tokens}")
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
+
+const client = new Anthropic();
+const messages: Anthropic.Beta.Messages.BetaMessageParam[] = [
+  { role: "user", content: "Summarize the key points of our conversation so far." }
+];
+
 const countResponse = await client.beta.messages.countTokens({
   betas: ["compact-2026-01-12"],
   model: "claude-opus-4-6",
@@ -596,10 +2058,145 @@ const countResponse = await client.beta.messages.countTokens({
   context_management: {
     edits: [{ type: "compact_20260112" }]
   }
-});
+} as unknown as Anthropic.Beta.Messages.MessageCountTokensParams);
 
 console.log(`Current tokens: ${countResponse.input_tokens}`);
-console.log(`Original tokens: ${countResponse.context_management.original_input_tokens}`);
+console.log(`Original tokens: ${countResponse.context_management!.original_input_tokens}`);
+```
+
+```csharp C# hidelines={1..13,-2..}
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+        List<BetaMessageParam> messages = [new() { Role = Role.User, Content = "Hello" }];
+
+        var countParams = new MessageCountTokensParams
+        {
+            Model = "claude-opus-4-6",
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit()]
+            },
+            Betas = ["compact-2026-01-12"]
+        };
+
+        var countResponse = await client.Beta.Messages.CountTokens(countParams);
+        Console.WriteLine($"Current tokens: {countResponse.InputTokens}");
+        Console.WriteLine($"Original tokens: {countResponse.ContextManagement?.OriginalInputTokens}");
+    }
+}
+```
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+	messages := []anthropic.BetaMessageParam{anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello, Claude"))}
+
+	countResponse, err := client.Beta.Messages.CountTokens(context.TODO(), anthropic.BetaMessageCountTokensParams{
+		Model:    anthropic.ModelClaudeOpus4_6,
+		Messages: messages,
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Current tokens: %d\n", countResponse.InputTokens)
+	fmt.Printf("Original tokens: %d\n", countResponse.ContextManagement.OriginalInputTokens)
+}
+```
+
+```java Java hidelines={1..2,7..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.BetaMessageTokensCount;
+import com.anthropic.models.beta.messages.MessageCountTokensParams;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+
+public class Main {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCountTokensParams params = MessageCountTokensParams.builder()
+            .model("claude-opus-4-6")
+            .addUserMessage("Hello, Claude")
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder().build())
+                .build())
+            .addBeta("compact-2026-01-12")
+            .build();
+
+        BetaMessageTokensCount countResponse = client.beta().messages().countTokens(params);
+        System.out.println("Current tokens: " + countResponse.inputTokens());
+        System.out.println("Original tokens: " + countResponse.contextManagement().get().originalInputTokens());
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [['role' => 'user', 'content' => 'Hello, Claude']];
+
+$countResponse = $client->beta->messages->countTokens(
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    betas: ['compact-2026-01-12'],
+    contextManagement: [
+        'edits' => [
+            ['type' => 'compact_20260112']
+        ]
+    ]
+);
+
+echo "Current tokens: " . $countResponse->inputTokens . "\n";
+echo "Original tokens: " . $countResponse->contextManagement->originalInputTokens . "\n";
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = [{ role: "user", content: "Hello, Claude" }]
+
+count_response = client.beta.messages.count_tokens(
+  betas: ["compact-2026-01-12"],
+  model: "claude-opus-4-6",
+  messages: messages,
+  context_management: {
+    edits: [{ type: "compact_20260112" }]
+  }
+)
+
+puts "Current tokens: #{count_response.input_tokens}"
+puts "Original tokens: #{count_response.context_management.original_input_tokens}"
 ```
 </CodeGroup>
 
@@ -608,7 +2205,7 @@ console.log(`Original tokens: ${countResponse.context_management.original_input_
 Here's a complete example of a long-running conversation with compaction:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -648,7 +2245,7 @@ print(chat("Now add rate limiting and error handling"))
 # ... continue as long as needed
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
@@ -677,7 +2274,7 @@ async function chat(userMessage: string): Promise<string> {
   messages.push({ role: "assistant", content: response.content });
 
   // Return the text content
-  const textBlock = response.content.find(block => block.type === "text");
+  const textBlock = response.content.find((block) => block.type === "text");
   return textBlock?.text ?? "";
 }
 
@@ -687,12 +2284,250 @@ console.log(await chat("Add support for JavaScript-rendered pages"));
 console.log(await chat("Now add rate limiting and error handling"));
 // ... continue as long as needed
 ```
+
+```csharp C#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+public class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+        List<BetaMessageParam> messages = new();
+
+        Console.WriteLine(await Chat(client, messages, "Help me build a Python web scraper"));
+        Console.WriteLine(await Chat(client, messages, "Add support for JavaScript-rendered pages"));
+        Console.WriteLine(await Chat(client, messages, "Now add rate limiting and error handling"));
+    }
+
+    static async Task<string> Chat(AnthropicClient client, List<BetaMessageParam> messages, string userMessage)
+    {
+        messages.Add(new() { Role = Role.User, Content = userMessage });
+
+        var parameters = new MessageCreateParams
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit
+                {
+                    Trigger = new BetaInputTokensTrigger(100000)
+                }]
+            }
+        };
+
+        var response = await client.Beta.Messages.Create(parameters);
+
+        messages.Add(new()
+        {
+            Role = Role.Assistant,
+            Content = response.Content.Select(b => new BetaContentBlockParam(b.Json)).ToList()
+        });
+
+        return response.Content
+            .Select(b => b.Value)
+            .OfType<BetaTextBlock>()
+            .Select(tb => tb.Text)
+            .FirstOrDefault() ?? "";
+    }
+}
+```
+```go Go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+var (
+	client   = anthropic.NewClient()
+	messages []anthropic.BetaMessageParam
+)
+
+func chat(userMessage string) string {
+	messages = append(messages, anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock(userMessage)))
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages:  messages,
+		ContextManagement: anthropic.BetaContextManagementConfigParam{
+			Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+				{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{
+					Trigger: anthropic.BetaInputTokensTriggerParam{Value: 100000},
+				}},
+			},
+		},
+		Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	messages = append(messages, response.ToParam())
+
+	for _, block := range response.Content {
+		if variant, ok := block.AsAny().(anthropic.BetaTextBlock); ok {
+			return variant.Text
+		}
+	}
+	return ""
+}
+
+func main() {
+	fmt.Println(chat("Help me build a Python web scraper"))
+	fmt.Println(chat("Add support for JavaScript-rendered pages"))
+	fmt.Println(chat("Now add rate limiting and error handling"))
+}
+```
+
+```java Java hidelines={1..5,9..12,-1}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaMessageParam;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+import com.anthropic.models.beta.messages.BetaInputTokensTrigger;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CompactionExample {
+    private static final AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+    private static final List<BetaMessageParam> messages = new ArrayList<>();
+
+    public static void main(String[] args) {
+        System.out.println(chat("Help me build a Python web scraper"));
+        System.out.println(chat("Add support for JavaScript-rendered pages"));
+        System.out.println(chat("Now add rate limiting and error handling"));
+    }
+
+    private static String chat(String userMessage) {
+        messages.add(BetaMessageParam.builder()
+            .role(BetaMessageParam.Role.USER)
+            .content(userMessage)
+            .build());
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .addBeta("compact-2026-01-12")
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .messages(messages)
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder()
+                    .trigger(BetaInputTokensTrigger.builder()
+                        .value(100000L)
+                        .build())
+                    .build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+
+        // Append response (compaction blocks are automatically included)
+        messages.add(response.toParam());
+
+        return response.content().stream()
+            .filter(block -> block.text().isPresent())
+            .map(block -> block.text().get().text())
+            .findFirst()
+            .orElse("");
+    }
+}
+```
+
+```php PHP hidelines={1..3}
+<?php
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [];
+
+function chat($client, &$messages, $userMessage) {
+    $messages[] = ['role' => 'user', 'content' => $userMessage];
+
+    $response = $client->beta->messages->create(
+        maxTokens: 4096,
+        messages: $messages,
+        model: 'claude-opus-4-6',
+        betas: ['compact-2026-01-12'],
+        contextManagement: [
+            'edits' => [
+                [
+                    'type' => 'compact_20260112',
+                    'trigger' => ['type' => 'input_tokens', 'value' => 100000]
+                ]
+            ]
+        ]
+    );
+
+    $messages[] = ['role' => 'assistant', 'content' => $response->content];
+
+    foreach ($response->content as $block) {
+        if ($block->type === 'text') {
+            return $block->text;
+        }
+    }
+    return '';
+}
+
+echo chat($client, $messages, "Help me build a Python web scraper") . "\n";
+echo chat($client, $messages, "Add support for JavaScript-rendered pages") . "\n";
+echo chat($client, $messages, "Now add rate limiting and error handling") . "\n";
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = []
+
+def chat(client, messages, user_message)
+  messages << { role: "user", content: user_message }
+
+  response = client.beta.messages.create(
+    betas: ["compact-2026-01-12"],
+    model: "claude-opus-4-6",
+    max_tokens: 4096,
+    messages: messages,
+    context_management: {
+      edits: [
+        {
+          type: "compact_20260112",
+          trigger: { type: "input_tokens", value: 100000 }
+        }
+      ]
+    }
+  )
+
+  messages << { role: "assistant", content: response.content }
+
+  response.content.find { |block| block.type == :text }&.text || ""
+end
+
+puts chat(client, messages, "Help me build a Python web scraper")
+puts chat(client, messages, "Add support for JavaScript-rendered pages")
+puts chat(client, messages, "Now add rate limiting and error handling")
+```
 </CodeGroup>
 
-Here's an example that uses `pause_after_compaction` to preserve the last two messages (one user + one assistant turn) verbatim instead of summarizing them:
+Here's an example that uses `pause_after_compaction` to preserve the prior exchange and the current user message (three messages total) verbatim instead of summarizing them:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1}
 import anthropic
 from typing import Any
 
@@ -725,9 +2560,9 @@ def chat(user_message: str) -> str:
         # Get the compaction block from the response
         compaction_block = response.content[0]
 
-        # Preserve the last 2 messages (1 user + 1 assistant turn)
+        # Preserve the prior exchange + current user message (3 messages)
         # by including them after the compaction block
-        preserved_messages = messages[-2:] if len(messages) >= 2 else messages
+        preserved_messages = messages[-3:] if len(messages) >= 3 else messages
 
         # Build new message list: compaction + preserved messages
         new_assistant_content = [compaction_block]
@@ -762,7 +2597,7 @@ print(chat("Now add rate limiting and error handling"))
 # ... continue as long as needed
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
@@ -793,11 +2628,9 @@ async function chat(userMessage: string): Promise<string> {
     // Get the compaction block from the response
     const compactionBlock = response.content[0];
 
-    // Preserve the last 2 messages (1 user + 1 assistant turn)
+    // Preserve the prior exchange + current user message (3 messages)
     // by including them after the compaction block
-    const preservedMessages = messages.length >= 2
-      ? messages.slice(-2)
-      : [...messages];
+    const preservedMessages = messages.length >= 3 ? messages.slice(-3) : [...messages];
 
     // Build new message list: compaction + preserved messages
     const messagesAfterCompaction: Anthropic.Beta.BetaMessageParam[] = [
@@ -824,7 +2657,7 @@ async function chat(userMessage: string): Promise<string> {
   messages.push({ role: "assistant", content: response.content });
 
   // Return the text content
-  const textBlock = response.content.find(block => block.type === "text");
+  const textBlock = response.content.find((block) => block.type === "text");
   return textBlock?.text ?? "";
 }
 
@@ -833,6 +2666,397 @@ console.log(await chat("Help me build a Python web scraper"));
 console.log(await chat("Add support for JavaScript-rendered pages"));
 console.log(await chat("Now add rate limiting and error handling"));
 // ... continue as long as needed
+```
+
+```csharp C#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+public class CompactionExample
+{
+    private static AnthropicClient client = new();
+    private static List<BetaMessageParam> messages = new();
+
+    static async Task<string> Chat(string userMessage)
+    {
+        messages.Add(new() { Role = Role.User, Content = userMessage });
+
+        var response = await client.Beta.Messages.Create(new()
+        {
+            Betas = ["compact-2026-01-12"],
+            Model = "claude-opus-4-6",
+            MaxTokens = 4096,
+            Messages = messages,
+            ContextManagement = new BetaContextManagementConfig
+            {
+                Edits = [new BetaCompact20260112Edit
+                {
+                    Trigger = new BetaInputTokensTrigger(100000),
+                    PauseAfterCompaction = true
+                }]
+            }
+        });
+
+        if (response.StopReason == BetaStopReason.Compaction)
+        {
+            if (!response.Content[0].TryPickCompaction(out var cb))
+                throw new InvalidOperationException("Expected compaction block");
+
+            var preserved = messages.Count >= 3
+                ? messages.Skip(messages.Count - 3).ToList()
+                : new List<BetaMessageParam>(messages);
+
+            var messagesAfterCompaction = new List<BetaMessageParam>
+            {
+                new()
+                {
+                    Role = Role.Assistant,
+                    Content = new List<BetaContentBlockParam> { new BetaCompactionBlockParam(cb.Content) }
+                }
+            };
+            messagesAfterCompaction.AddRange(preserved);
+
+            response = await client.Beta.Messages.Create(new()
+            {
+                Betas = ["compact-2026-01-12"],
+                Model = "claude-opus-4-6",
+                MaxTokens = 4096,
+                Messages = messagesAfterCompaction,
+                ContextManagement = new BetaContextManagementConfig
+                {
+                    Edits = [new BetaCompact20260112Edit()]
+                }
+            });
+
+            messages = messagesAfterCompaction;
+        }
+
+        messages.Add(new()
+        {
+            Role = Role.Assistant,
+            Content = response.Content.Select(b => new BetaContentBlockParam(b.Json)).ToList()
+        });
+
+        return response.Content
+            .Select(b => b.Value)
+            .OfType<BetaTextBlock>()
+            .Select(tb => tb.Text)
+            .FirstOrDefault() ?? "";
+    }
+
+    static async Task Main()
+    {
+        Console.WriteLine(await Chat("Help me build a Python web scraper"));
+        Console.WriteLine(await Chat("Add support for JavaScript-rendered pages"));
+        Console.WriteLine(await Chat("Now add rate limiting and error handling"));
+    }
+}
+```
+```go Go
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+var (
+	client   = anthropic.NewClient()
+	messages []anthropic.BetaMessageParam
+)
+
+func chat(userMessage string) string {
+	messages = append(messages, anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock(userMessage)))
+
+	compactEdit := anthropic.BetaContextManagementConfigParam{
+		Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+			{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{
+				Trigger:              anthropic.BetaInputTokensTriggerParam{Value: 100000},
+				PauseAfterCompaction: anthropic.Bool(true),
+			}},
+		},
+	}
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:             anthropic.ModelClaudeOpus4_6,
+		MaxTokens:         4096,
+		Messages:          messages,
+		ContextManagement: compactEdit,
+		Betas:             []anthropic.AnthropicBeta{"compact-2026-01-12"},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if response.StopReason == "compaction" {
+		compactionParam := response.Content[0].ToParam()
+
+		var preserved []anthropic.BetaMessageParam
+		if len(messages) >= 3 {
+			preserved = messages[len(messages)-3:]
+		} else {
+			preserved = messages
+		}
+
+		messagesAfterCompaction := []anthropic.BetaMessageParam{
+			{Role: anthropic.BetaMessageParamRoleAssistant, Content: []anthropic.BetaContentBlockParamUnion{compactionParam}},
+		}
+		messagesAfterCompaction = append(messagesAfterCompaction, preserved...)
+
+		response, err = client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+			Model:     anthropic.ModelClaudeOpus4_6,
+			MaxTokens: 4096,
+			Messages:  messagesAfterCompaction,
+			ContextManagement: anthropic.BetaContextManagementConfigParam{
+				Edits: []anthropic.BetaContextManagementConfigEditUnionParam{
+					{OfCompact20260112: &anthropic.BetaCompact20260112EditParam{}},
+				},
+			},
+			Betas: []anthropic.AnthropicBeta{"compact-2026-01-12"},
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		messages = messagesAfterCompaction
+	}
+
+	messages = append(messages, response.ToParam())
+
+	for _, block := range response.Content {
+		if textBlock, ok := block.AsAny().(anthropic.BetaTextBlock); ok {
+			return textBlock.Text
+		}
+	}
+	return ""
+}
+
+func main() {
+	fmt.Println(chat("Help me build a Python web scraper"))
+	fmt.Println(chat("Add support for JavaScript-rendered pages"))
+	fmt.Println(chat("Now add rate limiting and error handling"))
+}
+```
+
+```java Java hidelines={1..5,10..13,-1}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaMessageParam;
+import com.anthropic.models.beta.messages.BetaContextManagementConfig;
+import com.anthropic.models.beta.messages.BetaCompact20260112Edit;
+import com.anthropic.models.beta.messages.BetaInputTokensTrigger;
+import com.anthropic.models.beta.messages.BetaStopReason;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CompactionExample {
+    private static final AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+    private static final List<BetaMessageParam> messages = new ArrayList<>();
+
+    public static String chat(String userMessage) {
+        messages.add(BetaMessageParam.builder()
+            .role(BetaMessageParam.Role.USER)
+            .content(userMessage)
+            .build());
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .addBeta("compact-2026-01-12")
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .messages(messages)
+            .contextManagement(BetaContextManagementConfig.builder()
+                .addEdit(BetaCompact20260112Edit.builder()
+                    .trigger(BetaInputTokensTrigger.builder()
+                        .value(100000L)
+                        .build())
+                    .pauseAfterCompaction(true)
+                    .build())
+                .build())
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+
+        // Check if compaction occurred and paused
+        if (response.stopReason().isPresent()
+                && response.stopReason().get().equals(BetaStopReason.COMPACTION)) {
+            // Preserve the prior exchange + current user message (3 messages)
+            List<BetaMessageParam> preservedMessages = messages.size() >= 3
+                ? new ArrayList<>(messages.subList(messages.size() - 3, messages.size()))
+                : new ArrayList<>(messages);
+
+            // Build new message list: compaction + preserved messages
+            List<BetaMessageParam> messagesAfterCompaction = new ArrayList<>();
+            messagesAfterCompaction.add(response.toParam());
+            messagesAfterCompaction.addAll(preservedMessages);
+
+            // Continue the request with the compacted context + preserved messages
+            MessageCreateParams continueParams = MessageCreateParams.builder()
+                .addBeta("compact-2026-01-12")
+                .model("claude-opus-4-6")
+                .maxTokens(4096L)
+                .messages(messagesAfterCompaction)
+                .contextManagement(BetaContextManagementConfig.builder()
+                    .addEdit(BetaCompact20260112Edit.builder().build())
+                    .build())
+                .build();
+
+            response = client.beta().messages().create(continueParams);
+
+            // Update our message list to reflect the compaction
+            messages.clear();
+            messages.addAll(messagesAfterCompaction);
+        }
+
+        // Append the final response
+        messages.add(response.toParam());
+
+        return response.content().stream()
+            .filter(block -> block.text().isPresent())
+            .map(block -> block.text().get().text())
+            .findFirst()
+            .orElse("");
+    }
+
+    public static void main(String[] args) {
+        System.out.println(chat("Help me build a Python web scraper"));
+        System.out.println(chat("Add support for JavaScript-rendered pages"));
+        System.out.println(chat("Now add rate limiting and error handling"));
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [];
+
+function chat($client, &$messages, $userMessage) {
+    $messages[] = ['role' => 'user', 'content' => $userMessage];
+
+    $response = $client->beta->messages->create(
+        maxTokens: 4096,
+        messages: $messages,
+        model: 'claude-opus-4-6',
+        betas: ['compact-2026-01-12'],
+        contextManagement: [
+            'edits' => [
+                [
+                    'type' => 'compact_20260112',
+                    'trigger' => ['type' => 'input_tokens', 'value' => 100000],
+                    'pauseAfterCompaction' => true
+                ]
+            ]
+        ]
+    );
+
+    if ($response->stopReason === 'compaction') {
+        $compactionBlock = $response->content[0];
+
+        $preserved = count($messages) >= 3
+            ? array_slice($messages, -3)
+            : $messages;
+
+        $messagesAfterCompaction = array_merge(
+            [['role' => 'assistant', 'content' => [$compactionBlock]]],
+            $preserved
+        );
+
+        $response = $client->beta->messages->create(
+            maxTokens: 4096,
+            messages: $messagesAfterCompaction,
+            model: 'claude-opus-4-6',
+            betas: ['compact-2026-01-12'],
+            contextManagement: [
+                'edits' => [['type' => 'compact_20260112']]
+            ]
+        );
+
+        $messages = $messagesAfterCompaction;
+    }
+
+    $messages[] = ['role' => 'assistant', 'content' => $response->content];
+
+    foreach ($response->content as $block) {
+        if ($block->type === 'text') {
+            return $block->text;
+        }
+    }
+    return '';
+}
+
+echo chat($client, $messages, "Help me build a Python web scraper") . "\n";
+echo chat($client, $messages, "Add support for JavaScript-rendered pages") . "\n";
+echo chat($client, $messages, "Now add rate limiting and error handling") . "\n";
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = []
+
+def chat(client, messages, user_message)
+  messages << { role: "user", content: user_message }
+
+  response = client.beta.messages.create(
+    betas: ["compact-2026-01-12"],
+    model: "claude-opus-4-6",
+    max_tokens: 4096,
+    messages: messages,
+    context_management: {
+      edits: [
+        {
+          type: "compact_20260112",
+          trigger: { type: "input_tokens", value: 100000 },
+          pause_after_compaction: true
+        }
+      ]
+    }
+  )
+
+  if response.stop_reason == :compaction
+    compaction_block = response.content[0]
+
+    preserved = messages.length >= 3 ? messages[-3..-1] : messages.dup
+
+    messages_after_compaction = [
+      { role: "assistant", content: [compaction_block] }
+    ] + preserved
+
+    response = client.beta.messages.create(
+      betas: ["compact-2026-01-12"],
+      model: "claude-opus-4-6",
+      max_tokens: 4096,
+      messages: messages_after_compaction,
+      context_management: {
+        edits: [{ type: "compact_20260112" }]
+      }
+    )
+
+    messages.clear
+    messages.concat(messages_after_compaction)
+  end
+
+  messages << { role: "assistant", content: response.content }
+
+  response.content.find { |block| block.type == :text }&.text || ""
+end
+
+puts chat(client, messages, "Help me build a Python web scraper")
+puts chat(client, messages, "Add support for JavaScript-rendered pages")
+puts chat(client, messages, "Now add rate limiting and error handling")
 ```
 </CodeGroup>
 

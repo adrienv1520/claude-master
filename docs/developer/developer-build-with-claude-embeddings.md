@@ -65,7 +65,7 @@ pip install -U voyageai
 
 Then, you can create a client object and start using it to embed your texts:
 
-```python
+```python nocheck
 import voyageai
 
 vo = voyageai.Client()
@@ -111,11 +111,11 @@ The response you would get is a JSON object containing the embeddings and the to
   "object": "list",
   "data": [
     {
-      "embedding": [-0.013131560757756233, 0.019828535616397858, ...],
+      "embedding": [-0.013131560757756233, 0.019828535616397858 /* ... */],
       "index": 0
     },
     {
-      "embedding": [-0.0069352793507277966, 0.020878976210951805, ...],
+      "embedding": [-0.0069352793507277966, 0.020878976210951805 /* ... */],
       "index": 1
     }
   ],
@@ -124,7 +124,6 @@ The response you would get is a JSON object containing the embeddings and the to
     "total_tokens": 10
   }
 }
-
 ```
 
 For more information on the Voyage HTTP API, see [the Voyage documentation](https://docs.voyageai.com/reference/embeddings-api).
@@ -139,7 +138,7 @@ The following brief example shows how to use embeddings.
 
 Suppose you have a small corpus of six documents to retrieve from
 
-```python
+```python nocheck
 documents = [
     "The Mediterranean diet emphasizes fish, olive oil, and vegetables, believed to reduce chronic diseases.",
     "Photosynthesis in plants converts light energy into glucose and produces essential oxygen.",
@@ -152,7 +151,7 @@ documents = [
 
 First, use Voyage to convert each document into an embedding vector
 
-```python
+```python nocheck
 import voyageai
 
 vo = voyageai.Client()
@@ -169,7 +168,7 @@ query = "When is Apple's conference call scheduled?"
 
 Next, convert it into an embedding and conduct a nearest neighbor search to find the most relevant document based on the distance in the embedding space.
 
-```python
+```python nocheck
 import numpy as np
 
 # Embed the query
@@ -238,7 +237,7 @@ If you are looking for a detailed set of cookbooks on how to do RAG with embeddi
 
   <section title="What is the relationship between characters, words, and tokens?">
 
-    Please see this [page](https://docs.voyageai.com/docs/tokenization?ref=anthropic).
+    See this [page](https://docs.voyageai.com/docs/tokenization?ref=anthropic).
   
 </section>
 
@@ -280,7 +279,8 @@ If you are looking for a detailed set of cookbooks on how to do RAG with embeddi
 
     Matryoshka learning creates embeddings with coarse-to-fine representations within a single vector. Voyage models, such as `voyage-code-3`, that support multiple output dimensions generate such Matryoshka embeddings. You can truncate these vectors by keeping the leading subset of dimensions. For example, the following Python code demonstrates how to truncate 1024-dimensional vectors to 256 dimensions:
 
-    ```python
+    
+    ```python nocheck
     import voyageai
     import numpy as np
 

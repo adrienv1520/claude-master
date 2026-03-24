@@ -35,29 +35,42 @@ Run `/terminal-setup` within Claude Code to automatically configure Shift+Enter 
 1. Open Settings → Profiles → Keyboard
 2. Check "Use Option as Meta Key"
 
-**For iTerm2 and VS Code terminal:**
+**For iTerm2:**
 
 1. Open Settings → Profiles → Keys
 2. Under General, set Left/Right Option key to "Esc+"
 
+**For VS Code terminal:**
+
+Set `"terminal.integrated.macOptionIsMeta": true` in VS Code settings.
+
 ### Notification setup
 
-Never miss when Claude completes a task with proper notification configuration:
+When Claude finishes working and is waiting for your input, it fires a notification event. You can surface this event as a desktop notification through your terminal or run custom logic with [notification hooks](./code-hooks.md#notification).
 
-#### iTerm 2 system notifications
+#### Terminal notifications
 
-For iTerm 2 alerts when tasks complete:
+Kitty and Ghostty support desktop notifications without additional configuration. iTerm 2 requires setup:
 
-1. Open iTerm 2 Preferences
-2. Navigate to Profiles → Terminal
-3. Enable "Silence bell" and Filter Alerts → "Send escape sequence-generated alerts"
-4. Set your preferred notification delay
+1. Open iTerm 2 Settings → Profiles → Terminal
+2. Enable "Notification Center Alerts"
+3. Click "Filter Alerts" and check "Send escape sequence-generated alerts"
 
-Note that these notifications are specific to iTerm 2 and not available in the default macOS Terminal.
+If notifications aren't appearing, verify that your terminal app has notification permissions in your OS settings.
 
-#### Custom notification hooks
+When running Claude Code inside tmux, notifications and the [terminal progress bar](./code-settings.md#global-config-settings) only reach the outer terminal, such as iTerm2, Kitty, or Ghostty, if you enable passthrough in your tmux configuration:
 
-For advanced notification handling, you can create [notification hooks](./code-hooks.md#notification) to run your own logic.
+```
+set -g allow-passthrough on
+```
+
+Without this setting, tmux intercepts the escape sequences and they do not reach the terminal application.
+
+Other terminals, including the default macOS Terminal, do not support native notifications. Use [notification hooks](./code-hooks.md#notification) instead.
+
+#### Notification hooks
+
+To add custom behavior when notifications fire, such as playing a sound or sending a message, configure a [notification hook](./code-hooks.md#notification). Hooks run alongside terminal notifications, not as a replacement.
 
 ### Handling large inputs
 
@@ -69,7 +82,7 @@ When working with extensive code or long instructions:
 
 ### Vim Mode
 
-Claude Code supports a subset of Vim keybindings that can be enabled with `/vim` or configured via `/config`.
+Claude Code supports a subset of Vim keybindings that can be enabled with `/vim` or configured via `/config`. To set the mode directly in your config file, set the [`editorMode`](./code-settings.md#global-config-settings) global config key to `"vim"` in `~/.claude.json`.
 
 The supported subset includes:
 

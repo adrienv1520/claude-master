@@ -34,9 +34,37 @@ This example asks Claude a question about your codebase and prints the response:
 claude -p "What does the auth module do?"
 ```
 
+### Start faster with bare mode
+
+Add `--bare` to reduce startup time by skipping auto-discovery of hooks, skills, plugins, MCP servers, auto memory, and CLAUDE.md. Without it, `claude -p` loads the same [context](./code-how-claude-code-works.md#the-context-window) an interactive session would, including anything configured in the working directory or `~/.claude`.
+
+Bare mode is useful for CI and scripts where you need the same result on every machine. A hook in a teammate's `~/.claude` or an MCP server in the project's `.mcp.json` won't run, because bare mode never reads them. Only flags you pass explicitly take effect.
+
+This example runs a one-off summarize task in bare mode and pre-approves the Read tool so the call completes without a permission prompt:
+
+```bash  theme={null}
+claude --bare -p "Summarize this file" --allowedTools "Read"
+```
+
+In bare mode Claude has access to the Bash, file read, and file edit tools. Pass any context you need with a flag:
+
+| To load                 | Use                                                     |
+| ----------------------- | ------------------------------------------------------- |
+| System prompt additions | `--append-system-prompt`, `--append-system-prompt-file` |
+| Settings                | `--settings <file-or-json>`                             |
+| MCP servers             | `--mcp-config <file-or-json>`                           |
+| Custom agents           | `--agents <json>`                                       |
+| A plugin directory      | `--plugin-dir <path>`                                   |
+
+Bare mode skips OAuth and keychain reads. Anthropic authentication must come from `ANTHROPIC_API_KEY` or an `apiKeyHelper` in the JSON passed to `--settings`. Bedrock, Vertex, and Foundry use their usual provider credentials.
+
+<Note>
+  `--bare` is the recommended mode for scripted and SDK calls, and will become the default for `-p` in a future release.
+</Note>
+
 ## Examples
 
-These examples highlight common CLI patterns.
+These examples highlight common CLI patterns. For CI and other scripted calls, add [`--bare`](#start-faster-with-bare-mode) so they don't pick up whatever happens to be configured locally.
 
 ### Get structured output
 
@@ -92,6 +120,20 @@ claude -p "Write a poem" --output-format stream-json --verbose --include-partial
   jq -rj 'select(.type == "stream_event" and .event.delta.type? == "text_delta") | .event.delta.text'
 ```
 
+When an API request fails with a retryable error, Claude Code emits a `system/api_retry` event before retrying. You can use this to surface retry progress or implement custom backoff logic.
+
+| Field            | Type            | Description                                                                                                                                  |
+| ---------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`           | `"system"`      | message type                                                                                                                                 |
+| `subtype`        | `"api_retry"`   | identifies this as a retry event                                                                                                             |
+| `attempt`        | integer         | current attempt number, starting at 1                                                                                                        |
+| `max_retries`    | integer         | total retries permitted                                                                                                                      |
+| `retry_delay_ms` | integer         | milliseconds until the next attempt                                                                                                          |
+| `error_status`   | integer or null | HTTP status code, or `null` for connection errors with no HTTP response                                                                      |
+| `error`          | string          | error category: `authentication_failed`, `billing_error`, `rate_limit`, `invalid_request`, `server_error`, `max_output_tokens`, or `unknown` |
+| `uuid`           | string          | unique event identifier                                                                                                                      |
+| `session_id`     | string          | session the event belongs to                                                                                                                 |
+
 For programmatic streaming with callbacks and message objects, see [Stream responses in real-time](https://platform.claude.com/docs/en/agent-sdk/streaming-output) in the Agent SDK documentation.
 
 ### Auto-approve tools
@@ -115,7 +157,7 @@ claude -p "Look at my staged changes and create an appropriate commit" \
 The `--allowedTools` flag uses [permission rule syntax](./code-settings.md#permission-rule-syntax). The trailing ` *` enables prefix matching, so `Bash(git diff *)` allows any command starting with `git diff`. The space before `*` is important: without it, `Bash(git diff*)` would also match `git diff-index`.
 
 <Note>
-  User-invoked [skills](./code-skills.md) like `/commit` and [built-in commands](./code-interactive-mode.md#built-in-commands) are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
+  User-invoked [skills](./code-skills.md) like `/commit` and [built-in commands](./code-commands.md) are only available in interactive mode. In `-p` mode, describe the task you want to accomplish instead.
 </Note>
 
 ### Customize the system prompt
@@ -152,20 +194,7 @@ claude -p "Continue that review" --resume "$session_id"
 
 ## Next steps
 
-<CardGroup cols={2}>
-  <Card title="Agent SDK quickstart" icon="play" href="https://platform.claude.com/docs/en/agent-sdk/quickstart">
-    Build your first agent with Python or TypeScript
-  </Card>
-
-  <Card title="CLI reference" icon="terminal" href="/en/cli-reference">
-    Explore all CLI flags and options
-  </Card>
-
-  <Card title="GitHub Actions" icon="github" href="/en/github-actions">
-    Use the Agent SDK in GitHub workflows
-  </Card>
-
-  <Card title="GitLab CI/CD" icon="gitlab" href="/en/gitlab-ci-cd">
-    Use the Agent SDK in GitLab pipelines
-  </Card>
-</CardGroup>
+* [Agent SDK quickstart](https://platform.claude.com/docs/en/agent-sdk/quickstart): build your first agent with Python or TypeScript
+* [CLI reference](./code-cli-reference.md): all CLI flags and options
+* [GitHub Actions](./code-github-actions.md): use the Agent SDK in GitHub workflows
+* [GitLab CI/CD](./code-gitlab-ci-cd.md): use the Agent SDK in GitLab pipelines

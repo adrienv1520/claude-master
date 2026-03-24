@@ -386,6 +386,158 @@ The Models API response can be used to determine which models are available for 
 
     Unique model identifier.
 
+  - `capabilities: BetaModelCapabilities | null`
+
+    Model capability information.
+
+    - `batch: BetaCapabilitySupport`
+
+      Whether the model supports the Batch API.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `citations: BetaCapabilitySupport`
+
+      Whether the model supports citation generation.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `code_execution: BetaCapabilitySupport`
+
+      Whether the model supports code execution tools.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `context_management: BetaContextManagementCapability`
+
+      Context management support and available strategies.
+
+      - `clear_thinking_20251015: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `clear_tool_uses_20250919: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `compact_20260112: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `effort: BetaEffortCapability`
+
+      Effort (reasoning_effort) support and available levels.
+
+      - `high: BetaCapabilitySupport`
+
+        Whether the model supports high effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `low: BetaCapabilitySupport`
+
+        Whether the model supports low effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `max: BetaCapabilitySupport`
+
+        Whether the model supports max effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `medium: BetaCapabilitySupport`
+
+        Whether the model supports medium effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `image_input: BetaCapabilitySupport`
+
+      Whether the model accepts image content blocks.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `pdf_input: BetaCapabilitySupport`
+
+      Whether the model accepts PDF content blocks.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `structured_outputs: BetaCapabilitySupport`
+
+      Whether the model supports structured output / JSON mode / strict tool schemas.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `thinking: BetaThinkingCapability`
+
+      Thinking capability and supported type configurations.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+      - `types: BetaThinkingTypes`
+
+        Supported thinking type configurations.
+
+        - `adaptive: BetaCapabilitySupport`
+
+          Whether the model supports thinking with type 'adaptive' (auto).
+
+          - `supported: boolean`
+
+            Whether this capability is supported by the model.
+
+        - `enabled: BetaCapabilitySupport`
+
+          Whether the model supports thinking with type 'enabled'.
+
+          - `supported: boolean`
+
+            Whether this capability is supported by the model.
+
   - `created_at: string`
 
     RFC 3339 datetime string representing the time at which the model was released. May be set to an epoch value if the release date is unknown.
@@ -393,6 +545,14 @@ The Models API response can be used to determine which models are available for 
   - `display_name: string`
 
     A human-readable name for the model.
+
+  - `max_input_tokens: number | null`
+
+    Maximum input context window size in tokens for this model.
+
+  - `max_tokens: number | null`
+
+    Maximum value for the `max_tokens` parameter when using this model.
 
   - `type: "model"`
 
@@ -491,6 +651,158 @@ The Models API response can be used to determine information about a specific mo
 
     Unique model identifier.
 
+  - `capabilities: BetaModelCapabilities | null`
+
+    Model capability information.
+
+    - `batch: BetaCapabilitySupport`
+
+      Whether the model supports the Batch API.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `citations: BetaCapabilitySupport`
+
+      Whether the model supports citation generation.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `code_execution: BetaCapabilitySupport`
+
+      Whether the model supports code execution tools.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `context_management: BetaContextManagementCapability`
+
+      Context management support and available strategies.
+
+      - `clear_thinking_20251015: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `clear_tool_uses_20250919: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `compact_20260112: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `effort: BetaEffortCapability`
+
+      Effort (reasoning_effort) support and available levels.
+
+      - `high: BetaCapabilitySupport`
+
+        Whether the model supports high effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `low: BetaCapabilitySupport`
+
+        Whether the model supports low effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `max: BetaCapabilitySupport`
+
+        Whether the model supports max effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `medium: BetaCapabilitySupport`
+
+        Whether the model supports medium effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `image_input: BetaCapabilitySupport`
+
+      Whether the model accepts image content blocks.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `pdf_input: BetaCapabilitySupport`
+
+      Whether the model accepts PDF content blocks.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `structured_outputs: BetaCapabilitySupport`
+
+      Whether the model supports structured output / JSON mode / strict tool schemas.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `thinking: BetaThinkingCapability`
+
+      Thinking capability and supported type configurations.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+      - `types: BetaThinkingTypes`
+
+        Supported thinking type configurations.
+
+        - `adaptive: BetaCapabilitySupport`
+
+          Whether the model supports thinking with type 'adaptive' (auto).
+
+          - `supported: boolean`
+
+            Whether this capability is supported by the model.
+
+        - `enabled: BetaCapabilitySupport`
+
+          Whether the model supports thinking with type 'enabled'.
+
+          - `supported: boolean`
+
+            Whether this capability is supported by the model.
+
   - `created_at: string`
 
     RFC 3339 datetime string representing the time at which the model was released. May be set to an epoch value if the release date is unknown.
@@ -498,6 +810,14 @@ The Models API response can be used to determine information about a specific mo
   - `display_name: string`
 
     A human-readable name for the model.
+
+  - `max_input_tokens: number | null`
+
+    Maximum input context window size in tokens for this model.
+
+  - `max_tokens: number | null`
+
+    Maximum value for the `max_tokens` parameter when using this model.
 
   - `type: "model"`
 
@@ -523,6 +843,246 @@ console.log(betaModelInfo.id);
 
 ## Domain Types
 
+### Beta Capability Support
+
+- `BetaCapabilitySupport`
+
+  Indicates whether a capability is supported.
+
+  - `supported: boolean`
+
+    Whether this capability is supported by the model.
+
+### Beta Context Management Capability
+
+- `BetaContextManagementCapability`
+
+  Context management capability details.
+
+  - `clear_thinking_20251015: BetaCapabilitySupport | null`
+
+    Indicates whether a capability is supported.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `clear_tool_uses_20250919: BetaCapabilitySupport | null`
+
+    Indicates whether a capability is supported.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `compact_20260112: BetaCapabilitySupport | null`
+
+    Indicates whether a capability is supported.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `supported: boolean`
+
+    Whether this capability is supported by the model.
+
+### Beta Effort Capability
+
+- `BetaEffortCapability`
+
+  Effort (reasoning_effort) capability details.
+
+  - `high: BetaCapabilitySupport`
+
+    Whether the model supports high effort level.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `low: BetaCapabilitySupport`
+
+    Whether the model supports low effort level.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `max: BetaCapabilitySupport`
+
+    Whether the model supports max effort level.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `medium: BetaCapabilitySupport`
+
+    Whether the model supports medium effort level.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `supported: boolean`
+
+    Whether this capability is supported by the model.
+
+### Beta Model Capabilities
+
+- `BetaModelCapabilities`
+
+  Model capability information.
+
+  - `batch: BetaCapabilitySupport`
+
+    Whether the model supports the Batch API.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `citations: BetaCapabilitySupport`
+
+    Whether the model supports citation generation.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `code_execution: BetaCapabilitySupport`
+
+    Whether the model supports code execution tools.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `context_management: BetaContextManagementCapability`
+
+    Context management support and available strategies.
+
+    - `clear_thinking_20251015: BetaCapabilitySupport | null`
+
+      Indicates whether a capability is supported.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `clear_tool_uses_20250919: BetaCapabilitySupport | null`
+
+      Indicates whether a capability is supported.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `compact_20260112: BetaCapabilitySupport | null`
+
+      Indicates whether a capability is supported.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `effort: BetaEffortCapability`
+
+    Effort (reasoning_effort) support and available levels.
+
+    - `high: BetaCapabilitySupport`
+
+      Whether the model supports high effort level.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `low: BetaCapabilitySupport`
+
+      Whether the model supports low effort level.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `max: BetaCapabilitySupport`
+
+      Whether the model supports max effort level.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `medium: BetaCapabilitySupport`
+
+      Whether the model supports medium effort level.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `image_input: BetaCapabilitySupport`
+
+    Whether the model accepts image content blocks.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `pdf_input: BetaCapabilitySupport`
+
+    Whether the model accepts PDF content blocks.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `structured_outputs: BetaCapabilitySupport`
+
+    Whether the model supports structured output / JSON mode / strict tool schemas.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `thinking: BetaThinkingCapability`
+
+    Thinking capability and supported type configurations.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+    - `types: BetaThinkingTypes`
+
+      Supported thinking type configurations.
+
+      - `adaptive: BetaCapabilitySupport`
+
+        Whether the model supports thinking with type 'adaptive' (auto).
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `enabled: BetaCapabilitySupport`
+
+        Whether the model supports thinking with type 'enabled'.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
 ### Beta Model Info
 
 - `BetaModelInfo`
@@ -530,6 +1090,158 @@ console.log(betaModelInfo.id);
   - `id: string`
 
     Unique model identifier.
+
+  - `capabilities: BetaModelCapabilities | null`
+
+    Model capability information.
+
+    - `batch: BetaCapabilitySupport`
+
+      Whether the model supports the Batch API.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `citations: BetaCapabilitySupport`
+
+      Whether the model supports citation generation.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `code_execution: BetaCapabilitySupport`
+
+      Whether the model supports code execution tools.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `context_management: BetaContextManagementCapability`
+
+      Context management support and available strategies.
+
+      - `clear_thinking_20251015: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `clear_tool_uses_20250919: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `compact_20260112: BetaCapabilitySupport | null`
+
+        Indicates whether a capability is supported.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `effort: BetaEffortCapability`
+
+      Effort (reasoning_effort) support and available levels.
+
+      - `high: BetaCapabilitySupport`
+
+        Whether the model supports high effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `low: BetaCapabilitySupport`
+
+        Whether the model supports low effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `max: BetaCapabilitySupport`
+
+        Whether the model supports max effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `medium: BetaCapabilitySupport`
+
+        Whether the model supports medium effort level.
+
+        - `supported: boolean`
+
+          Whether this capability is supported by the model.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `image_input: BetaCapabilitySupport`
+
+      Whether the model accepts image content blocks.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `pdf_input: BetaCapabilitySupport`
+
+      Whether the model accepts PDF content blocks.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `structured_outputs: BetaCapabilitySupport`
+
+      Whether the model supports structured output / JSON mode / strict tool schemas.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `thinking: BetaThinkingCapability`
+
+      Thinking capability and supported type configurations.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+      - `types: BetaThinkingTypes`
+
+        Supported thinking type configurations.
+
+        - `adaptive: BetaCapabilitySupport`
+
+          Whether the model supports thinking with type 'adaptive' (auto).
+
+          - `supported: boolean`
+
+            Whether this capability is supported by the model.
+
+        - `enabled: BetaCapabilitySupport`
+
+          Whether the model supports thinking with type 'enabled'.
+
+          - `supported: boolean`
+
+            Whether this capability is supported by the model.
 
   - `created_at: string`
 
@@ -539,6 +1251,14 @@ console.log(betaModelInfo.id);
 
     A human-readable name for the model.
 
+  - `max_input_tokens: number | null`
+
+    Maximum input context window size in tokens for this model.
+
+  - `max_tokens: number | null`
+
+    Maximum value for the `max_tokens` parameter when using this model.
+
   - `type: "model"`
 
     Object type.
@@ -546,6 +1266,58 @@ console.log(betaModelInfo.id);
     For Models, this is always `"model"`.
 
     - `"model"`
+
+### Beta Thinking Capability
+
+- `BetaThinkingCapability`
+
+  Thinking capability details.
+
+  - `supported: boolean`
+
+    Whether this capability is supported by the model.
+
+  - `types: BetaThinkingTypes`
+
+    Supported thinking type configurations.
+
+    - `adaptive: BetaCapabilitySupport`
+
+      Whether the model supports thinking with type 'adaptive' (auto).
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+    - `enabled: BetaCapabilitySupport`
+
+      Whether the model supports thinking with type 'enabled'.
+
+      - `supported: boolean`
+
+        Whether this capability is supported by the model.
+
+### Beta Thinking Types
+
+- `BetaThinkingTypes`
+
+  Supported thinking type configurations.
+
+  - `adaptive: BetaCapabilitySupport`
+
+    Whether the model supports thinking with type 'adaptive' (auto).
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
+
+  - `enabled: BetaCapabilitySupport`
+
+    Whether the model supports thinking with type 'enabled'.
+
+    - `supported: boolean`
+
+      Whether this capability is supported by the model.
 
 # Messages
 
@@ -3152,7 +3924,7 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
       See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-      - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+      - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
         - `"claude-opus-4-6"`
 
@@ -3160,87 +3932,59 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
         - `"claude-sonnet-4-6"`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `"claude-opus-4-5-20251101"`
+        - `"claude-haiku-4-5"`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `"claude-haiku-4-5-20251001"`
+
+          Fastest model with near-frontier intelligence
 
         - `"claude-opus-4-5"`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-latest"`
+        - `"claude-opus-4-5-20251101"`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-20250219"`
+        - `"claude-sonnet-4-5"`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-latest"`
+        - `"claude-sonnet-4-5-20250929"`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-20241022"`
+        - `"claude-opus-4-1"`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5"`
+        - `"claude-opus-4-1-20250805"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5-20251001"`
+        - `"claude-opus-4-0"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `"claude-sonnet-4-20250514"`
+        - `"claude-opus-4-20250514"`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `"claude-sonnet-4-0"`
 
           High-performance model with extended thinking
 
-        - `"claude-4-sonnet-20250514"`
+        - `"claude-sonnet-4-20250514"`
 
           High-performance model with extended thinking
 
-        - `"claude-sonnet-4-5"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-sonnet-4-5-20250929"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-opus-4-0"`
-
-          Our most capable model
-
-        - `"claude-opus-4-20250514"`
-
-          Our most capable model
-
-        - `"claude-4-opus-20250514"`
-
-          Our most capable model
-
-        - `"claude-opus-4-1-20250805"`
-
-          Our most capable model
-
-        - `"claude-3-opus-latest"`
-
-          Excels at writing and complex tasks
-
-        - `"claude-3-opus-20240229"`
-
-          Excels at writing and complex tasks
-
         - `"claude-3-haiku-20240307"`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `(string & {})`
 
@@ -3684,6 +4428,14 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
           - `"enabled"`
 
+        - `display?: "summarized" | "omitted" | null`
+
+          Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+          - `"summarized"`
+
+          - `"omitted"`
+
       - `BetaThinkingConfigDisabled`
 
         - `type: "disabled"`
@@ -3695,6 +4447,14 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
         - `type: "adaptive"`
 
           - `"adaptive"`
+
+        - `display?: "summarized" | "omitted" | null`
+
+          Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+          - `"summarized"`
+
+          - `"omitted"`
 
     - `tool_choice?: BetaToolChoice`
 
@@ -4978,6 +5738,87 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
           When true, guarantees schema validation on tool names and inputs
 
+      - `BetaWebFetchTool20260309`
+
+        Web fetch tool with use_cache parameter for bypassing cached content.
+
+        - `name: "web_fetch"`
+
+          Name of the tool.
+
+          This is how the tool will be called by the model and in `tool_use` blocks.
+
+          - `"web_fetch"`
+
+        - `type: "web_fetch_20260309"`
+
+          - `"web_fetch_20260309"`
+
+        - `allowed_callers?: Array<"direct" | "code_execution_20250825" | "code_execution_20260120">`
+
+          - `"direct"`
+
+          - `"code_execution_20250825"`
+
+          - `"code_execution_20260120"`
+
+        - `allowed_domains?: Array<string> | null`
+
+          List of domains to allow fetching from
+
+        - `blocked_domains?: Array<string> | null`
+
+          List of domains to block fetching from
+
+        - `cache_control?: BetaCacheControlEphemeral | null`
+
+          Create a cache control breakpoint at this content block.
+
+          - `type: "ephemeral"`
+
+            - `"ephemeral"`
+
+          - `ttl?: "5m" | "1h"`
+
+            The time-to-live for the cache control breakpoint.
+
+            This may be one the following values:
+
+            - `5m`: 5 minutes
+            - `1h`: 1 hour
+
+            Defaults to `5m`.
+
+            - `"5m"`
+
+            - `"1h"`
+
+        - `citations?: BetaCitationsConfigParam | null`
+
+          Citations configuration for fetched documents. Citations are disabled by default.
+
+          - `enabled?: boolean`
+
+        - `defer_loading?: boolean`
+
+          If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+        - `max_content_tokens?: number | null`
+
+          Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+        - `max_uses?: number | null`
+
+          Maximum number of times the tool can be used in the API request.
+
+        - `strict?: boolean`
+
+          When true, guarantees schema validation on tool names and inputs
+
+        - `use_cache?: boolean`
+
+          Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
+
       - `BetaToolSearchToolBm25_20251119`
 
         - `name: "tool_search_tool_bm25"`
@@ -5216,15 +6057,15 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
       - `false`
 
-  - `MessageCreateParamsNonStreaming extends MessageCreateParamsBase`
+  - `MessageCreateParamsStreaming extends MessageCreateParamsBase`
 
-    - `stream?: false`
+    - `stream: true`
 
       Body param: Whether to incrementally stream the response using server-sent events.
 
       See [streaming](https://docs.claude.com/en/api/messages-streaming) for details.
 
-      - `false`
+      - `true`
 
 ### Returns
 
@@ -6149,7 +6990,7 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
     See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-    - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+    - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
       - `"claude-opus-4-6"`
 
@@ -6157,87 +6998,59 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
       - `"claude-sonnet-4-6"`
 
-        Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+        Best combination of speed and intelligence
 
-      - `"claude-opus-4-5-20251101"`
+      - `"claude-haiku-4-5"`
 
-        Premium model combining maximum intelligence with practical performance
+        Fastest model with near-frontier intelligence
+
+      - `"claude-haiku-4-5-20251001"`
+
+        Fastest model with near-frontier intelligence
 
       - `"claude-opus-4-5"`
 
         Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-latest"`
+      - `"claude-opus-4-5-20251101"`
 
-        High-performance model with early extended thinking
+        Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-20250219"`
+      - `"claude-sonnet-4-5"`
 
-        High-performance model with early extended thinking
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-latest"`
+      - `"claude-sonnet-4-5-20250929"`
 
-        Fastest and most compact model for near-instant responsiveness
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-20241022"`
+      - `"claude-opus-4-1"`
 
-        Our fastest model
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5"`
+      - `"claude-opus-4-1-20250805"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5-20251001"`
+      - `"claude-opus-4-0"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Powerful model for complex tasks
 
-      - `"claude-sonnet-4-20250514"`
+      - `"claude-opus-4-20250514"`
 
-        High-performance model with extended thinking
+        Powerful model for complex tasks
 
       - `"claude-sonnet-4-0"`
 
         High-performance model with extended thinking
 
-      - `"claude-4-sonnet-20250514"`
+      - `"claude-sonnet-4-20250514"`
 
         High-performance model with extended thinking
 
-      - `"claude-sonnet-4-5"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-sonnet-4-5-20250929"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-opus-4-0"`
-
-        Our most capable model
-
-      - `"claude-opus-4-20250514"`
-
-        Our most capable model
-
-      - `"claude-4-opus-20250514"`
-
-        Our most capable model
-
-      - `"claude-opus-4-1-20250805"`
-
-        Our most capable model
-
-      - `"claude-3-opus-latest"`
-
-        Excels at writing and complex tasks
-
-      - `"claude-3-opus-20240229"`
-
-        Excels at writing and complex tasks
-
       - `"claude-3-haiku-20240307"`
 
-        Our previous most fast and cost-effective
+        Fast and cost-effective model
 
     - `(string & {})`
 
@@ -9065,7 +9878,7 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
     See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-    - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+    - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
       - `"claude-opus-4-6"`
 
@@ -9073,87 +9886,59 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
       - `"claude-sonnet-4-6"`
 
-        Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+        Best combination of speed and intelligence
 
-      - `"claude-opus-4-5-20251101"`
+      - `"claude-haiku-4-5"`
 
-        Premium model combining maximum intelligence with practical performance
+        Fastest model with near-frontier intelligence
+
+      - `"claude-haiku-4-5-20251001"`
+
+        Fastest model with near-frontier intelligence
 
       - `"claude-opus-4-5"`
 
         Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-latest"`
+      - `"claude-opus-4-5-20251101"`
 
-        High-performance model with early extended thinking
+        Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-20250219"`
+      - `"claude-sonnet-4-5"`
 
-        High-performance model with early extended thinking
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-latest"`
+      - `"claude-sonnet-4-5-20250929"`
 
-        Fastest and most compact model for near-instant responsiveness
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-20241022"`
+      - `"claude-opus-4-1"`
 
-        Our fastest model
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5"`
+      - `"claude-opus-4-1-20250805"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5-20251001"`
+      - `"claude-opus-4-0"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Powerful model for complex tasks
 
-      - `"claude-sonnet-4-20250514"`
+      - `"claude-opus-4-20250514"`
 
-        High-performance model with extended thinking
+        Powerful model for complex tasks
 
       - `"claude-sonnet-4-0"`
 
         High-performance model with extended thinking
 
-      - `"claude-4-sonnet-20250514"`
+      - `"claude-sonnet-4-20250514"`
 
         High-performance model with extended thinking
 
-      - `"claude-sonnet-4-5"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-sonnet-4-5-20250929"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-opus-4-0"`
-
-        Our most capable model
-
-      - `"claude-opus-4-20250514"`
-
-        Our most capable model
-
-      - `"claude-4-opus-20250514"`
-
-        Our most capable model
-
-      - `"claude-opus-4-1-20250805"`
-
-        Our most capable model
-
-      - `"claude-3-opus-latest"`
-
-        Excels at writing and complex tasks
-
-      - `"claude-3-opus-20240229"`
-
-        Excels at writing and complex tasks
-
       - `"claude-3-haiku-20240307"`
 
-        Our previous most fast and cost-effective
+        Fast and cost-effective model
 
     - `(string & {})`
 
@@ -9515,6 +10300,14 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
         - `"enabled"`
 
+      - `display?: "summarized" | "omitted" | null`
+
+        Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+        - `"summarized"`
+
+        - `"omitted"`
+
     - `BetaThinkingConfigDisabled`
 
       - `type: "disabled"`
@@ -9526,6 +10319,14 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
       - `type: "adaptive"`
 
         - `"adaptive"`
+
+      - `display?: "summarized" | "omitted" | null`
+
+        Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+        - `"summarized"`
+
+        - `"omitted"`
 
   - `tool_choice?: BetaToolChoice`
 
@@ -9585,7 +10386,7 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
         - `"none"`
 
-  - `tools?: Array<BetaTool | BetaToolBash20241022 | BetaToolBash20250124 | 18 more>`
+  - `tools?: Array<BetaTool | BetaToolBash20241022 | BetaToolBash20250124 | 19 more>`
 
     Body param: Definitions of tools that the model may use.
 
@@ -10808,6 +11609,87 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
       - `strict?: boolean`
 
         When true, guarantees schema validation on tool names and inputs
+
+    - `BetaWebFetchTool20260309`
+
+      Web fetch tool with use_cache parameter for bypassing cached content.
+
+      - `name: "web_fetch"`
+
+        Name of the tool.
+
+        This is how the tool will be called by the model and in `tool_use` blocks.
+
+        - `"web_fetch"`
+
+      - `type: "web_fetch_20260309"`
+
+        - `"web_fetch_20260309"`
+
+      - `allowed_callers?: Array<"direct" | "code_execution_20250825" | "code_execution_20260120">`
+
+        - `"direct"`
+
+        - `"code_execution_20250825"`
+
+        - `"code_execution_20260120"`
+
+      - `allowed_domains?: Array<string> | null`
+
+        List of domains to allow fetching from
+
+      - `blocked_domains?: Array<string> | null`
+
+        List of domains to block fetching from
+
+      - `cache_control?: BetaCacheControlEphemeral | null`
+
+        Create a cache control breakpoint at this content block.
+
+        - `type: "ephemeral"`
+
+          - `"ephemeral"`
+
+        - `ttl?: "5m" | "1h"`
+
+          The time-to-live for the cache control breakpoint.
+
+          This may be one the following values:
+
+          - `5m`: 5 minutes
+          - `1h`: 1 hour
+
+          Defaults to `5m`.
+
+          - `"5m"`
+
+          - `"1h"`
+
+      - `citations?: BetaCitationsConfigParam | null`
+
+        Citations configuration for fetched documents. Citations are disabled by default.
+
+        - `enabled?: boolean`
+
+      - `defer_loading?: boolean`
+
+        If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+      - `max_content_tokens?: number | null`
+
+        Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+      - `max_uses?: number | null`
+
+        Maximum number of times the tool can be used in the API request.
+
+      - `strict?: boolean`
+
+        When true, guarantees schema validation on tool names and inputs
+
+      - `use_cache?: boolean`
+
+        Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
     - `BetaToolSearchToolBm25_20251119`
 
@@ -18239,7 +19121,7 @@ console.log(betaMessageTokensCount.context_management);
 
     See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-    - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+    - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
       - `"claude-opus-4-6"`
 
@@ -18247,87 +19129,59 @@ console.log(betaMessageTokensCount.context_management);
 
       - `"claude-sonnet-4-6"`
 
-        Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+        Best combination of speed and intelligence
 
-      - `"claude-opus-4-5-20251101"`
+      - `"claude-haiku-4-5"`
 
-        Premium model combining maximum intelligence with practical performance
+        Fastest model with near-frontier intelligence
+
+      - `"claude-haiku-4-5-20251001"`
+
+        Fastest model with near-frontier intelligence
 
       - `"claude-opus-4-5"`
 
         Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-latest"`
+      - `"claude-opus-4-5-20251101"`
 
-        High-performance model with early extended thinking
+        Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-20250219"`
+      - `"claude-sonnet-4-5"`
 
-        High-performance model with early extended thinking
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-latest"`
+      - `"claude-sonnet-4-5-20250929"`
 
-        Fastest and most compact model for near-instant responsiveness
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-20241022"`
+      - `"claude-opus-4-1"`
 
-        Our fastest model
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5"`
+      - `"claude-opus-4-1-20250805"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5-20251001"`
+      - `"claude-opus-4-0"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Powerful model for complex tasks
 
-      - `"claude-sonnet-4-20250514"`
+      - `"claude-opus-4-20250514"`
 
-        High-performance model with extended thinking
+        Powerful model for complex tasks
 
       - `"claude-sonnet-4-0"`
 
         High-performance model with extended thinking
 
-      - `"claude-4-sonnet-20250514"`
+      - `"claude-sonnet-4-20250514"`
 
         High-performance model with extended thinking
 
-      - `"claude-sonnet-4-5"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-sonnet-4-5-20250929"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-opus-4-0"`
-
-        Our most capable model
-
-      - `"claude-opus-4-20250514"`
-
-        Our most capable model
-
-      - `"claude-4-opus-20250514"`
-
-        Our most capable model
-
-      - `"claude-opus-4-1-20250805"`
-
-        Our most capable model
-
-      - `"claude-3-opus-latest"`
-
-        Excels at writing and complex tasks
-
-      - `"claude-3-opus-20240229"`
-
-        Excels at writing and complex tasks
-
       - `"claude-3-haiku-20240307"`
 
-        Our previous most fast and cost-effective
+        Fast and cost-effective model
 
     - `(string & {})`
 
@@ -23559,7 +24413,7 @@ console.log(betaMessageTokensCount.context_management);
 
       See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-      - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+      - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
         - `"claude-opus-4-6"`
 
@@ -23567,87 +24421,59 @@ console.log(betaMessageTokensCount.context_management);
 
         - `"claude-sonnet-4-6"`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `"claude-opus-4-5-20251101"`
+        - `"claude-haiku-4-5"`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `"claude-haiku-4-5-20251001"`
+
+          Fastest model with near-frontier intelligence
 
         - `"claude-opus-4-5"`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-latest"`
+        - `"claude-opus-4-5-20251101"`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-20250219"`
+        - `"claude-sonnet-4-5"`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-latest"`
+        - `"claude-sonnet-4-5-20250929"`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-20241022"`
+        - `"claude-opus-4-1"`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5"`
+        - `"claude-opus-4-1-20250805"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5-20251001"`
+        - `"claude-opus-4-0"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `"claude-sonnet-4-20250514"`
+        - `"claude-opus-4-20250514"`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `"claude-sonnet-4-0"`
 
           High-performance model with extended thinking
 
-        - `"claude-4-sonnet-20250514"`
+        - `"claude-sonnet-4-20250514"`
 
           High-performance model with extended thinking
 
-        - `"claude-sonnet-4-5"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-sonnet-4-5-20250929"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-opus-4-0"`
-
-          Our most capable model
-
-        - `"claude-opus-4-20250514"`
-
-          Our most capable model
-
-        - `"claude-4-opus-20250514"`
-
-          Our most capable model
-
-        - `"claude-opus-4-1-20250805"`
-
-          Our most capable model
-
-        - `"claude-3-opus-latest"`
-
-          Excels at writing and complex tasks
-
-        - `"claude-3-opus-20240229"`
-
-          Excels at writing and complex tasks
-
         - `"claude-3-haiku-20240307"`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `(string & {})`
 
@@ -24803,7 +25629,7 @@ console.log(betaMessageTokensCount.context_management);
 
         See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-        - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+        - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
           - `"claude-opus-4-6"`
 
@@ -24811,87 +25637,59 @@ console.log(betaMessageTokensCount.context_management);
 
           - `"claude-sonnet-4-6"`
 
-            Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+            Best combination of speed and intelligence
 
-          - `"claude-opus-4-5-20251101"`
+          - `"claude-haiku-4-5"`
 
-            Premium model combining maximum intelligence with practical performance
+            Fastest model with near-frontier intelligence
+
+          - `"claude-haiku-4-5-20251001"`
+
+            Fastest model with near-frontier intelligence
 
           - `"claude-opus-4-5"`
 
             Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-latest"`
+          - `"claude-opus-4-5-20251101"`
 
-            High-performance model with early extended thinking
+            Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-20250219"`
+          - `"claude-sonnet-4-5"`
 
-            High-performance model with early extended thinking
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-latest"`
+          - `"claude-sonnet-4-5-20250929"`
 
-            Fastest and most compact model for near-instant responsiveness
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-20241022"`
+          - `"claude-opus-4-1"`
 
-            Our fastest model
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5"`
+          - `"claude-opus-4-1-20250805"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5-20251001"`
+          - `"claude-opus-4-0"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Powerful model for complex tasks
 
-          - `"claude-sonnet-4-20250514"`
+          - `"claude-opus-4-20250514"`
 
-            High-performance model with extended thinking
+            Powerful model for complex tasks
 
           - `"claude-sonnet-4-0"`
 
             High-performance model with extended thinking
 
-          - `"claude-4-sonnet-20250514"`
+          - `"claude-sonnet-4-20250514"`
 
             High-performance model with extended thinking
 
-          - `"claude-sonnet-4-5"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-sonnet-4-5-20250929"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-opus-4-0"`
-
-            Our most capable model
-
-          - `"claude-opus-4-20250514"`
-
-            Our most capable model
-
-          - `"claude-4-opus-20250514"`
-
-            Our most capable model
-
-          - `"claude-opus-4-1-20250805"`
-
-            Our most capable model
-
-          - `"claude-3-opus-latest"`
-
-            Excels at writing and complex tasks
-
-          - `"claude-3-opus-20240229"`
-
-            Excels at writing and complex tasks
-
           - `"claude-3-haiku-20240307"`
 
-            Our previous most fast and cost-effective
+            Fast and cost-effective model
 
         - `(string & {})`
 
@@ -27942,6 +28740,14 @@ console.log(betaMessageTokensCount.context_management);
 
     - `"adaptive"`
 
+  - `display?: "summarized" | "omitted" | null`
+
+    Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+    - `"summarized"`
+
+    - `"omitted"`
+
 ### Beta Thinking Config Disabled
 
 - `BetaThinkingConfigDisabled`
@@ -27965,6 +28771,14 @@ console.log(betaMessageTokensCount.context_management);
   - `type: "enabled"`
 
     - `"enabled"`
+
+  - `display?: "summarized" | "omitted" | null`
+
+    Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+    - `"summarized"`
+
+    - `"omitted"`
 
 ### Beta Thinking Config Param
 
@@ -27990,6 +28804,14 @@ console.log(betaMessageTokensCount.context_management);
 
       - `"enabled"`
 
+    - `display?: "summarized" | "omitted" | null`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
+
   - `BetaThinkingConfigDisabled`
 
     - `type: "disabled"`
@@ -28001,6 +28823,14 @@ console.log(betaMessageTokensCount.context_management);
     - `type: "adaptive"`
 
       - `"adaptive"`
+
+    - `display?: "summarized" | "omitted" | null`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
 
 ### Beta Thinking Delta
 
@@ -29837,7 +30667,7 @@ console.log(betaMessageTokensCount.context_management);
 
 ### Beta Tool Union
 
-- `BetaToolUnion = BetaTool | BetaToolBash20241022 | BetaToolBash20250124 | 18 more`
+- `BetaToolUnion = BetaTool | BetaToolBash20241022 | BetaToolBash20250124 | 19 more`
 
   Code execution tool with REPL state persistence (daemon mode + gVisor checkpoint).
 
@@ -31001,6 +31831,87 @@ console.log(betaMessageTokensCount.context_management);
 
       When true, guarantees schema validation on tool names and inputs
 
+  - `BetaWebFetchTool20260309`
+
+    Web fetch tool with use_cache parameter for bypassing cached content.
+
+    - `name: "web_fetch"`
+
+      Name of the tool.
+
+      This is how the tool will be called by the model and in `tool_use` blocks.
+
+      - `"web_fetch"`
+
+    - `type: "web_fetch_20260309"`
+
+      - `"web_fetch_20260309"`
+
+    - `allowed_callers?: Array<"direct" | "code_execution_20250825" | "code_execution_20260120">`
+
+      - `"direct"`
+
+      - `"code_execution_20250825"`
+
+      - `"code_execution_20260120"`
+
+    - `allowed_domains?: Array<string> | null`
+
+      List of domains to allow fetching from
+
+    - `blocked_domains?: Array<string> | null`
+
+      List of domains to block fetching from
+
+    - `cache_control?: BetaCacheControlEphemeral | null`
+
+      Create a cache control breakpoint at this content block.
+
+      - `type: "ephemeral"`
+
+        - `"ephemeral"`
+
+      - `ttl?: "5m" | "1h"`
+
+        The time-to-live for the cache control breakpoint.
+
+        This may be one the following values:
+
+        - `5m`: 5 minutes
+        - `1h`: 1 hour
+
+        Defaults to `5m`.
+
+        - `"5m"`
+
+        - `"1h"`
+
+    - `citations?: BetaCitationsConfigParam | null`
+
+      Citations configuration for fetched documents. Citations are disabled by default.
+
+      - `enabled?: boolean`
+
+    - `defer_loading?: boolean`
+
+      If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+    - `max_content_tokens?: number | null`
+
+      Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+    - `max_uses?: number | null`
+
+      Maximum number of times the tool can be used in the API request.
+
+    - `strict?: boolean`
+
+      When true, guarantees schema validation on tool names and inputs
+
+    - `use_cache?: boolean`
+
+      Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
+
   - `BetaToolSearchToolBm25_20251119`
 
     - `name: "tool_search_tool_bm25"`
@@ -31988,6 +32899,89 @@ console.log(betaMessageTokensCount.context_management);
   - `strict?: boolean`
 
     When true, guarantees schema validation on tool names and inputs
+
+### Beta Web Fetch Tool 20260309
+
+- `BetaWebFetchTool20260309`
+
+  Web fetch tool with use_cache parameter for bypassing cached content.
+
+  - `name: "web_fetch"`
+
+    Name of the tool.
+
+    This is how the tool will be called by the model and in `tool_use` blocks.
+
+    - `"web_fetch"`
+
+  - `type: "web_fetch_20260309"`
+
+    - `"web_fetch_20260309"`
+
+  - `allowed_callers?: Array<"direct" | "code_execution_20250825" | "code_execution_20260120">`
+
+    - `"direct"`
+
+    - `"code_execution_20250825"`
+
+    - `"code_execution_20260120"`
+
+  - `allowed_domains?: Array<string> | null`
+
+    List of domains to allow fetching from
+
+  - `blocked_domains?: Array<string> | null`
+
+    List of domains to block fetching from
+
+  - `cache_control?: BetaCacheControlEphemeral | null`
+
+    Create a cache control breakpoint at this content block.
+
+    - `type: "ephemeral"`
+
+      - `"ephemeral"`
+
+    - `ttl?: "5m" | "1h"`
+
+      The time-to-live for the cache control breakpoint.
+
+      This may be one the following values:
+
+      - `5m`: 5 minutes
+      - `1h`: 1 hour
+
+      Defaults to `5m`.
+
+      - `"5m"`
+
+      - `"1h"`
+
+  - `citations?: BetaCitationsConfigParam | null`
+
+    Citations configuration for fetched documents. Citations are disabled by default.
+
+    - `enabled?: boolean`
+
+  - `defer_loading?: boolean`
+
+    If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+  - `max_content_tokens?: number | null`
+
+    Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+  - `max_uses?: number | null`
+
+    Maximum number of times the tool can be used in the API request.
+
+  - `strict?: boolean`
+
+    When true, guarantees schema validation on tool names and inputs
+
+  - `use_cache?: boolean`
+
+    Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
 ### Beta Web Fetch Tool Result Block
 
@@ -35699,7 +36693,7 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
         See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-        - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+        - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
           - `"claude-opus-4-6"`
 
@@ -35707,87 +36701,59 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
           - `"claude-sonnet-4-6"`
 
-            Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+            Best combination of speed and intelligence
 
-          - `"claude-opus-4-5-20251101"`
+          - `"claude-haiku-4-5"`
 
-            Premium model combining maximum intelligence with practical performance
+            Fastest model with near-frontier intelligence
+
+          - `"claude-haiku-4-5-20251001"`
+
+            Fastest model with near-frontier intelligence
 
           - `"claude-opus-4-5"`
 
             Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-latest"`
+          - `"claude-opus-4-5-20251101"`
 
-            High-performance model with early extended thinking
+            Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-20250219"`
+          - `"claude-sonnet-4-5"`
 
-            High-performance model with early extended thinking
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-latest"`
+          - `"claude-sonnet-4-5-20250929"`
 
-            Fastest and most compact model for near-instant responsiveness
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-20241022"`
+          - `"claude-opus-4-1"`
 
-            Our fastest model
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5"`
+          - `"claude-opus-4-1-20250805"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5-20251001"`
+          - `"claude-opus-4-0"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Powerful model for complex tasks
 
-          - `"claude-sonnet-4-20250514"`
+          - `"claude-opus-4-20250514"`
 
-            High-performance model with extended thinking
+            Powerful model for complex tasks
 
           - `"claude-sonnet-4-0"`
 
             High-performance model with extended thinking
 
-          - `"claude-4-sonnet-20250514"`
+          - `"claude-sonnet-4-20250514"`
 
             High-performance model with extended thinking
 
-          - `"claude-sonnet-4-5"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-sonnet-4-5-20250929"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-opus-4-0"`
-
-            Our most capable model
-
-          - `"claude-opus-4-20250514"`
-
-            Our most capable model
-
-          - `"claude-4-opus-20250514"`
-
-            Our most capable model
-
-          - `"claude-opus-4-1-20250805"`
-
-            Our most capable model
-
-          - `"claude-3-opus-latest"`
-
-            Excels at writing and complex tasks
-
-          - `"claude-3-opus-20240229"`
-
-            Excels at writing and complex tasks
-
           - `"claude-3-haiku-20240307"`
 
-            Our previous most fast and cost-effective
+            Fast and cost-effective model
 
         - `(string & {})`
 
@@ -36229,6 +37195,14 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
             - `"enabled"`
 
+          - `display?: "summarized" | "omitted" | null`
+
+            Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+            - `"summarized"`
+
+            - `"omitted"`
+
         - `BetaThinkingConfigDisabled`
 
           - `type: "disabled"`
@@ -36240,6 +37214,14 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
           - `type: "adaptive"`
 
             - `"adaptive"`
+
+          - `display?: "summarized" | "omitted" | null`
+
+            Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+            - `"summarized"`
+
+            - `"omitted"`
 
       - `tool_choice?: BetaToolChoice`
 
@@ -37522,6 +38504,87 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
           - `strict?: boolean`
 
             When true, guarantees schema validation on tool names and inputs
+
+        - `BetaWebFetchTool20260309`
+
+          Web fetch tool with use_cache parameter for bypassing cached content.
+
+          - `name: "web_fetch"`
+
+            Name of the tool.
+
+            This is how the tool will be called by the model and in `tool_use` blocks.
+
+            - `"web_fetch"`
+
+          - `type: "web_fetch_20260309"`
+
+            - `"web_fetch_20260309"`
+
+          - `allowed_callers?: Array<"direct" | "code_execution_20250825" | "code_execution_20260120">`
+
+            - `"direct"`
+
+            - `"code_execution_20250825"`
+
+            - `"code_execution_20260120"`
+
+          - `allowed_domains?: Array<string> | null`
+
+            List of domains to allow fetching from
+
+          - `blocked_domains?: Array<string> | null`
+
+            List of domains to block fetching from
+
+          - `cache_control?: BetaCacheControlEphemeral | null`
+
+            Create a cache control breakpoint at this content block.
+
+            - `type: "ephemeral"`
+
+              - `"ephemeral"`
+
+            - `ttl?: "5m" | "1h"`
+
+              The time-to-live for the cache control breakpoint.
+
+              This may be one the following values:
+
+              - `5m`: 5 minutes
+              - `1h`: 1 hour
+
+              Defaults to `5m`.
+
+              - `"5m"`
+
+              - `"1h"`
+
+          - `citations?: BetaCitationsConfigParam | null`
+
+            Citations configuration for fetched documents. Citations are disabled by default.
+
+            - `enabled?: boolean`
+
+          - `defer_loading?: boolean`
+
+            If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+          - `max_content_tokens?: number | null`
+
+            Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+          - `max_uses?: number | null`
+
+            Maximum number of times the tool can be used in the API request.
+
+          - `strict?: boolean`
+
+            When true, guarantees schema validation on tool names and inputs
+
+          - `use_cache?: boolean`
+
+            Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
         - `BetaToolSearchToolBm25_20251119`
 
@@ -39496,7 +40559,7 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
           See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-          - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+          - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
             - `"claude-opus-4-6"`
 
@@ -39504,87 +40567,59 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
             - `"claude-sonnet-4-6"`
 
-              Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+              Best combination of speed and intelligence
 
-            - `"claude-opus-4-5-20251101"`
+            - `"claude-haiku-4-5"`
 
-              Premium model combining maximum intelligence with practical performance
+              Fastest model with near-frontier intelligence
+
+            - `"claude-haiku-4-5-20251001"`
+
+              Fastest model with near-frontier intelligence
 
             - `"claude-opus-4-5"`
 
               Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-latest"`
+            - `"claude-opus-4-5-20251101"`
 
-              High-performance model with early extended thinking
+              Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-20250219"`
+            - `"claude-sonnet-4-5"`
 
-              High-performance model with early extended thinking
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-latest"`
+            - `"claude-sonnet-4-5-20250929"`
 
-              Fastest and most compact model for near-instant responsiveness
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-20241022"`
+            - `"claude-opus-4-1"`
 
-              Our fastest model
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5"`
+            - `"claude-opus-4-1-20250805"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5-20251001"`
+            - `"claude-opus-4-0"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Powerful model for complex tasks
 
-            - `"claude-sonnet-4-20250514"`
+            - `"claude-opus-4-20250514"`
 
-              High-performance model with extended thinking
+              Powerful model for complex tasks
 
             - `"claude-sonnet-4-0"`
 
               High-performance model with extended thinking
 
-            - `"claude-4-sonnet-20250514"`
+            - `"claude-sonnet-4-20250514"`
 
               High-performance model with extended thinking
 
-            - `"claude-sonnet-4-5"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-sonnet-4-5-20250929"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-opus-4-0"`
-
-              Our most capable model
-
-            - `"claude-opus-4-20250514"`
-
-              Our most capable model
-
-            - `"claude-4-opus-20250514"`
-
-              Our most capable model
-
-            - `"claude-opus-4-1-20250805"`
-
-              Our most capable model
-
-            - `"claude-3-opus-latest"`
-
-              Excels at writing and complex tasks
-
-            - `"claude-3-opus-20240229"`
-
-              Excels at writing and complex tasks
-
             - `"claude-3-haiku-20240307"`
 
-              Our previous most fast and cost-effective
+              Fast and cost-effective model
 
           - `(string & {})`
 
@@ -41076,7 +42111,7 @@ console.log(betaMessageBatchIndividualResponse.custom_id);
 
           See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-          - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+          - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
             - `"claude-opus-4-6"`
 
@@ -41084,87 +42119,59 @@ console.log(betaMessageBatchIndividualResponse.custom_id);
 
             - `"claude-sonnet-4-6"`
 
-              Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+              Best combination of speed and intelligence
 
-            - `"claude-opus-4-5-20251101"`
+            - `"claude-haiku-4-5"`
 
-              Premium model combining maximum intelligence with practical performance
+              Fastest model with near-frontier intelligence
+
+            - `"claude-haiku-4-5-20251001"`
+
+              Fastest model with near-frontier intelligence
 
             - `"claude-opus-4-5"`
 
               Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-latest"`
+            - `"claude-opus-4-5-20251101"`
 
-              High-performance model with early extended thinking
+              Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-20250219"`
+            - `"claude-sonnet-4-5"`
 
-              High-performance model with early extended thinking
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-latest"`
+            - `"claude-sonnet-4-5-20250929"`
 
-              Fastest and most compact model for near-instant responsiveness
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-20241022"`
+            - `"claude-opus-4-1"`
 
-              Our fastest model
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5"`
+            - `"claude-opus-4-1-20250805"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5-20251001"`
+            - `"claude-opus-4-0"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Powerful model for complex tasks
 
-            - `"claude-sonnet-4-20250514"`
+            - `"claude-opus-4-20250514"`
 
-              High-performance model with extended thinking
+              Powerful model for complex tasks
 
             - `"claude-sonnet-4-0"`
 
               High-performance model with extended thinking
 
-            - `"claude-4-sonnet-20250514"`
+            - `"claude-sonnet-4-20250514"`
 
               High-performance model with extended thinking
 
-            - `"claude-sonnet-4-5"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-sonnet-4-5-20250929"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-opus-4-0"`
-
-              Our most capable model
-
-            - `"claude-opus-4-20250514"`
-
-              Our most capable model
-
-            - `"claude-4-opus-20250514"`
-
-              Our most capable model
-
-            - `"claude-opus-4-1-20250805"`
-
-              Our most capable model
-
-            - `"claude-3-opus-latest"`
-
-              Excels at writing and complex tasks
-
-            - `"claude-3-opus-20240229"`
-
-              Excels at writing and complex tasks
-
             - `"claude-3-haiku-20240307"`
 
-              Our previous most fast and cost-effective
+              Fast and cost-effective model
 
           - `(string & {})`
 
@@ -42448,7 +43455,7 @@ console.log(betaMessageBatchIndividualResponse.custom_id);
 
         See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-        - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+        - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
           - `"claude-opus-4-6"`
 
@@ -42456,87 +43463,59 @@ console.log(betaMessageBatchIndividualResponse.custom_id);
 
           - `"claude-sonnet-4-6"`
 
-            Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+            Best combination of speed and intelligence
 
-          - `"claude-opus-4-5-20251101"`
+          - `"claude-haiku-4-5"`
 
-            Premium model combining maximum intelligence with practical performance
+            Fastest model with near-frontier intelligence
+
+          - `"claude-haiku-4-5-20251001"`
+
+            Fastest model with near-frontier intelligence
 
           - `"claude-opus-4-5"`
 
             Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-latest"`
+          - `"claude-opus-4-5-20251101"`
 
-            High-performance model with early extended thinking
+            Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-20250219"`
+          - `"claude-sonnet-4-5"`
 
-            High-performance model with early extended thinking
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-latest"`
+          - `"claude-sonnet-4-5-20250929"`
 
-            Fastest and most compact model for near-instant responsiveness
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-20241022"`
+          - `"claude-opus-4-1"`
 
-            Our fastest model
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5"`
+          - `"claude-opus-4-1-20250805"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5-20251001"`
+          - `"claude-opus-4-0"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Powerful model for complex tasks
 
-          - `"claude-sonnet-4-20250514"`
+          - `"claude-opus-4-20250514"`
 
-            High-performance model with extended thinking
+            Powerful model for complex tasks
 
           - `"claude-sonnet-4-0"`
 
             High-performance model with extended thinking
 
-          - `"claude-4-sonnet-20250514"`
+          - `"claude-sonnet-4-20250514"`
 
             High-performance model with extended thinking
 
-          - `"claude-sonnet-4-5"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-sonnet-4-5-20250929"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-opus-4-0"`
-
-            Our most capable model
-
-          - `"claude-opus-4-20250514"`
-
-            Our most capable model
-
-          - `"claude-4-opus-20250514"`
-
-            Our most capable model
-
-          - `"claude-opus-4-1-20250805"`
-
-            Our most capable model
-
-          - `"claude-3-opus-latest"`
-
-            Excels at writing and complex tasks
-
-          - `"claude-3-opus-20240229"`
-
-            Excels at writing and complex tasks
-
           - `"claude-3-haiku-20240307"`
 
-            Our previous most fast and cost-effective
+            Fast and cost-effective model
 
         - `(string & {})`
 
@@ -43782,7 +44761,7 @@ console.log(betaMessageBatchIndividualResponse.custom_id);
 
       See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-      - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-opus-4-5-20251101" | 19 more`
+      - `"claude-opus-4-6" | "claude-sonnet-4-6" | "claude-haiku-4-5" | 12 more`
 
         - `"claude-opus-4-6"`
 
@@ -43790,87 +44769,59 @@ console.log(betaMessageBatchIndividualResponse.custom_id);
 
         - `"claude-sonnet-4-6"`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `"claude-opus-4-5-20251101"`
+        - `"claude-haiku-4-5"`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `"claude-haiku-4-5-20251001"`
+
+          Fastest model with near-frontier intelligence
 
         - `"claude-opus-4-5"`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-latest"`
+        - `"claude-opus-4-5-20251101"`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-20250219"`
+        - `"claude-sonnet-4-5"`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-latest"`
+        - `"claude-sonnet-4-5-20250929"`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-20241022"`
+        - `"claude-opus-4-1"`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5"`
+        - `"claude-opus-4-1-20250805"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5-20251001"`
+        - `"claude-opus-4-0"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `"claude-sonnet-4-20250514"`
+        - `"claude-opus-4-20250514"`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `"claude-sonnet-4-0"`
 
           High-performance model with extended thinking
 
-        - `"claude-4-sonnet-20250514"`
+        - `"claude-sonnet-4-20250514"`
 
           High-performance model with extended thinking
 
-        - `"claude-sonnet-4-5"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-sonnet-4-5-20250929"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-opus-4-0"`
-
-          Our most capable model
-
-        - `"claude-opus-4-20250514"`
-
-          Our most capable model
-
-        - `"claude-4-opus-20250514"`
-
-          Our most capable model
-
-        - `"claude-opus-4-1-20250805"`
-
-          Our most capable model
-
-        - `"claude-3-opus-latest"`
-
-          Excels at writing and complex tasks
-
-        - `"claude-3-opus-20240229"`
-
-          Excels at writing and complex tasks
-
         - `"claude-3-haiku-20240307"`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `(string & {})`
 

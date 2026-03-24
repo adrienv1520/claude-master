@@ -2,14 +2,20 @@
 
 ---
 
-Programmatic tool calling allows Claude to write code that calls your tools programmatically within a [code execution](./developer-agents-and-tools-tool-use-code-execution-tool.md) container, rather than requiring round trips through the model for each tool invocation. This reduces latency for multi-tool workflows and decreases token consumption by allowing Claude to filter or process data before it reaches the model's context window.
+Programmatic tool calling allows Claude to write code that calls your tools programmatically within a [code execution](./developer-agents-and-tools-tool-use-code-execution-tool.md) container, rather than requiring round trips through the model for each tool invocation. This reduces latency for multi-tool workflows and decreases token consumption by allowing Claude to filter or process data before it reaches the model's context window. On agentic search benchmarks like [BrowseComp](https://arxiv.org/abs/2504.12516) and [DeepSearchQA](https://github.com/google-deepmind/deepsearchqa), which test multi-step web research and complex information retrieval, adding programmatic tool calling on top of basic search tools was the key factor that fully unlocked agent performance.
+
+The difference compounds fast in real workflows. Consider checking budget compliance across 20 employees: the traditional approach requires 20 separate model round-trips, pulling thousands of expense line items into the context along the way. With programmatic tool calling, a single script runs all 20 lookups, filters the results, and returns only the employees who exceeded their limits, shrinking what Claude needs to reason over from hundreds of kilobytes down to a handful of lines.
+
+<Tip>
+For a deeper look at the inference and context costs that programmatic tool calling addresses, see [Advanced tool use](https://www.anthropic.com/engineering/advanced-tool-use).
+</Tip>
 
 <Note>
 This feature requires the code execution tool to be enabled.
 </Note>
 
 <Note>
-This feature is **not** covered by [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements. Data is retained according to the feature's standard retention policy.
+This feature is **not** eligible for [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md). Data is retained according to the feature's standard retention policy.
 </Note>
 
 ## Model compatibility
@@ -104,19 +110,20 @@ response = client.messages.create(
 print(response)
 ```
 
-```typescript TypeScript
-import { Anthropic } from "@anthropic-ai/sdk";
+```typescript TypeScript hidelines={1..4}
+import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic();
+const client = new Anthropic();
 
 async function main() {
-  const response = await anthropic.messages.create({
+  const response = await client.messages.create({
     model: "claude-opus-4-6",
     max_tokens: 4096,
     messages: [
       {
         role: "user",
-        content: "Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue"
+        content:
+          "Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue"
       }
     ],
     tools: [
@@ -126,9 +133,10 @@ async function main() {
       },
       {
         name: "query_database",
-        description: "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
+        description:
+          "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
         input_schema: {
-          type: "object",
+          type: "object" as const,
           properties: {
             sql: {
               type: "string",
@@ -147,6 +155,222 @@ async function main() {
 
 main().catch(console.error);
 ```
+
+```csharp C#
+using Anthropic;
+using Anthropic.Models.Messages;
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 4096,
+            Messages = [
+                new() {
+                    Role = Role.User,
+                    Content = "Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue"
+                }
+            ],
+            Tools = [
+                new CodeExecutionTool20260120(),
+                new ToolUnion(new Tool()
+                {
+                    Name = "query_database",
+                    Description = "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
+                    InputSchema = new InputSchema()
+                    {
+                        Properties = new Dictionary<string, JsonElement>
+                        {
+                            ["sql"] = JsonSerializer.SerializeToElement(new { type = "string", description = "SQL query to execute" }),
+                        },
+                        Required = ["sql"],
+                    },
+                    AllowedCallers = ["code_execution_20260120"]
+                }),
+            ]
+        };
+
+        var message = await client.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+
+```go Go hidelines={1..13,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue")),
+		},
+		Tools: []anthropic.ToolUnionParam{
+			{OfCodeExecutionTool20260120: &anthropic.CodeExecutionTool20260120Param{}},
+			{OfTool: &anthropic.ToolParam{
+				Name:        "query_database",
+				Description: anthropic.String("Execute a SQL query against the sales database. Returns a list of rows as JSON objects."),
+				InputSchema: anthropic.ToolInputSchemaParam{
+					Properties: map[string]any{
+						"sql": map[string]any{
+							"type":        "string",
+							"description": "SQL query to execute",
+						},
+					},
+					Required: []string{"sql"},
+				},
+				AllowedCallers: []string{"code_execution_20260120"},
+			}},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..7,9..13,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Tool;
+import com.anthropic.models.messages.Tool.InputSchema;
+import com.anthropic.models.messages.CodeExecutionTool20260120;
+import java.util.List;
+import java.util.Map;
+
+public class Main {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(4096L)
+            .addUserMessage("Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue")
+            .addTool(CodeExecutionTool20260120.builder().build())
+            .addTool(Tool.builder()
+                .name("query_database")
+                .description("Execute a SQL query against the sales database. Returns a list of rows as JSON objects.")
+                .inputSchema(InputSchema.builder()
+                    .properties(JsonValue.from(Map.of(
+                        "sql", Map.of(
+                            "type", "string",
+                            "description", "SQL query to execute"
+                        )
+                    )))
+                    .putAdditionalProperty("required", JsonValue.from(List.of("sql")))
+                    .build())
+                .allowedCallers(List.of(Tool.AllowedCaller.of("code_execution_20260120")))
+                .build())
+            .build();
+
+        Message response = client.messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->messages->create(
+    maxTokens: 4096,
+    messages: [
+        ['role' => 'user', 'content' => 'Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue'],
+    ],
+    model: 'claude-opus-4-6',
+    tools: [
+        [
+            'type' => 'code_execution_20260120',
+            'name' => 'code_execution',
+        ],
+        [
+            'name' => 'query_database',
+            'description' => 'Execute a SQL query against the sales database. Returns a list of rows as JSON objects.',
+            'input_schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'sql' => [
+                        'type' => 'string',
+                        'description' => 'SQL query to execute',
+                    ],
+                ],
+                'required' => ['sql'],
+            ],
+            'allowed_callers' => ['code_execution_20260120'],
+        ],
+    ],
+);
+
+echo $message;
+```
+
+```ruby Ruby
+require "anthropic"
+
+client = Anthropic::Client.new
+
+message = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: [
+    {
+      role: "user",
+      content: "Query sales data for the West, East, and Central regions, then tell me which region had the highest revenue"
+    }
+  ],
+  tools: [
+    {
+      type: "code_execution_20260120",
+      name: "code_execution"
+    },
+    {
+      name: "query_database",
+      description: "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
+      input_schema: {
+        type: "object",
+        properties: {
+          sql: {
+            type: "string",
+            description: "SQL query to execute"
+          }
+        },
+        required: ["sql"]
+      },
+      allowed_callers: ["code_execution_20260120"]
+    }
+  ]
+)
+
+puts message
+```
 </CodeGroup>
 
 ## How programmatic tool calling works
@@ -160,9 +384,9 @@ When you configure a tool to be callable from code execution and Claude decides 
 5. Once all code execution completes, Claude receives the final output and continues working on the task
 
 This approach is particularly useful for:
-- **Large data processing**: Filter or aggregate tool results before they reach Claude's context
-- **Multi-step workflows**: Save tokens and latency by calling tools serially or in a loop without sampling Claude in-between tool calls
-- **Conditional logic**: Make decisions based on intermediate tool results
+- **Large data processing:** Filter or aggregate tool results before they reach Claude's context
+- **Multi-step workflows:** Save tokens and latency by calling tools serially or in a loop without sampling Claude in-between tool calls
+- **Conditional logic:** Make decisions based on intermediate tool results
 
 <Note>
 Custom tools are converted to async Python functions to support parallel tool calling. When Claude writes code that calls your tools, it uses `await` (e.g., `result = await query_database("<sql>")`) and automatically includes the appropriate async wrapper function.
@@ -180,7 +404,9 @@ The `allowed_callers` field specifies which contexts can invoke a tool:
 {
   "name": "query_database",
   "description": "Execute a SQL query against the database",
-  "input_schema": {...},
+  "input_schema": {
+    // ...
+  },
   "allowed_callers": ["code_execution_20260120"]
 }
 ```
@@ -204,8 +430,8 @@ Every tool use block includes a `caller` field indicating how it was invoked:
   "type": "tool_use",
   "id": "toolu_abc123",
   "name": "query_database",
-  "input": {"sql": "<sql>"},
-  "caller": {"type": "direct"}
+  "input": { "sql": "<sql>" },
+  "caller": { "type": "direct" }
 }
 ```
 
@@ -215,7 +441,7 @@ Every tool use block includes a `caller` field indicating how it was invoked:
   "type": "tool_use",
   "id": "toolu_xyz789",
   "name": "query_database",
-  "input": {"sql": "<sql>"},
+  "input": { "sql": "<sql>" },
   "caller": {
     "type": "code_execution_20260120",
     "tool_id": "srvtoolu_abc123"
@@ -229,10 +455,10 @@ The `tool_id` references the code execution tool that made the programmatic call
 
 Programmatic tool calling uses the same containers as code execution:
 
-- **Container creation**: A new container is created for each session unless you reuse an existing one
-- **Expiration**: Containers expire after approximately 4.5 minutes of inactivity (subject to change)
-- **Container ID**: Returned in responses via the `container` field
-- **Reuse**: Pass the container ID to maintain state across requests
+- **Container creation:** A new container is created for each session unless you reuse an existing one
+- **Expiration:** Containers expire after approximately 4.5 minutes of inactivity (subject to change)
+- **Container ID:** Returned in responses via the `container` field
+- **Reuse:** Pass the container ID to maintain state across requests
 
 <Warning>
 When a tool is called programmatically and the container is waiting for your tool result, you must respond before the container expires. Monitor the `expires_at` field. If the container expires, Claude may treat the tool call as timed out and retry it.
@@ -247,11 +473,12 @@ Here's how a complete programmatic tool calling flow works:
 Send a request with code execution and a tool that allows programmatic calling. To enable programmatic calling, add the `allowed_callers` field to your tool definition.
 
 <Note>
-Provide detailed descriptions of your tool's output format in the tool description. If you specify that the tool returns JSON, Claude will attempt to deserialize and process the result in code. The more detail you provide about the output schema, the better Claude can handle the response programmatically.
+Provide detailed descriptions of your tool's output format in the tool description. If you specify that the tool returns JSON, Claude attempts to deserialize and process the result in code. The more detail you provide about the output schema, the better Claude can handle the response programmatically.
 </Note>
 
 <CodeGroup>
-```python Python
+
+```python Python nocheck
 response = client.messages.create(
     model="claude-opus-4-6",
     max_tokens=4096,
@@ -273,14 +500,233 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
-const response = await anthropic.messages.create({
+```typescript TypeScript nocheck
+const response = await client.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 4096,
-  messages: [{
-    role: "user",
-    content: "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
-  }],
+  messages: [
+    {
+      role: "user",
+      content:
+        "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
+    }
+  ],
+  tools: [
+    {
+      type: "code_execution_20260120",
+      name: "code_execution"
+    },
+    {
+      name: "query_database",
+      description:
+        "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
+      input_schema: {
+        // ...
+      },
+      allowed_callers: ["code_execution_20260120"]
+    }
+  ]
+});
+```
+
+```csharp C# nocheck
+using System;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new()
+        {
+            ApiKey = Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY")
+        };
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 4096,
+            Messages = [
+                new() {
+                    Role = Role.User,
+                    Content = "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
+                }
+            ],
+            Tools = [
+                new() {
+                    Type = "code_execution_20260120",
+                    Name = "code_execution"
+                },
+                new() {
+                    Name = "query_database",
+                    Description = "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
+                    InputSchema = new() {
+                        Type = "object",
+                        Properties = new() {
+                            ["sql"] = new() {
+                                Type = "string",
+                                Description = "The SQL query to execute"
+                            }
+                        },
+                        Required = ["sql"]
+                    },
+                    AllowedCallers = ["code_execution_20260120"]
+                }
+            ]
+        };
+
+        var message = await client.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+
+```go Go hidelines={1..13,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("Query customer purchase history from the last quarter and identify our top 5 customers by revenue")),
+		},
+		Tools: []anthropic.ToolUnionParam{
+			{OfCodeExecutionTool20260120: &anthropic.CodeExecutionTool20260120Param{}},
+			{OfTool: &anthropic.ToolParam{
+				Name:        "query_database",
+				Description: anthropic.String("Execute a SQL query against the sales database. Returns a list of rows as JSON objects."),
+				InputSchema: anthropic.ToolInputSchemaParam{
+					Properties: map[string]any{
+						"sql": map[string]any{
+							"type":        "string",
+							"description": "The SQL query to execute",
+						},
+					},
+					Required: []string{"sql"},
+				},
+				AllowedCallers: []string{"code_execution_20260120"},
+			}},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..8,10..14,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.Tool;
+import com.anthropic.models.messages.Tool.InputSchema;
+import com.anthropic.models.messages.CodeExecutionTool20260120;
+import java.util.List;
+import java.util.Map;
+
+public class CodeExecutionExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        InputSchema querySchema = InputSchema.builder()
+            .properties(JsonValue.from(Map.of(
+                "sql", Map.of(
+                    "type", "string",
+                    "description", "The SQL query to execute"
+                )
+            )))
+            .putAdditionalProperty("required", JsonValue.from(List.of("sql")))
+            .build();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(4096L)
+            .addUserMessage("Query customer purchase history from the last quarter and identify our top 5 customers by revenue")
+            .addTool(CodeExecutionTool20260120.builder().build())
+            .addTool(Tool.builder()
+                .name("query_database")
+                .description("Execute a SQL query against the sales database. Returns a list of rows as JSON objects.")
+                .inputSchema(querySchema)
+                .allowedCallers(List.of(Tool.AllowedCaller.of("code_execution_20260120")))
+                .build())
+            .build();
+
+        Message response = client.messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..6}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->messages->create(
+    maxTokens: 4096,
+    messages: [
+        ['role' => 'user', 'content' => 'Query customer purchase history from the last quarter and identify our top 5 customers by revenue'],
+    ],
+    model: 'claude-opus-4-6',
+    tools: [
+        [
+            'type' => 'code_execution_20260120',
+            'name' => 'code_execution',
+        ],
+        [
+            'name' => 'query_database',
+            'description' => 'Execute a SQL query against the sales database. Returns a list of rows as JSON objects.',
+            'input_schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'sql' => [
+                        'type' => 'string',
+                        'description' => 'The SQL query to execute',
+                    ],
+                ],
+                'required' => ['sql'],
+            ],
+            'allowed_callers' => ['code_execution_20260120'],
+        ],
+    ],
+);
+
+echo $message->content[0]->text;
+```
+
+```ruby Ruby
+require "anthropic"
+
+client = Anthropic::Client.new
+
+message = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  messages: [
+    {
+      role: "user",
+      content: "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
+    }
+  ],
   tools: [
     {
       type: "code_execution_20260120",
@@ -289,11 +735,21 @@ const response = await anthropic.messages.create({
     {
       name: "query_database",
       description: "Execute a SQL query against the sales database. Returns a list of rows as JSON objects.",
-      input_schema: { /* ... */ },
+      input_schema: {
+        type: "object",
+        properties: {
+          sql: {
+            type: "string",
+            description: "The SQL query to execute"
+          }
+        },
+        required: ["sql"]
+      },
       allowed_callers: ["code_execution_20260120"]
     }
   ]
-});
+)
+puts message
 ```
 </CodeGroup>
 
@@ -321,7 +777,7 @@ Claude writes code that calls your tool. The API pauses and returns:
       "type": "tool_use",
       "id": "toolu_def456",
       "name": "query_database",
-      "input": {"sql": "<sql>"},
+      "input": { "sql": "<sql>" },
       "caller": {
         "type": "code_execution_20260120",
         "tool_id": "srvtoolu_abc123"
@@ -341,7 +797,8 @@ Claude writes code that calls your tool. The API pauses and returns:
 Include the full conversation history plus your tool result:
 
 <CodeGroup>
-```python Python
+
+```python Python nocheck
 response = client.messages.create(
     model="claude-opus-4-6",
     max_tokens=4096,
@@ -391,13 +848,17 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
-const response = await anthropic.messages.create({
+```typescript TypeScript nocheck
+const response = await client.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 4096,
   container: "container_xyz789", // Reuse the container
   messages: [
-    { role: "user", content: "Query customer purchase history from the last quarter and identify our top 5 customers by revenue" },
+    {
+      role: "user",
+      content:
+        "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
+    },
     {
       role: "assistant",
       content: [
@@ -426,13 +887,330 @@ const response = await anthropic.messages.create({
         {
           type: "tool_result",
           tool_use_id: "toolu_def456",
-          content: "[{\"customer_id\": \"C1\", \"revenue\": 45000}, {\"customer_id\": \"C2\", \"revenue\": 38000}, ...]"
+          content:
+            '[{"customer_id": "C1", "revenue": 45000}, {"customer_id": "C2", "revenue": 38000}, ...]'
         }
       ]
     }
   ],
-  tools: [/* ... */]
+  tools: [
+    /* ... */
+  ]
 });
+```
+
+```csharp C# nocheck
+using System;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 4096,
+            Container = "container_xyz789",
+            Messages =
+            [
+                new()
+                {
+                    Role = Role.User,
+                    Content = "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
+                },
+                new()
+                {
+                    Role = Role.Assistant,
+                    Content = new ContentBlock[]
+                    {
+                        new TextBlock { Text = "I'll query the purchase history and analyze the results." },
+                        new ServerToolUseBlock
+                        {
+                            Id = "srvtoolu_abc123",
+                            Name = "code_execution",
+                            Input = new { code = "..." }
+                        },
+                        new ToolUseBlock
+                        {
+                            Id = "toolu_def456",
+                            Name = "query_database",
+                            Input = new { sql = "<sql>" },
+                            Caller = new ToolCaller
+                            {
+                                Type = "code_execution_20260120",
+                                ToolId = "srvtoolu_abc123"
+                            }
+                        }
+                    }
+                },
+                new()
+                {
+                    Role = Role.User,
+                    Content = new ContentBlockParam[]
+                    {
+                        new ToolResultBlockParam
+                        {
+                            ToolUseID = "toolu_def456",
+                            Content = "[{\"customer_id\": \"C1\", \"revenue\": 45000}, {\"customer_id\": \"C2\", \"revenue\": 38000}, ...]"
+                        }
+                    }
+                }
+            ],
+            Tools = []
+        };
+
+        var message = await client.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+
+```go Go nocheck hidelines={1..13,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Container: anthropic.MessageNewParamsContainerUnion{
+			OfString: anthropic.String("container_xyz789"),
+		},
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("Query customer purchase history from the last quarter and identify our top 5 customers by revenue")),
+			{
+				Role: anthropic.MessageParamRoleAssistant,
+				Content: []anthropic.ContentBlockParamUnion{
+					anthropic.NewTextBlock("I'll query the purchase history and analyze the results."),
+					{OfServerToolUse: &anthropic.ServerToolUseBlockParam{
+						ID:    "srvtoolu_abc123",
+						Name:  anthropic.ServerToolUseBlockParamNameCodeExecution,
+						Input: map[string]any{"code": "..."},
+					}},
+					{OfToolUse: &anthropic.ToolUseBlockParam{
+						ID:    "toolu_def456",
+						Name:  "query_database",
+						Input: map[string]any{"sql": "<sql>"},
+						Caller: anthropic.ServerToolUseBlockParamCallerUnion{
+							OfCodeExecution20260120: &anthropic.ServerToolCaller20260120Param{
+								ToolID: "srvtoolu_abc123",
+							},
+						},
+					}},
+				},
+			},
+			{
+				Role: anthropic.MessageParamRoleUser,
+				Content: []anthropic.ContentBlockParamUnion{
+					{OfToolResult: &anthropic.ToolResultBlockParam{
+						ToolUseID: "toolu_def456",
+						Content: []anthropic.ToolResultBlockParamContentUnion{
+							{OfText: &anthropic.TextBlockParam{
+								Text: `[{"customer_id": "C1", "revenue": 45000}, {"customer_id": "C2", "revenue": 38000}, ...]`,
+							}},
+						},
+					}},
+				},
+			},
+		},
+		Tools: []anthropic.ToolUnionParam{
+			{OfCodeExecutionTool20260120: &anthropic.CodeExecutionTool20260120Param{}},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java nocheck hidelines={1..3,5..8,10..17,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.CodeExecutionTool20260120;
+import com.anthropic.models.messages.ContentBlockParam;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.ServerToolUseBlockParam;
+import com.anthropic.models.messages.TextBlockParam;
+import com.anthropic.models.messages.ToolResultBlockParam;
+import com.anthropic.models.messages.ToolUseBlockParam;
+import java.util.List;
+import java.util.Map;
+
+public class ContainerReuse {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(4096L)
+            .container("container_xyz789")
+            .addUserMessage("Query customer purchase history from the last quarter and identify our top 5 customers by revenue")
+            .addAssistantMessageOfBlockParams(List.of(
+                ContentBlockParam.ofText(
+                    TextBlockParam.builder()
+                        .text("I'll query the purchase history and analyze the results.")
+                        .build()),
+                ContentBlockParam.ofServerToolUse(
+                    ServerToolUseBlockParam.builder()
+                        .id("srvtoolu_abc123")
+                        .name("code_execution")
+                        .input(JsonValue.from(Map.of("code", "...")))
+                        .build()),
+                ContentBlockParam.ofToolUse(
+                    ToolUseBlockParam.builder()
+                        .id("toolu_def456")
+                        .name("query_database")
+                        .input(JsonValue.from(Map.of("sql", "<sql>")))
+                        .codeExecution20260120Caller("srvtoolu_abc123")
+                        .build())
+            ))
+            .addUserMessageOfBlockParams(List.of(
+                ContentBlockParam.ofToolResult(
+                    ToolResultBlockParam.builder()
+                        .toolUseId("toolu_def456")
+                        .content("[{\"customer_id\": \"C1\", \"revenue\": 45000}, {\"customer_id\": \"C2\", \"revenue\": 38000}, ...]")
+                        .build())
+            ))
+            .addTool(CodeExecutionTool20260120.builder().build())
+            .build();
+
+        Message response = client.messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP hidelines={1..6} nocheck
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->messages->create(
+    maxTokens: 4096,
+    messages: [
+        [
+            'role' => 'user',
+            'content' => 'Query customer purchase history from the last quarter and identify our top 5 customers by revenue',
+        ],
+        [
+            'role' => 'assistant',
+            'content' => [
+                [
+                    'type' => 'text',
+                    'text' => "I'll query the purchase history and analyze the results.",
+                ],
+                [
+                    'type' => 'server_tool_use',
+                    'id' => 'srvtoolu_abc123',
+                    'name' => 'code_execution',
+                    'input' => ['code' => '...'],
+                ],
+                [
+                    'type' => 'tool_use',
+                    'id' => 'toolu_def456',
+                    'name' => 'query_database',
+                    'input' => ['sql' => '<sql>'],
+                    'caller' => [
+                        'type' => 'code_execution_20260120',
+                        'tool_id' => 'srvtoolu_abc123',
+                    ],
+                ],
+            ],
+        ],
+        [
+            'role' => 'user',
+            'content' => [
+                [
+                    'type' => 'tool_result',
+                    'tool_use_id' => 'toolu_def456',
+                    'content' => '[{"customer_id": "C1", "revenue": 45000}, {"customer_id": "C2", "revenue": 38000}, ...]',
+                ],
+            ],
+        ],
+    ],
+    model: 'claude-opus-4-6',
+    container: 'container_xyz789',
+    tools: [],
+);
+
+echo $message;
+```
+
+```ruby Ruby nocheck
+require "anthropic"
+
+client = Anthropic::Client.new
+
+message = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  container: "container_xyz789",
+  messages: [
+    {
+      role: "user",
+      content: "Query customer purchase history from the last quarter and identify our top 5 customers by revenue"
+    },
+    {
+      role: "assistant",
+      content: [
+        {
+          type: "text",
+          text: "I'll query the purchase history and analyze the results."
+        },
+        {
+          type: "server_tool_use",
+          id: "srvtoolu_abc123",
+          name: "code_execution",
+          input: { code: "..." }
+        },
+        {
+          type: "tool_use",
+          id: "toolu_def456",
+          name: "query_database",
+          input: { sql: "<sql>" },
+          caller: {
+            type: "code_execution_20260120",
+            tool_id: "srvtoolu_abc123"
+          }
+        }
+      ]
+    },
+    {
+      role: "user",
+      content: [
+        {
+          type: "tool_result",
+          tool_use_id: "toolu_def456",
+          content: '[{"customer_id": "C1", "revenue": 45000}, {"customer_id": "C2", "revenue": 38000}, ...]'
+        }
+      ]
+    }
+  ],
+  tools: [
+    { type: "code_execution_20260120", name: "code_execution" }
+  ]
+)
+puts message
 ```
 </CodeGroup>
 
@@ -473,7 +1251,7 @@ Once the code execution completes, Claude provides the final response:
 
 Claude can write code that processes multiple items efficiently:
 
-```python
+```python nocheck
 # async wrapper omitted for clarity
 regions = ["West", "East", "Central", "North", "South"]
 results = {}
@@ -495,7 +1273,7 @@ This pattern:
 
 Claude can stop processing as soon as success criteria are met:
 
-```python
+```python nocheck
 # async wrapper omitted for clarity
 endpoints = ["us-east", "eu-west", "apac"]
 for endpoint in endpoints:
@@ -507,7 +1285,7 @@ for endpoint in endpoints:
 
 ### Conditional tool selection
 
-```python
+```python nocheck
 # async wrapper omitted for clarity
 file_info = await get_file_info(path)
 if file_info["size"] < 10000:
@@ -519,7 +1297,7 @@ print(content)
 
 ### Data filtering
 
-```python
+```python nocheck
 # async wrapper omitted for clarity
 logs = await fetch_logs(server_id)
 errors = [log for log in logs if "ERROR" in log]
@@ -539,7 +1317,7 @@ When code execution calls a tool:
   "type": "tool_use",
   "id": "toolu_abc123",
   "name": "query_database",
-  "input": {"sql": "<sql>"},
+  "input": { "sql": "<sql>" },
   "caller": {
     "type": "code_execution_20260120",
     "tool_id": "srvtoolu_xyz789"
@@ -594,7 +1372,7 @@ When all tool calls are satisfied and code completes:
 
 ### Container expiration during tool call
 
-If your tool takes too long to respond, the code execution will receive a `TimeoutError`. Claude sees this in stderr and will typically retry:
+If your tool takes too long to respond, the code execution receives a `TimeoutError`. Claude sees this in stderr and typically retries:
 
 ```json
 {
@@ -619,7 +1397,7 @@ To prevent timeouts:
 
 If your tool returns an error:
 
-```python
+```python nocheck
 # Provide error information in the tool result
 {
     "type": "tool_result",
@@ -628,15 +1406,15 @@ If your tool returns an error:
 }
 ```
 
-Claude's code will receive this error and can handle it appropriately.
+Claude's code receives this error and can handle it appropriately.
 
 ## Constraints and limitations
 
 ### Feature incompatibilities
 
-- **Structured outputs**: Tools with `strict: true` are not supported with programmatic calling
-- **Tool choice**: You cannot force programmatic calling of a specific tool via `tool_choice`
-- **Parallel tool use**: `disable_parallel_tool_use: true` is not supported with programmatic calling
+- **Structured outputs:** Tools with `strict: true` are not supported with programmatic calling
+- **Tool choice:** You cannot force programmatic calling of a specific tool via `tool_choice`
+- **Parallel tool use:** `disable_parallel_tool_use: true` is not supported with programmatic calling
 
 ### Tool restrictions
 
@@ -648,23 +1426,35 @@ The following tools cannot currently be called programmatically, but support may
 
 When responding to programmatic tool calls, there are strict formatting requirements:
 
-**Tool result only responses**: If there are pending programmatic tool calls waiting for results, your response message must contain **only** `tool_result` blocks. You cannot include any text content, even after the tool results.
+**Tool result only responses:** If there are pending programmatic tool calls waiting for results, your response message must contain **only** `tool_result` blocks. You cannot include any text content, even after the tool results.
+
+Invalid - Cannot include text when responding to programmatic tool calls:
 
 ```json
-// ❌ INVALID - Cannot include text when responding to programmatic tool calls
 {
   "role": "user",
   "content": [
-    {"type": "tool_result", "tool_use_id": "toolu_01", "content": "[{\"customer_id\": \"C1\", \"revenue\": 45000}]"},
-    {"type": "text", "text": "What should I do next?"}  // This will cause an error
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01",
+      "content": "[{\"customer_id\": \"C1\", \"revenue\": 45000}]"
+    },
+    { "type": "text", "text": "What should I do next?" }
   ]
 }
+```
 
-// ✅ VALID - Only tool results when responding to programmatic tool calls
+Valid - Only tool results when responding to programmatic tool calls:
+
+```json
 {
   "role": "user",
   "content": [
-    {"type": "tool_result", "tool_use_id": "toolu_01", "content": "[{\"customer_id\": \"C1\", \"revenue\": 45000}]"}
+    {
+      "type": "tool_result",
+      "tool_use_id": "toolu_01",
+      "content": "[{\"customer_id\": \"C1\", \"revenue\": 45000}]"
+    }
   ]
 }
 ```
@@ -679,8 +1469,8 @@ Programmatic tool calls are subject to the same rate limits as regular tool call
 
 When implementing custom tools that will be called programmatically:
 
-- **Tool results are returned as strings**: They can contain any content, including code snippets or executable commands that may be processed by the execution environment.
-- **Validate external tool results**: If your tool returns data from external sources or accepts user input, be aware of code injection risks if the output will be interpreted or executed as code.
+- **Tool results are returned as strings:** They can contain any content, including code snippets or executable commands that may be processed by the execution environment.
+- **Validate external tool results:** If your tool returns data from external sources or accepts user input, be aware of code injection risks if the output will be interpreted or executed as code.
 
 ## Token efficiency
 
@@ -704,9 +1494,9 @@ Token counting for programmatic tool calls: Tool results from programmatic invoc
 
 ### Tool design
 
-- **Provide detailed output descriptions**: Since Claude deserializes tool results in code, clearly document the format (JSON structure, field types, etc.)
-- **Return structured data**: JSON or other easily parseable formats work best for programmatic processing
-- **Keep responses concise**: Return only necessary data to minimize processing overhead
+- **Provide detailed output descriptions:** Since Claude deserializes tool results in code, clearly document the format (JSON structure, field types, etc.)
+- **Return structured data:** JSON or other easily parseable formats work best for programmatic processing
+- **Keep responses concise:** Return only necessary data to minimize processing overhead
 
 ### When to use programmatic calling
 
@@ -754,9 +1544,9 @@ Token counting for programmatic tool calls: Tool results from programmatic invoc
 
 Claude's training includes extensive exposure to code, making it effective at reasoning through and chaining function calls. When tools are presented as callable functions within a code execution environment, Claude can leverage this strength to:
 
-- **Reason naturally about tool composition**: Chain operations and handle dependencies as naturally as writing any Python code
-- **Process large results efficiently**: Filter down large tool outputs, extract only relevant data, or write intermediate results to files before returning summaries to the context window
-- **Reduce latency significantly**: Eliminate the overhead of re-sampling Claude between each tool call in multi-step workflows
+- **Reason naturally about tool composition:** Chain operations and handle dependencies as naturally as writing any Python code
+- **Process large results efficiently:** Filter down large tool outputs, extract only relevant data, or write intermediate results to files before returning summaries to the context window
+- **Reduce latency significantly:** Eliminate the overhead of re-sampling Claude between each tool call in multi-step workflows
 
 This approach enables workflows that would be impractical with traditional tool use (such as processing files over 1M tokens) by allowing Claude to work with data programmatically rather than loading everything into the conversation context.
 

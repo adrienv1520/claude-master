@@ -27,7 +27,7 @@ When using the SDK, you can specify beta headers in the request options:
 
 <CodeGroup>
 
-```python Python
+```python Python hidelines={1..2}
 from anthropic import Anthropic
 
 client = Anthropic()
@@ -40,7 +40,7 @@ response = client.beta.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -48,14 +48,12 @@ const anthropic = new Anthropic();
 const msg = await anthropic.beta.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 1024,
-  messages: [
-    { role: "user", content: "Hello, Claude" }
-  ],
+  messages: [{ role: "user", content: "Hello, Claude" }],
   betas: ["files-api-2025-04-14"]
 });
 ```
 
-```bash cURL
+```bash Shell
 curl https://api.anthropic.com/v1/messages \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
   -H "anthropic-version: 2023-06-01" \
@@ -74,7 +72,7 @@ curl https://api.anthropic.com/v1/messages \
 
 <Warning>
 Beta features are experimental and may:
-- Have breaking changes without notice
+- Have breaking changes with notice
 - Be deprecated or removed
 - Have different rate limits or pricing
 - Not be available in all regions

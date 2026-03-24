@@ -152,7 +152,7 @@ To customize models further, use one of these methods:
 ```bash  theme={null}
 # Using inference profile ID
 export ANTHROPIC_MODEL='global.anthropic.claude-sonnet-4-6'
-export ANTHROPIC_SMALL_FAST_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
+export ANTHROPIC_DEFAULT_HAIKU_MODEL='us.anthropic.claude-haiku-4-5-20251001-v1:0'
 
 # Using application inference profile ARN
 export ANTHROPIC_MODEL='arn:aws:bedrock:us-east-2:your-account-id:application-inference-profile/your-model-id'
@@ -162,6 +162,24 @@ export DISABLE_PROMPT_CACHING=1
 ```
 
 <Note>[Prompt caching](https://platform.claude.com/docs/en/build-with-claude/prompt-caching) may not be available in all regions.</Note>
+
+#### Map each model version to an inference profile
+
+The `ANTHROPIC_DEFAULT_*_MODEL` environment variables configure one inference profile per model family. If your organization needs to expose several versions of the same family in the `/model` picker, each routed to its own application inference profile ARN, use the `modelOverrides` setting in your [settings file](./code-settings.md#settings-files) instead.
+
+This example maps three Opus versions to distinct ARNs so users can switch between them without bypassing your organization's inference profiles:
+
+```json  theme={null}
+{
+  "modelOverrides": {
+    "claude-opus-4-6": "arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/opus-46-prod",
+    "claude-opus-4-5-20251101": "arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/opus-45-prod",
+    "claude-opus-4-1-20250805": "arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/opus-41-prod"
+  }
+}
+```
+
+When a user selects one of these versions in `/model`, Claude Code calls Bedrock with the mapped ARN. Versions without an override fall back to the built-in Bedrock model ID or any matching inference profile discovered at startup. See [Override model IDs per version](./code-model-config.md#override-model-ids-per-version) for details on how overrides interact with `availableModels` and other model settings.
 
 ## IAM configuration
 

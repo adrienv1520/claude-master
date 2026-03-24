@@ -28,7 +28,7 @@ PHP 8.1.0 or higher.
 
 This library uses named parameters to specify optional arguments. Parameters with a default value must be set by name.
 
-```php
+```php hidelines={1..4}
 <?php
 
 use Anthropic\Client;
@@ -56,7 +56,7 @@ However, builders are also provided `(new Base64ImageSource)->withData("U3RhaW5s
 
 The SDK provides support for streaming responses using Server-Sent Events (SSE).
 
-```php
+```php hidelines={1..4}
 <?php
 
 use Anthropic\Client;
@@ -78,14 +78,17 @@ foreach ($stream as $message) {
 
 ## Error handling
 
-When the library is unable to connect to the API, or if the API returns a non-success status code (i.e., 4xx or 5xx response), a subclass of `Anthropic\Core\Exceptions\APIException` will be thrown:
+When the library is unable to connect to the API, or if the API returns a non-success status code (i.e., 4xx or 5xx response), a subclass of `Anthropic\Core\Exceptions\APIException` is thrown:
 
-```php
+```php hidelines={2..3,7..9}
 <?php
+use Anthropic\Client;
 
 use Anthropic\Core\Exceptions\APIConnectionException;
 use Anthropic\Core\Exceptions\APIStatusException;
 use Anthropic\Core\Exceptions\RateLimitException;
+
+$client = new Client();
 
 try {
   $message = $client->messages->create(
@@ -128,14 +131,14 @@ Connection errors (for example, due to a network connectivity problem), 408 Requ
 
 You can use the `maxRetries` option to configure or disable this:
 
-```php
+```php hidelines={1..3,5}
 <?php
 
 use Anthropic\Client;
 use Anthropic\RequestOptions;
 
 // Configure the default for all requests:
-$client = new Client(maxRetries: 0);
+$client = new Client(requestOptions: RequestOptions::with(maxRetries: 0));
 
 // Or, configure per-request:
 $result = $client->messages->create(
@@ -152,7 +155,7 @@ List methods in the Claude API are paginated.
 
 This library provides auto-paginating iterators with each list response, so you do not have to request successive pages manually:
 
-```php
+```php hidelines={1..4}
 <?php
 
 use Anthropic\Client;
@@ -185,10 +188,13 @@ You can send undocumented parameters to any endpoint, and read undocumented resp
 The `extra*` parameters of the same name override the documented parameters.
 </Note>
 
-```php
+```php hidelines={2..3,5..7}
 <?php
+use Anthropic\Client;
 
 use Anthropic\RequestOptions;
+
+$client = new Client();
 
 $message = $client->messages->create(
   maxTokens: 1024,
@@ -210,8 +216,10 @@ If you want to explicitly send an extra param, you can do so with the `extraQuer
 
 To make requests to undocumented endpoints while retaining the benefit of auth, retries, and so on, you can make requests using `client->request`, like so:
 
-```php
+```php hidelines={1..2} nocheck
 <?php
+use Anthropic\Client;
+$client = new Client();
 
 $response = $client->request(
   method: "post",

@@ -2665,87 +2665,59 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
         - `CLAUDE_SONNET_4_6("claude-sonnet-4-6")`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `CLAUDE_OPUS_4_5_20251101("claude-opus-4-5-20251101")`
+        - `CLAUDE_HAIKU_4_5("claude-haiku-4-5")`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `CLAUDE_HAIKU_4_5_20251001("claude-haiku-4-5-20251001")`
+
+          Fastest model with near-frontier intelligence
 
         - `CLAUDE_OPUS_4_5("claude-opus-4-5")`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `CLAUDE_3_7_SONNET_LATEST("claude-3-7-sonnet-latest")`
+        - `CLAUDE_OPUS_4_5_20251101("claude-opus-4-5-20251101")`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `CLAUDE_3_7_SONNET_20250219("claude-3-7-sonnet-20250219")`
+        - `CLAUDE_SONNET_4_5("claude-sonnet-4-5")`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `CLAUDE_3_5_HAIKU_LATEST("claude-3-5-haiku-latest")`
+        - `CLAUDE_SONNET_4_5_20250929("claude-sonnet-4-5-20250929")`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `CLAUDE_3_5_HAIKU_20241022("claude-3-5-haiku-20241022")`
+        - `CLAUDE_OPUS_4_1("claude-opus-4-1")`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `CLAUDE_HAIKU_4_5("claude-haiku-4-5")`
+        - `CLAUDE_OPUS_4_1_20250805("claude-opus-4-1-20250805")`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `CLAUDE_HAIKU_4_5_20251001("claude-haiku-4-5-20251001")`
+        - `CLAUDE_OPUS_4_0("claude-opus-4-0")`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `CLAUDE_SONNET_4_20250514("claude-sonnet-4-20250514")`
+        - `CLAUDE_OPUS_4_20250514("claude-opus-4-20250514")`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `CLAUDE_SONNET_4_0("claude-sonnet-4-0")`
 
           High-performance model with extended thinking
 
-        - `CLAUDE_4_SONNET_20250514("claude-4-sonnet-20250514")`
+        - `CLAUDE_SONNET_4_20250514("claude-sonnet-4-20250514")`
 
           High-performance model with extended thinking
 
-        - `CLAUDE_SONNET_4_5("claude-sonnet-4-5")`
-
-          Our best model for real-world agents and coding
-
-        - `CLAUDE_SONNET_4_5_20250929("claude-sonnet-4-5-20250929")`
-
-          Our best model for real-world agents and coding
-
-        - `CLAUDE_OPUS_4_0("claude-opus-4-0")`
-
-          Our most capable model
-
-        - `CLAUDE_OPUS_4_20250514("claude-opus-4-20250514")`
-
-          Our most capable model
-
-        - `CLAUDE_4_OPUS_20250514("claude-4-opus-20250514")`
-
-          Our most capable model
-
-        - `CLAUDE_OPUS_4_1_20250805("claude-opus-4-1-20250805")`
-
-          Our most capable model
-
-        - `CLAUDE_3_OPUS_LATEST("claude-3-opus-latest")`
-
-          Excels at writing and complex tasks
-
-        - `CLAUDE_3_OPUS_20240229("claude-3-opus-20240229")`
-
-          Excels at writing and complex tasks
-
         - `CLAUDE_3_HAIKU_20240307("claude-3-haiku-20240307")`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `Optional<BetaCacheControlEphemeral> cacheControl`
 
@@ -3185,6 +3157,14 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
             - `ENABLED("enabled")`
 
+          - `Optional<Display> display`
+
+            Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+            - `SUMMARIZED("summarized")`
+
+            - `OMITTED("omitted")`
+
         - `class BetaThinkingConfigDisabled:`
 
           - `JsonValue; type "disabled"constant`
@@ -3196,6 +3176,14 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
           - `JsonValue; type "adaptive"constant`
 
             - `ADAPTIVE("adaptive")`
+
+          - `Optional<Display> display`
+
+            Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+            - `SUMMARIZED("summarized")`
+
+            - `OMITTED("omitted")`
 
       - `Optional<BetaToolChoice> toolChoice`
 
@@ -4478,6 +4466,87 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
           - `Optional<Boolean> strict`
 
             When true, guarantees schema validation on tool names and inputs
+
+        - `class BetaWebFetchTool20260309:`
+
+          Web fetch tool with use_cache parameter for bypassing cached content.
+
+          - `JsonValue; name "web_fetch"constant`
+
+            Name of the tool.
+
+            This is how the tool will be called by the model and in `tool_use` blocks.
+
+            - `WEB_FETCH("web_fetch")`
+
+          - `JsonValue; type "web_fetch_20260309"constant`
+
+            - `WEB_FETCH_20260309("web_fetch_20260309")`
+
+          - `Optional<List<AllowedCaller>> allowedCallers`
+
+            - `DIRECT("direct")`
+
+            - `CODE_EXECUTION_20250825("code_execution_20250825")`
+
+            - `CODE_EXECUTION_20260120("code_execution_20260120")`
+
+          - `Optional<List<String>> allowedDomains`
+
+            List of domains to allow fetching from
+
+          - `Optional<List<String>> blockedDomains`
+
+            List of domains to block fetching from
+
+          - `Optional<BetaCacheControlEphemeral> cacheControl`
+
+            Create a cache control breakpoint at this content block.
+
+            - `JsonValue; type "ephemeral"constant`
+
+              - `EPHEMERAL("ephemeral")`
+
+            - `Optional<Ttl> ttl`
+
+              The time-to-live for the cache control breakpoint.
+
+              This may be one the following values:
+
+              - `5m`: 5 minutes
+              - `1h`: 1 hour
+
+              Defaults to `5m`.
+
+              - `TTL_5M("5m")`
+
+              - `TTL_1H("1h")`
+
+          - `Optional<BetaCitationsConfigParam> citations`
+
+            Citations configuration for fetched documents. Citations are disabled by default.
+
+            - `Optional<Boolean> enabled`
+
+          - `Optional<Boolean> deferLoading`
+
+            If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+          - `Optional<Long> maxContentTokens`
+
+            Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+          - `Optional<Long> maxUses`
+
+            Maximum number of times the tool can be used in the API request.
+
+          - `Optional<Boolean> strict`
+
+            When true, guarantees schema validation on tool names and inputs
+
+          - `Optional<Boolean> useCache`
+
+            Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
         - `class BetaToolSearchToolBm25_20251119:`
 

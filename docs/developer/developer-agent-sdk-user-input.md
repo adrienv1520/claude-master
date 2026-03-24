@@ -27,7 +27,8 @@ options = ClaudeAgentOptions(can_use_tool=handle_tool_request)
 ```
 
 ```typescript TypeScript
-async function handleToolRequest(toolName, input) {
+async function handleToolRequest(toolName, input, options) {
+  // options includes { signal: AbortSignal, suggestions?: PermissionUpdate[] }
   // Prompt user and return allow or deny
 }
 
@@ -46,12 +47,13 @@ To automatically allow or deny tools without prompting users, use [hooks](./deve
 
 ## Handle tool approval requests
 
-Once you've passed a `canUseTool` callback in your query options, it fires when Claude wants to use a tool that isn't auto-approved. Your callback receives two arguments:
+Once you've passed a `canUseTool` callback in your query options, it fires when Claude wants to use a tool that isn't auto-approved. Your callback receives three arguments:
 
 | Argument | Description |
 |----------|-------------|
 | `toolName` | The name of the tool Claude wants to use (e.g., `"Bash"`, `"Write"`, `"Edit"`) |
 | `input` | The parameters Claude is passing to the tool. Contents vary by tool. |
+| `options` (TS) / `context` (Python) | Additional context including optional `suggestions` (proposed `PermissionUpdate` entries to avoid re-prompting) and a cancellation signal. In TypeScript, `signal` is an `AbortSignal`; in Python, the signal field is reserved for future use. See [`ToolPermissionContext`](./developer-agent-sdk-python.md#tool-permission-context) for Python. |
 
 The `input` object contains tool-specific parameters. Common examples:
 
@@ -62,7 +64,7 @@ The `input` object contains tool-specific parameters. Common examples:
 | `Edit` | `file_path`, `old_string`, `new_string` |
 | `Read` | `file_path`, `offset`, `limit` |
 
-See the SDK reference for complete input schemas: [Python](./developer-agent-sdk-python.md#tool-inputoutput-types) | [TypeScript](./developer-agent-sdk-typescript.md#tool-input-types).
+See the SDK reference for complete input schemas: [Python](./developer-agent-sdk-python.md#tool-input-output-types) | [TypeScript](./developer-agent-sdk-typescript.md#tool-input-types).
 
 You can display this information to the user so they can decide whether to allow or reject the action, then return the appropriate response.
 
@@ -73,7 +75,7 @@ The following example asks Claude to create and delete a test file. When Claude 
 ```python Python
 import asyncio
 
-from claude_agent_sdk import ClaudeAgentOptions, query
+from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
 from claude_agent_sdk.types import (
     HookMatcher,
     PermissionResultAllow,
@@ -129,7 +131,7 @@ async def main():
             hooks={"PreToolUse": [HookMatcher(matcher=None, hooks=[dummy_hook])]},
         ),
     ):
-        if hasattr(message, "result"):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
             print(message.result)
 
 
@@ -344,7 +346,8 @@ Beyond allowing or denying, you can modify the tool's input or provide context t
         // User doesn't want to delete, suggest archiving instead
         return {
           behavior: "deny",
-          message: "User doesn't want to delete files. They asked if you could compress them into an archive instead."
+          message:
+            "User doesn't want to delete files. They asked if you could compress them into an archive instead."
         };
       }
       return { behavior: "allow", updatedInput: input };
@@ -514,10 +517,10 @@ The input contains Claude's generated questions in a `questions` array. Each que
 |-------|-------------|
 | `question` | The full question text to display |
 | `header` | Short label for the question (max 12 characters) |
-| `options` | Array of 2-4 choices, each with `label` and `description` |
+| `options` | Array of 2-4 choices, each with `label` and `description`. TypeScript: optionally `preview` (see [below](#option-previews-type-script)) |
 | `multiSelect` | If `true`, users can select multiple options |
 
-Here's an example of the structure you'll receive:
+The structure your callback receives:
 
 ```json
 {
@@ -535,6 +538,48 @@ Here's an example of the structure you'll receive:
 }
 ```
 
+#### Option previews (TypeScript)
+
+`toolConfig.askUserQuestion.previewFormat` adds a `preview` field to each option so your app can show a visual mockup alongside the label. Without this setting, Claude does not generate previews and the field is absent.
+
+| `previewFormat` | `preview` contains |
+|:----------------|:-----------------------|
+| unset (default) | Field is absent. Claude does not generate previews. |
+| `"markdown"` | ASCII art and fenced code blocks |
+| `"html"` | A styled `
+` fragment (the SDK rejects `<script>`, `<style>`, and `<!DOCTYPE>` before your callback runs) |
+
+The format applies to all questions in the session. Claude includes `preview` on options where a visual comparison helps (layout choices, color schemes) and omits it where one wouldn't (yes/no confirmations, text-only choices). Check for `undefined` before rendering.
+
+```typescript
+import { query } from "@anthropic-ai/claude-agent-sdk";
+
+for await (const message of query({
+  prompt: "Help me choose a card layout",
+  options: {
+    toolConfig: {
+      askUserQuestion: { previewFormat: "html" }
+    },
+    canUseTool: async (toolName, input) => {
+      // input.questions[].options[].preview is an HTML string or undefined
+      return { behavior: "allow", updatedInput: input };
+    }
+  }
+})) {
+  // ...
+}
+```
+
+An option with an HTML preview:
+
+```json
+{
+  "label": "Compact",
+  "description": "Title and metric value only",
+  "preview": "<div style=\"padding:12px;border:1px solid #ddd;border-radius:8px\"><div style=\"font-size:12px;color:#666\">Active users</div><div style=\"font-size:28px;font-weight:600\">1,284</div></div>"
+}
+```
+
 ### Response format
 
 Return an `answers` object mapping each question's `question` field to the selected option's `label`:
@@ -548,7 +593,9 @@ For multi-select questions, join multiple labels with `", "`. For free-text inpu
 
 ```json
 {
-  "questions": [...],
+  "questions": [
+    // ...
+  ],
   "answers": {
     "How should I format the output?": "Summary",
     "Which sections should I include?": "Introduction, Conclusion"
@@ -582,7 +629,7 @@ This example handles those questions in a terminal application. Here's what happ
 ```python Python
 import asyncio
 
-from claude_agent_sdk import ClaudeAgentOptions, query
+from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
 from claude_agent_sdk.types import HookMatcher, PermissionResultAllow
 
 
@@ -655,7 +702,7 @@ async def main():
             hooks={"PreToolUse": [HookMatcher(matcher=None, hooks=[dummy_hook])]},
         ),
     ):
-        if hasattr(message, "result"):
+        if isinstance(message, ResultMessage) and message.subtype == "success":
             print(message.result)
 
 
@@ -736,7 +783,7 @@ main();
 
 ## Limitations
 
-- **Subagents**: `AskUserQuestion` is not currently available in subagents spawned via the Task tool
+- **Subagents**: `AskUserQuestion` is not currently available in subagents spawned via the Agent tool
 - **Question limits**: each `AskUserQuestion` call supports 1-4 questions with 2-4 options each
 
 ## Other ways to get user input
@@ -767,4 +814,4 @@ Custom tools give you full control over the interaction, but require more implem
 
 - [Configure permissions](./developer-agent-sdk-permissions.md): set up permission modes and rules
 - [Control execution with hooks](./developer-agent-sdk-hooks.md): run custom code at key points in the agent lifecycle
-- [TypeScript SDK reference](./developer-agent-sdk-typescript.md#canusetool): full canUseTool API documentation
+- [TypeScript SDK reference](./developer-agent-sdk-typescript.md#can-use-tool): full canUseTool API documentation

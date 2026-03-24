@@ -75,6 +75,9 @@ To get the best performance out of Claude when using tools, follow these guideli
   - What each parameter means and how it affects the tool's behavior
   - Any important caveats or limitations, such as what information the tool does not return if the tool name is unclear. The more context you can give Claude about your tools, the better it will be at deciding when and how to use them. Aim for at least 3-4 sentences per tool description, more if the tool is complex.
 - **Prioritize descriptions, but consider using `input_examples` for complex tools.** Clear descriptions are most important, but for tools with complex inputs, nested objects, or format-sensitive parameters, you can use the `input_examples` field to provide schema-validated examples. See [Providing tool use examples](#providing-tool-use-examples) for details.
+- **Consolidate related operations into fewer tools.** Rather than creating a separate tool for every action (`create_pr`, `review_pr`, `merge_pr`), group them into a single tool with an `action` parameter. Fewer, more capable tools reduce selection ambiguity and make your tool surface easier for Claude to navigate.
+- **Use meaningful namespacing in tool names.** When your tools span multiple services or resources, prefix names with the service (e.g., `github_list_prs`, `slack_send_message`). This makes tool selection unambiguous as your library grows, and is especially important when using [tool search](./developer-agents-and-tools-tool-use-tool-search-tool.md).
+- **Design tool responses to return only high-signal information.** Return semantic, stable identifiers (e.g., slugs or UUIDs) rather than opaque internal references, and include only the fields Claude needs to reason about its next step. Bloated responses waste context and make it harder for Claude to extract what matters.
 
 <section title="Example of a good tool description">
 
@@ -118,6 +121,10 @@ To get the best performance out of Claude when using tools, follow these guideli
 </section>
 
 The good description clearly explains what the tool does, when to use it, what data it returns, and what the `ticker` parameter means. The poor description is too brief and leaves Claude with many open questions about the tool's behavior and usage.
+
+<Tip>
+For deeper guidance on tool design (consolidation, naming, and response shaping), see [Writing tools for agents](https://www.anthropic.com/engineering/writing-tools-for-agents).
+</Tip>
 
 ## Providing tool use examples
 
@@ -168,7 +175,7 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..4}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
@@ -213,6 +220,288 @@ const response = await client.messages.create({
   ],
   messages: [{ role: "user", content: "What's the weather like in San Francisco?" }]
 });
+```
+
+```csharp C#
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1024,
+            Tools = [
+                new ToolUnion(new Tool()
+                {
+                    Name = "get_weather",
+                    Description = "Get the current weather in a given location",
+                    InputSchema = new InputSchema()
+                    {
+                        Properties = new Dictionary<string, JsonElement>
+                        {
+                            ["location"] = JsonSerializer.SerializeToElement(new { type = "string", description = "The city and state, e.g. San Francisco, CA" }),
+                            ["unit"] = JsonSerializer.SerializeToElement(new { type = "string", @enum = new[] { "celsius", "fahrenheit" }, description = "The unit of temperature" }),
+                        },
+                        Required = ["location"],
+                    },
+                    InputExamples =
+                    [
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("San Francisco, CA") },
+                            { "unit", JsonSerializer.SerializeToElement("fahrenheit") },
+                        },
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("Tokyo, Japan") },
+                            { "unit", JsonSerializer.SerializeToElement("celsius") },
+                        },
+                        new Dictionary<string, JsonElement>()
+                        {
+                            { "location", JsonSerializer.SerializeToElement("New York, NY") },
+                        },
+                    ],
+                }),
+            ],
+            Messages = [
+                new() { Role = Role.User, Content = "What's the weather like in San Francisco?" }
+            ]
+        };
+
+        var message = await client.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Tools: []anthropic.ToolUnionParam{
+			{OfTool: &anthropic.ToolParam{
+				Name:        "get_weather",
+				Description: anthropic.String("Get the current weather in a given location"),
+				InputSchema: anthropic.ToolInputSchemaParam{
+					Properties: map[string]any{
+						"location": map[string]any{
+							"type":        "string",
+							"description": "The city and state, e.g. San Francisco, CA",
+						},
+						"unit": map[string]any{
+							"type":        "string",
+							"enum":        []string{"celsius", "fahrenheit"},
+							"description": "The unit of temperature",
+						},
+					},
+					Required: []string{"location"},
+				},
+				InputExamples: []map[string]any{
+					{
+						"location": "San Francisco, CA",
+						"unit":     "fahrenheit",
+					},
+					{
+						"location": "Tokyo, Japan",
+						"unit":     "celsius",
+					},
+					{
+						"location": "New York, NY",
+						// Demonstrates that 'unit' is optional
+					},
+				},
+			}},
+		},
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("What's the weather like in San Francisco?")),
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java hidelines={1..13,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.Tool;
+import com.anthropic.models.messages.Tool.InputSchema;
+import java.util.Map;
+import java.util.List;
+
+public class ToolUseExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(1024L)
+            .addTool(Tool.builder()
+                .name("get_weather")
+                .description("Get the current weather in a given location")
+                .inputSchema(InputSchema.builder()
+                    .properties(JsonValue.from(Map.of(
+                        "location", Map.of(
+                            "type", "string",
+                            "description", "The city and state, e.g. San Francisco, CA"
+                        ),
+                        "unit", Map.of(
+                            "type", "string",
+                            "enum", List.of("celsius", "fahrenheit"),
+                            "description", "The unit of temperature"
+                        )
+                    )))
+                    .putAdditionalProperty("required", JsonValue.from(List.of("location")))
+                    .build())
+                .putAdditionalProperty("input_examples", JsonValue.from(List.of(
+                    Map.of(
+                        "location", "San Francisco, CA",
+                        "unit", "fahrenheit"
+                    ),
+                    Map.of(
+                        "location", "Tokyo, Japan",
+                        "unit", "celsius"
+                    ),
+                    Map.of(
+                        "location", "New York, NY"
+                    )
+                )))
+                .build())
+            .addUserMessage("What's the weather like in San Francisco?")
+            .build();
+
+        Message response = client.messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => "What's the weather like in San Francisco?"]
+    ],
+    model: 'claude-opus-4-6',
+    tools: [
+        [
+            'name' => 'get_weather',
+            'description' => 'Get the current weather in a given location',
+            'input_schema' => [
+                'type' => 'object',
+                'properties' => [
+                    'location' => [
+                        'type' => 'string',
+                        'description' => 'The city and state, e.g. San Francisco, CA'
+                    ],
+                    'unit' => [
+                        'type' => 'string',
+                        'enum' => ['celsius', 'fahrenheit'],
+                        'description' => 'The unit of temperature'
+                    ]
+                ],
+                'required' => ['location']
+            ],
+            'input_examples' => [
+                [
+                    'location' => 'San Francisco, CA',
+                    'unit' => 'fahrenheit'
+                ],
+                [
+                    'location' => 'Tokyo, Japan',
+                    'unit' => 'celsius'
+                ],
+                [
+                    'location' => 'New York, NY'
+                ]
+            ]
+        ]
+    ],
+);
+```
+
+```ruby Ruby
+require "anthropic"
+
+client = Anthropic::Client.new
+
+message = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 1024,
+  tools: [
+    {
+      name: "get_weather",
+      description: "Get the current weather in a given location",
+      input_schema: {
+        type: "object",
+        properties: {
+          location: {
+            type: "string",
+            description: "The city and state, e.g. San Francisco, CA"
+          },
+          unit: {
+            type: "string",
+            enum: ["celsius", "fahrenheit"],
+            description: "The unit of temperature"
+          }
+        },
+        required: ["location"]
+      },
+      input_examples: [
+        {
+          location: "San Francisco, CA",
+          unit: "fahrenheit"
+        },
+        {
+          location: "Tokyo, Japan",
+          unit: "celsius"
+        },
+        {
+          location: "New York, NY"
+        }
+      ]
+    }
+  ],
+  messages: [
+    { role: "user", content: "What's the weather like in San Francisco?" }
+  ]
+)
+puts message
 ```
 </CodeGroup>
 
@@ -342,37 +631,41 @@ TypeScript offers two approaches for defining tools:
 
 **Using Zod (recommended)** - Use `betaZodTool()` for type-safe tool definitions with Zod validation (requires Zod 3.25.0 or higher):
 
-```typescript
-import { Anthropic } from "@anthropic-ai/sdk";
+```typescript hidelines={1}
+import Anthropic from "@anthropic-ai/sdk";
 import { betaZodTool } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
 
-const anthropic = new Anthropic();
+const client = new Anthropic();
 
 const getWeatherTool = betaZodTool({
   name: "get_weather",
   description: "Get the current weather in a given location",
   inputSchema: z.object({
     location: z.string().describe("The city and state, e.g. San Francisco, CA"),
-    unit: z.enum(["celsius", "fahrenheit"]).default("fahrenheit")
-      .describe("Temperature unit")
+    unit: z.enum(["celsius", "fahrenheit"]).default("fahrenheit").describe("Temperature unit")
   }),
   run: async (input) => {
-    // In a full implementation, you'd call a weather API here
     return JSON.stringify({ temperature: "20°C", condition: "Sunny" });
   }
 });
 
-const runner = anthropic.beta.messages.toolRunner({
-  model: "claude-opus-4-6",
-  max_tokens: 1024,
-  tools: [getWeatherTool],
-  messages: [{ role: "user", content: "What's the weather like in Paris?" }]
-});
+async function main() {
+  const finalMessage = await client.beta.messages.toolRunner({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    tools: [getWeatherTool],
+    messages: [{ role: "user", content: "What's the weather like in Paris?" }]
+  });
 
-for await (const message of runner) {
-  console.log(message.content[0].text);
+  for (const block of finalMessage.content) {
+    if (block.type === "text") {
+      console.log(block.text);
+    }
+  }
 }
+
+main().catch(console.error);
 ```
 
 **Using JSON Schema** - Use `betaTool()` for type-safe tool definitions without Zod:
@@ -381,11 +674,11 @@ for await (const message of runner) {
 The input generated by Claude will not be validated at runtime. Perform validation inside the `run` function if needed.
 </Note>
 
-```typescript
-import { Anthropic } from "@anthropic-ai/sdk";
+```typescript hidelines={1}
+import Anthropic from "@anthropic-ai/sdk";
 import { betaTool } from "@anthropic-ai/sdk/helpers/beta/json-schema";
 
-const anthropic = new Anthropic();
+const client = new Anthropic();
 
 const calculateSumTool = betaTool({
   name: "calculate_sum",
@@ -403,16 +696,22 @@ const calculateSumTool = betaTool({
   }
 });
 
-const runner = anthropic.beta.messages.toolRunner({
-  model: "claude-opus-4-6",
-  max_tokens: 1024,
-  tools: [calculateSumTool],
-  messages: [{ role: "user", content: "What's 15 + 27?" }]
-});
+async function main() {
+  const finalMessage = await client.beta.messages.toolRunner({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    tools: [calculateSumTool],
+    messages: [{ role: "user", content: "What's 15 + 27?" }]
+  });
 
-for await (const message of runner) {
-  console.log(message.content[0].text);
+  for (const block of finalMessage.content) {
+    if (block.type === "text") {
+      console.log(block.text);
+    }
+  }
 }
+
+main().catch(console.error);
 ```
 
 </Tab>
@@ -495,7 +794,7 @@ If you don't need intermediate messages, you can get the final message directly:
 
 Use `runner.until_done()` to get the final message.
 
-```python
+```python nocheck
 runner = client.beta.messages.tool_runner(
     model="claude-opus-4-6",
     max_tokens=1024,
@@ -516,8 +815,8 @@ print(final_message.content[0].text)
 
 Simply `await` the runner to get the final message.
 
-```typescript
-const runner = anthropic.beta.messages.toolRunner({
+```typescript nocheck
+const runner = client.beta.messages.toolRunner({
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: [getWeatherTool],
@@ -533,7 +832,32 @@ console.log(finalMessage.content[0].text);
 
 Use `runner.run_until_finished` to get all messages.
 
-```ruby
+```ruby hidelines={1..25}
+class GetWeatherInput < Anthropic::BaseModel
+  required :location, String
+end
+
+class GetWeather < Anthropic::BaseTool
+  doc "Get the current weather in a given location"
+  input_schema GetWeatherInput
+  def call(input)
+    "Weather in #{input.location}: 20°C, Sunny"
+  end
+end
+
+class CalculateSumInput < Anthropic::BaseModel
+  required :a, Integer
+  required :b, Integer
+end
+
+class CalculateSum < Anthropic::BaseTool
+  doc "Add two numbers together"
+  input_schema CalculateSumInput
+  def call(input)
+    (input.a + input.b).to_s
+  end
+end
+
 runner = client.beta.messages.tool_runner(
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -559,7 +883,7 @@ Within the loop, you can fully customize the tool runner's next request to the M
 
 Use `generate_tool_call_response()` to optionally inspect the tool result (the runner appends it automatically). Use `set_messages_params()` and `append_messages()` to modify the request.
 
-```python
+```python nocheck
 runner = client.beta.messages.tool_runner(
     model="claude-opus-4-6",
     max_tokens=1024,
@@ -591,8 +915,8 @@ for message in runner:
 
 Use `generateToolResponse()` to optionally inspect the tool result (the runner appends it automatically). Use `setMessagesParams()` and `pushMessages()` to modify the request.
 
-```typescript
-const runner = anthropic.beta.messages.toolRunner({
+```typescript nocheck
+const runner = client.beta.messages.toolRunner({
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: [getWeatherTool],
@@ -607,15 +931,13 @@ for await (const message of runner) {
   }
 
   // Customize the next request
-  runner.setMessagesParams(params => ({
+  runner.setMessagesParams((params) => ({
     ...params,
     max_tokens: 2048 // Increase tokens for next request
   }));
 
   // Or add additional messages
-  runner.pushMessages(
-    { role: "user", content: "Please be concise in your response." }
-  );
+  runner.pushMessages({ role: "user", content: "Please be concise in your response." });
 }
 ```
 
@@ -624,7 +946,19 @@ for await (const message of runner) {
 
 Use `next_message` for step-by-step control. Use `feed_messages` to inject messages and `params` to access parameters.
 
-```ruby
+```ruby hidelines={1..12}
+class GetWeatherInput < Anthropic::BaseModel
+  required :location, String
+end
+
+class GetWeather < Anthropic::BaseTool
+  doc "Get the current weather in a given location"
+  input_schema GetWeatherInput
+  def call(input)
+    "Weather in #{input.location}: 20°C, Sunny"
+  end
+end
+
 runner = client.beta.messages.tool_runner(
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -673,7 +1007,7 @@ Use the tool response method to intercept tool results and check for errors befo
 <Tabs>
 <Tab title="Python">
 
-```python
+```python nocheck
 import json
 
 runner = client.beta.messages.tool_runner(
@@ -703,8 +1037,8 @@ for message in runner:
 </Tab>
 <Tab title="TypeScript">
 
-```typescript
-const runner = anthropic.beta.messages.toolRunner({
+```typescript nocheck
+const runner = client.beta.messages.toolRunner({
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: [myTool],
@@ -735,7 +1069,19 @@ for await (const message of runner) {
 </Tab>
 <Tab title="Ruby">
 
-```ruby
+```ruby hidelines={1..12}
+class MyToolInput < Anthropic::BaseModel
+  required :query, String
+end
+
+class MyTool < Anthropic::BaseTool
+  doc "A sample tool"
+  input_schema MyToolInput
+  def call(input)
+    "Result for: #{input.query}"
+  end
+end
+
 runner = client.beta.messages.tool_runner(
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -749,9 +1095,9 @@ runner.each_message do |message|
   # This is just for error checking/logging purposes
   tool_results = runner.params[:messages].last
 
-  if tool_results && tool_results[:role] == "user"
+  if tool_results && tool_results[:role] == :user && tool_results[:content].is_a?(Array)
     tool_results[:content].each do |block|
-      if block[:type] == "tool_result" && block[:is_error]
+      if block[:type] == :tool_result && block[:is_error]
         # Option 1: Raise an exception to stop the loop
         raise "Tool failed: #{block[:content]}"
 
@@ -777,7 +1123,7 @@ Use the tool response method to get the tool result, modify it, then add your mo
 <Tabs>
 <Tab title="Python">
 
-```python
+```python nocheck
 runner = client.beta.messages.tool_runner(
     model="claude-opus-4-6",
     max_tokens=1024,
@@ -809,12 +1155,14 @@ for message in runner:
 </Tab>
 <Tab title="TypeScript">
 
-```typescript
-const runner = anthropic.beta.messages.toolRunner({
+```typescript nocheck
+const runner = client.beta.messages.toolRunner({
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: [searchDocuments],
-  messages: [{ role: "user", content: "Search for information about the climate of San Francisco" }]
+  messages: [
+    { role: "user", content: "Search for information about the climate of San Francisco" }
+  ]
 });
 
 for await (const message of runner) {
@@ -840,7 +1188,19 @@ for await (const message of runner) {
 </Tab>
 <Tab title="Ruby">
 
-```ruby
+```ruby hidelines={1..12}
+class SearchDocumentsInput < Anthropic::BaseModel
+  required :query, String
+end
+
+class SearchDocuments < Anthropic::BaseTool
+  doc "Search documents for relevant information"
+  input_schema SearchDocumentsInput
+  def call(input)
+    "Found 3 documents matching: #{input.query}"
+  end
+end
+
 runner = client.beta.messages.tool_runner(
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -856,9 +1216,9 @@ loop do
   # The runner automatically adds tool results, but we can modify them
   tool_results_message = runner.params[:messages].last
 
-  if tool_results_message && tool_results_message[:role] == "user"
+  if tool_results_message && tool_results_message[:role] == :user
     tool_results_message[:content].each do |block|
-      if block[:type] == "tool_result"
+      if block[:type] == :tool_result
         # Modify the tool result to add cache control
         block[:cache_control] = {type: "ephemeral"}
       end
@@ -866,7 +1226,7 @@ loop do
   end
 
   puts message.content
-  break if message.stop_reason != "tool_use"
+  break if message.stop_reason != :tool_use
 end
 ```
 
@@ -886,7 +1246,7 @@ Enable streaming to receive events as they arrive. Each iteration yields a strea
 
 Set `stream=True` and use `get_final_message()` to get the accumulated message.
 
-```python
+```python nocheck
 runner = client.beta.messages.tool_runner(
     model="claude-opus-4-6",
     max_tokens=1024,
@@ -909,8 +1269,8 @@ print(runner.until_done())
 
 Set `stream: true` and use `finalMessage()` to get the accumulated message.
 
-```typescript
-const runner = anthropic.beta.messages.toolRunner({
+```typescript nocheck
+const runner = client.beta.messages.toolRunner({
   model: "claude-opus-4-6",
   max_tokens: 1000,
   messages: [{ role: "user", content: "What is the weather in San Francisco?" }],
@@ -934,7 +1294,20 @@ console.log(await runner);
 
 Use `each_streaming` to iterate over streaming events.
 
-```ruby
+```ruby hidelines={1..13}
+class CalculateSumInput < Anthropic::BaseModel
+  required :a, Integer
+  required :b, Integer
+end
+
+class CalculateSum < Anthropic::BaseTool
+  doc "Add two numbers together"
+  input_schema CalculateSumInput
+  def call(input)
+    (input.a + input.b).to_s
+  end
+end
+
 runner = client.beta.messages.tool_runner(
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -946,8 +1319,8 @@ runner.each_streaming do |event|
   case event
   when Anthropic::Streaming::TextEvent
     print event.text
-  when Anthropic::Streaming::ToolUseEvent
-    puts "\nTool called: #{event.tool_name}"
+  when Anthropic::Streaming::InputJsonEvent
+    puts "\nTool input: #{event.partial_json}"
   end
 end
 ```
@@ -983,7 +1356,7 @@ When using [prompt caching](./developer-build-with-claude-prompt-caching.md#what
 This diagram illustrates how each option works:
 
 <Frame>
-  ![Image](/docs/images/tool_choice.png)
+  ![Diagram showing the four tool_choice options: auto, any, tool, and none](/docs/images/tool_choice.png)
 </Frame>
 
 Note that when you have `tool_choice` as `any` or `tool`, the API prefills the assistant message to force a tool to be used. This means that the models will not emit a natural language response or explanation before `tool_use` content blocks, even if explicitly asked to do so.
@@ -1022,7 +1395,7 @@ For example, given the prompt "What's the weather like in San Francisco right no
       "type": "tool_use",
       "id": "toolu_01A09q90qw90lq917835lq9",
       "name": "get_weather",
-      "input": {"location": "San Francisco, CA"}
+      "input": { "location": "San Francisco, CA" }
     }
   ]
 }
@@ -1048,7 +1421,8 @@ By default, Claude may use multiple tools to answer a user query. You can disabl
 Here's a complete example showing how to properly format parallel tool calls in the message history:
 
 <CodeGroup>
-```python Python
+
+```python Python nocheck hidelines={1..4}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -1149,13 +1523,453 @@ final_response = client.messages.create(
 print(final_response.content[0].text)
 ```
 
-```typescript TypeScript
-import { Anthropic } from "@anthropic-ai/sdk";
+```typescript TypeScript nocheck hidelines={1..4}
+import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic();
+const client = new Anthropic();
 
-// Define tools
-const tools = [
+async function main() {
+  // Define tools
+  const tools: Anthropic.Tool[] = [
+    {
+      name: "get_weather",
+      description: "Get the current weather in a given location",
+      input_schema: {
+        type: "object" as const,
+        properties: {
+          location: {
+            type: "string",
+            description: "The city and state, e.g. San Francisco, CA"
+          }
+        },
+        required: ["location"]
+      }
+    },
+    {
+      name: "get_time",
+      description: "Get the current time in a given timezone",
+      input_schema: {
+        type: "object" as const,
+        properties: {
+          timezone: {
+            type: "string",
+            description: "The timezone, e.g. America/New_York"
+          }
+        },
+        required: ["timezone"]
+      }
+    }
+  ];
+
+  // Initial request
+  const response = await client.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    tools: tools,
+    messages: [
+      {
+        role: "user",
+        content: "What's the weather in SF and NYC, and what time is it there?"
+      }
+    ]
+  });
+
+  // Build conversation with tool results
+  const messages: Anthropic.MessageParam[] = [
+    {
+      role: "user",
+      content: "What's the weather in SF and NYC, and what time is it there?"
+    },
+    {
+      role: "assistant",
+      content: response.content
+    },
+    {
+      role: "user",
+      content: [
+        {
+          type: "tool_result",
+          tool_use_id: "toolu_01",
+          content: "San Francisco: 68°F, partly cloudy"
+        },
+        {
+          type: "tool_result",
+          tool_use_id: "toolu_02",
+          content: "New York: 45°F, clear skies"
+        },
+        {
+          type: "tool_result",
+          tool_use_id: "toolu_03",
+          content: "San Francisco time: 2:30 PM PST"
+        },
+        {
+          type: "tool_result",
+          tool_use_id: "toolu_04",
+          content: "New York time: 5:30 PM EST"
+        }
+      ]
+    }
+  ];
+
+  // Get final response
+  const finalResponse = await client.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    tools: tools,
+    messages: messages
+  });
+
+  for (const block of finalResponse.content) {
+    if (block.type === "text") {
+      console.log(block.text);
+    }
+  }
+}
+
+main().catch(console.error);
+```
+
+```csharp C# nocheck
+using System;
+using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+public class ParallelToolUse
+{
+    public static async Task Main()
+    {
+        var client = new AnthropicClient();
+
+        var tools = new ToolUnion[]
+        {
+            new ToolUnion(new Tool()
+            {
+                Name = "get_weather",
+                Description = "Get the current weather in a given location",
+                InputSchema = new InputSchema()
+                {
+                    Properties = new Dictionary<string, JsonElement>
+                    {
+                        ["location"] = JsonSerializer.SerializeToElement(new { type = "string", description = "The city and state, e.g. San Francisco, CA" }),
+                    },
+                    Required = ["location"],
+                },
+            }),
+            new ToolUnion(new Tool()
+            {
+                Name = "get_time",
+                Description = "Get the current time in a given timezone",
+                InputSchema = new InputSchema()
+                {
+                    Properties = new Dictionary<string, JsonElement>
+                    {
+                        ["timezone"] = JsonSerializer.SerializeToElement(new { type = "string", description = "The timezone, e.g. America/New_York" }),
+                    },
+                    Required = ["timezone"],
+                },
+            }),
+        };
+
+        var initialParams = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1024,
+            Tools = tools,
+            Messages = [new() { Role = Role.User, Content = "What's the weather in SF and NYC, and what time is it there?" }]
+        };
+
+        var response = await client.Messages.Create(initialParams);
+
+        var finalParams = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1024,
+            Tools = tools,
+            Messages =
+            [
+                new() { Role = Role.User, Content = "What's the weather in SF and NYC, and what time is it there?" },
+                new() { Role = Role.Assistant, Content = response.Content },
+                new()
+                {
+                    Role = Role.User,
+                    Content = new MessageParamContent(new List<ContentBlockParam>
+                    {
+                        new ContentBlockParam(new ToolResultBlockParam() { ToolUseID = "toolu_01", Content = "San Francisco: 68\u00b0F, partly cloudy" }),
+                        new ContentBlockParam(new ToolResultBlockParam() { ToolUseID = "toolu_02", Content = "New York: 45\u00b0F, clear skies" }),
+                        new ContentBlockParam(new ToolResultBlockParam() { ToolUseID = "toolu_03", Content = "San Francisco time: 2:30 PM PST" }),
+                        new ContentBlockParam(new ToolResultBlockParam() { ToolUseID = "toolu_04", Content = "New York time: 5:30 PM EST" }),
+                    }),
+                }
+            ]
+        };
+
+        var finalResponse = await client.Messages.Create(finalParams);
+        Console.WriteLine(finalResponse);
+    }
+}
+```
+
+```go Go nocheck hidelines={1..13,-6..-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	tools := []anthropic.ToolUnionParam{
+		{OfTool: &anthropic.ToolParam{
+			Name:        "get_weather",
+			Description: anthropic.String("Get the current weather in a given location"),
+			InputSchema: anthropic.ToolInputSchemaParam{
+				Properties: map[string]any{
+					"location": map[string]any{
+						"type":        "string",
+						"description": "The city and state, e.g. San Francisco, CA",
+					},
+				},
+				Required: []string{"location"},
+			},
+		}},
+		{OfTool: &anthropic.ToolParam{
+			Name:        "get_time",
+			Description: anthropic.String("Get the current time in a given timezone"),
+			InputSchema: anthropic.ToolInputSchemaParam{
+				Properties: map[string]any{
+					"timezone": map[string]any{
+						"type":        "string",
+						"description": "The timezone, e.g. America/New_York",
+					},
+				},
+				Required: []string{"timezone"},
+			},
+		}},
+	}
+
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Tools:     tools,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("What's the weather in SF and NYC, and what time is it there?")),
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Convert response content blocks to param types for the next request
+	var contentParams []anthropic.ContentBlockParamUnion
+	for _, block := range response.Content {
+		contentParams = append(contentParams, block.ToParam())
+	}
+
+	messages := []anthropic.MessageParam{
+		anthropic.NewUserMessage(anthropic.NewTextBlock("What's the weather in SF and NYC, and what time is it there?")),
+		anthropic.NewAssistantMessage(contentParams...),
+		anthropic.NewUserMessage(
+			anthropic.NewToolResultBlock("toolu_01", "San Francisco: 68°F, partly cloudy", false),
+			anthropic.NewToolResultBlock("toolu_02", "New York: 45°F, clear skies", false),
+			anthropic.NewToolResultBlock("toolu_03", "San Francisco time: 2:30 PM PST", false),
+			anthropic.NewToolResultBlock("toolu_04", "New York time: 5:30 PM EST", false),
+		),
+	}
+
+	finalResponse, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Tools:     tools,
+		Messages:  messages,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(finalResponse.Content[0].Text)
+}
+```
+
+```java Java nocheck hidelines={1..15,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.ContentBlockParam;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.Tool;
+import com.anthropic.models.messages.Tool.InputSchema;
+import com.anthropic.models.messages.ToolResultBlockParam;
+import java.util.List;
+import java.util.Map;
+
+public class ParallelToolUse {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        Tool weatherTool = Tool.builder()
+            .name("get_weather")
+            .description("Get the current weather in a given location")
+            .inputSchema(InputSchema.builder()
+                .properties(JsonValue.from(Map.of(
+                    "location", Map.of(
+                        "type", "string",
+                        "description", "The city and state, e.g. San Francisco, CA"
+                    )
+                )))
+                .putAdditionalProperty("required", JsonValue.from(List.of("location")))
+                .build())
+            .build();
+
+        Tool timeTool = Tool.builder()
+            .name("get_time")
+            .description("Get the current time in a given timezone")
+            .inputSchema(InputSchema.builder()
+                .properties(JsonValue.from(Map.of(
+                    "timezone", Map.of(
+                        "type", "string",
+                        "description", "The timezone, e.g. America/New_York"
+                    )
+                )))
+                .putAdditionalProperty("required", JsonValue.from(List.of("timezone")))
+                .build())
+            .build();
+
+        MessageCreateParams initialParams = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(1024L)
+            .addTool(weatherTool)
+            .addTool(timeTool)
+            .addUserMessage("What's the weather in SF and NYC, and what time is it there?")
+            .build();
+
+        Message response = client.messages().create(initialParams);
+
+        MessageCreateParams finalParams = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(1024L)
+            .addTool(weatherTool)
+            .addTool(timeTool)
+            .addUserMessage("What's the weather in SF and NYC, and what time is it there?")
+            .addAssistantMessageOfBlockParams(response.content().stream()
+                .map(block -> block.toParam())
+                .collect(java.util.stream.Collectors.toList()))
+            .addUserMessageOfBlockParams(List.of(
+                ContentBlockParam.ofToolResult(
+                    ToolResultBlockParam.builder()
+                        .toolUseId("toolu_01")
+                        .content("San Francisco: 68°F, partly cloudy")
+                        .build()),
+                ContentBlockParam.ofToolResult(
+                    ToolResultBlockParam.builder()
+                        .toolUseId("toolu_02")
+                        .content("New York: 45°F, clear skies")
+                        .build()),
+                ContentBlockParam.ofToolResult(
+                    ToolResultBlockParam.builder()
+                        .toolUseId("toolu_03")
+                        .content("San Francisco time: 2:30 PM PST")
+                        .build()),
+                ContentBlockParam.ofToolResult(
+                    ToolResultBlockParam.builder()
+                        .toolUseId("toolu_04")
+                        .content("New York time: 5:30 PM EST")
+                        .build())
+            ))
+            .build();
+
+        Message finalResponse = client.messages().create(finalParams);
+        finalResponse.content().stream()
+            .flatMap(block -> block.text().stream())
+            .forEach(textBlock -> System.out.println(textBlock.text()));
+    }
+}
+```
+
+```php PHP hidelines={1..6} nocheck
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$tools = [
+    [
+        'name' => 'get_weather',
+        'description' => 'Get the current weather in a given location',
+        'input_schema' => [
+            'type' => 'object',
+            'properties' => [
+                'location' => [
+                    'type' => 'string',
+                    'description' => 'The city and state, e.g. San Francisco, CA'
+                ]
+            ],
+            'required' => ['location']
+        ]
+    ],
+    [
+        'name' => 'get_time',
+        'description' => 'Get the current time in a given timezone',
+        'input_schema' => [
+            'type' => 'object',
+            'properties' => [
+                'timezone' => [
+                    'type' => 'string',
+                    'description' => 'The timezone, e.g. America/New_York'
+                ]
+            ],
+            'required' => ['timezone']
+        ]
+    ]
+];
+
+$response = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => "What's the weather in SF and NYC, and what time is it there?"]
+    ],
+    model: 'claude-opus-4-6',
+    tools: $tools,
+);
+
+$finalResponse = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => "What's the weather in SF and NYC, and what time is it there?"],
+        ['role' => 'assistant', 'content' => $response->content],
+        [
+            'role' => 'user',
+            'content' => [
+                ['type' => 'tool_result', 'tool_use_id' => 'toolu_01', 'content' => 'San Francisco: 68°F, partly cloudy'],
+                ['type' => 'tool_result', 'tool_use_id' => 'toolu_02', 'content' => 'New York: 45°F, clear skies'],
+                ['type' => 'tool_result', 'tool_use_id' => 'toolu_03', 'content' => 'San Francisco time: 2:30 PM PST'],
+                ['type' => 'tool_result', 'tool_use_id' => 'toolu_04', 'content' => 'New York time: 5:30 PM EST']
+            ]
+        ]
+    ],
+    model: 'claude-opus-4-6',
+    tools: $tools,
+);
+
+echo $finalResponse->content[0]->text;
+```
+
+```ruby Ruby
+require "anthropic"
+
+client = Anthropic::Client.new
+
+tools = [
   {
     name: "get_weather",
     description: "Get the current weather in a given location",
@@ -1184,67 +1998,51 @@ const tools = [
       required: ["timezone"]
     }
   }
-];
+]
 
-// Initial request
-const response = await anthropic.messages.create({
+response = client.messages.create(
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: tools,
   messages: [
-    {
-      role: "user",
-      content: "What's the weather in SF and NYC, and what time is it there?"
-    }
+    { role: "user", content: "What's the weather in SF and NYC, and what time is it there?" }
   ]
-});
+)
 
-// Build conversation with tool results
-const messages = [
-  {
-    role: "user",
-    content: "What's the weather in SF and NYC, and what time is it there?"
-  },
-  {
-    role: "assistant",
-    content: response.content // Contains multiple tool_use blocks
-  },
-  {
-    role: "user",
-    content: [
-      {
-        type: "tool_result",
-        tool_use_id: "toolu_01", // Must match the ID from tool_use
-        content: "San Francisco: 68°F, partly cloudy"
-      },
-      {
-        type: "tool_result",
-        tool_use_id: "toolu_02",
-        content: "New York: 45°F, clear skies"
-      },
-      {
-        type: "tool_result",
-        tool_use_id: "toolu_03",
-        content: "San Francisco time: 2:30 PM PST"
-      },
-      {
-        type: "tool_result",
-        tool_use_id: "toolu_04",
-        content: "New York time: 5:30 PM EST"
-      }
-    ]
-  }
-];
+# Extract tool use blocks from response
+tool_uses = response.content.select { |block| block.type == :tool_use }
 
-// Get final response
-const finalResponse = await anthropic.messages.create({
+# Build tool results with actual IDs
+tool_results = tool_uses.map do |tool_use|
+  result = case tool_use.name
+  when "get_weather"
+    location = tool_use.input["location"].to_s
+    location.include?("San Francisco") ?
+      "San Francisco: 68°F, partly cloudy" : "New York: 45°F, clear skies"
+  when "get_time"
+    timezone = tool_use.input["timezone"].to_s
+    timezone.include?("Los_Angeles") ?
+      "San Francisco time: 2:30 PM PST" : "New York time: 5:30 PM EST"
+  else
+    "Unknown tool result"
+  end
+  { type: "tool_result", tool_use_id: tool_use.id, content: result }
+end
+
+messages = [
+  { role: "user", content: "What's the weather in SF and NYC, and what time is it there?" },
+  { role: "assistant", content: response.content },
+  { role: "user", content: tool_results }
+]
+
+final_response = client.messages.create(
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: tools,
   messages: messages
-});
+)
 
-console.log(finalResponse.content[0].text);
+puts final_response.content.first.text
 ```
 </CodeGroup>
 
@@ -1262,25 +2060,25 @@ The assistant message with parallel tool calls would look like this:
       "type": "tool_use",
       "id": "toolu_01",
       "name": "get_weather",
-      "input": {"location": "San Francisco, CA"}
+      "input": { "location": "San Francisco, CA" }
     },
     {
       "type": "tool_use",
       "id": "toolu_02",
       "name": "get_weather",
-      "input": {"location": "New York, NY"}
+      "input": { "location": "New York, NY" }
     },
     {
       "type": "tool_use",
       "id": "toolu_03",
       "name": "get_time",
-      "input": {"timezone": "America/Los_Angeles"}
+      "input": { "timezone": "America/Los_Angeles" }
     },
     {
       "type": "tool_use",
       "id": "toolu_04",
       "name": "get_time",
-      "input": {"timezone": "America/New_York"}
+      "input": { "timezone": "America/New_York" }
     }
   ]
 }
@@ -1292,7 +2090,7 @@ The assistant message with parallel tool calls would look like this:
 Here's a complete, runnable script to test and verify parallel tool calls are working correctly:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..9}
 #!/usr/bin/env python3
 """Test script to verify parallel tool calls with the Claude API"""
 
@@ -1400,18 +2198,619 @@ print("✓ No text before tool results in content array")
 print("✓ Conversation formatted correctly for future parallel tool use")
 ```
 
-```typescript TypeScript
-#!/usr/bin/env node
-// Test script to verify parallel tool calls with the Claude API
+```typescript TypeScript hidelines={1..4}
+import Anthropic from "@anthropic-ai/sdk";
 
-import { Anthropic } from "@anthropic-ai/sdk";
-
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
-});
+const client = new Anthropic();
 
 // Define tools
-const tools = [
+const tools: Anthropic.Tool[] = [
+  {
+    name: "get_weather",
+    description: "Get the current weather in a given location",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        location: {
+          type: "string",
+          description: "The city and state, e.g. San Francisco, CA"
+        }
+      },
+      required: ["location"]
+    }
+  },
+  {
+    name: "get_time",
+    description: "Get the current time in a given timezone",
+    input_schema: {
+      type: "object" as const,
+      properties: {
+        timezone: {
+          type: "string",
+          description: "The timezone, e.g. America/New_York"
+        }
+      },
+      required: ["timezone"]
+    }
+  }
+];
+
+async function testParallelTools() {
+  // Make initial request
+  console.log("Requesting parallel tool calls...");
+  const response = await client.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    messages: [
+      {
+        role: "user",
+        content: "What's the weather in SF and NYC, and what time is it there?"
+      }
+    ],
+    tools: tools
+  });
+
+  // Check for parallel tool calls
+  const toolUses = response.content.filter((block) => block.type === "tool_use");
+  console.log(`\nClaude made ${toolUses.length} tool calls`);
+
+  if (toolUses.length > 1) {
+    console.log("Parallel tool calls detected!");
+    toolUses.forEach((tool) => {
+      if (tool.type === "tool_use") {
+        console.log(`  - ${tool.name}: ${JSON.stringify(tool.input)}`);
+      }
+    });
+  }
+
+  // Simulate tool execution and format results correctly
+  const toolResults: Anthropic.ToolResultBlockParam[] = toolUses
+    .filter((block): block is Anthropic.ToolUseBlock => block.type === "tool_use")
+    .map((toolUse) => {
+      const input = toolUse.input as Record<string, string>;
+      let result: string;
+      if (toolUse.name === "get_weather") {
+        result = input.location?.includes("San Francisco")
+          ? "San Francisco: 68F, partly cloudy"
+          : "New York: 45F, clear skies";
+      } else {
+        result = input.timezone?.includes("Los_Angeles") ? "2:30 PM PST" : "5:30 PM EST";
+      }
+
+      return {
+        type: "tool_result" as const,
+        tool_use_id: toolUse.id,
+        content: result
+      };
+    });
+
+  // Get final response with correct formatting
+  console.log("\nGetting final response...");
+  const finalResponse = await client.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    messages: [
+      {
+        role: "user",
+        content: "What's the weather in SF and NYC, and what time is it there?"
+      },
+      { role: "assistant", content: response.content },
+      { role: "user", content: toolResults }
+    ],
+    tools: tools
+  });
+
+  for (const block of finalResponse.content) {
+    if (block.type === "text") {
+      console.log(`\nClaude's response:\n${block.text}`);
+    }
+  }
+
+  // Verify formatting
+  console.log("\n--- Verification ---");
+  console.log(`Tool results sent in single user message: ${toolResults.length} results`);
+}
+
+testParallelTools().catch(console.error);
+```
+
+```csharp C#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+public class Program
+{
+    public static async Task Main()
+    {
+        AnthropicClient client = new();
+
+        var tools = new List<ToolUnion>
+        {
+            new ToolUnion(new Tool()
+            {
+                Name = "get_weather",
+                Description = "Get the current weather in a given location",
+                InputSchema = new InputSchema()
+                {
+                    Properties = new Dictionary<string, JsonElement>
+                    {
+                        ["location"] = JsonSerializer.SerializeToElement(new { type = "string", description = "The city and state, e.g. San Francisco, CA" }),
+                    },
+                    Required = ["location"],
+                },
+            }),
+            new ToolUnion(new Tool()
+            {
+                Name = "get_time",
+                Description = "Get the current time in a given timezone",
+                InputSchema = new InputSchema()
+                {
+                    Properties = new Dictionary<string, JsonElement>
+                    {
+                        ["timezone"] = JsonSerializer.SerializeToElement(new { type = "string", description = "The timezone, e.g. America/New_York" }),
+                    },
+                    Required = ["timezone"],
+                },
+            }),
+        };
+
+        Console.WriteLine("Requesting parallel tool calls...");
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1024,
+            Messages = [new() { Role = Role.User, Content = "What's the weather in SF and NYC, and what time is it there?" }],
+            Tools = tools
+        };
+
+        var response = await client.Messages.Create(parameters);
+
+        var toolUses = new List<ToolUseBlock>();
+        foreach (var block in response.Content)
+        {
+            if (block.TryPickToolUse(out var toolUse))
+            {
+                toolUses.Add(toolUse);
+            }
+        }
+        Console.WriteLine($"\n\u2713 Claude made {toolUses.Count} tool calls");
+
+        if (toolUses.Count > 1)
+        {
+            Console.WriteLine("\u2713 Parallel tool calls detected!");
+            foreach (var tool in toolUses)
+            {
+                Console.WriteLine($"  - {tool.Name}: {tool.Input}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("\u2717 No parallel tool calls detected");
+        }
+
+        var toolResults = new List<ContentBlockParam>();
+        foreach (var toolUse in toolUses)
+        {
+            string result;
+            if (toolUse.Name == "get_weather")
+            {
+                result = toolUse.Input.ToString()!.Contains("San Francisco")
+                    ? "San Francisco: 68\u00b0F, partly cloudy"
+                    : "New York: 45\u00b0F, clear skies";
+            }
+            else
+            {
+                result = toolUse.Input.ToString()!.Contains("Los_Angeles")
+                    ? "2:30 PM PST"
+                    : "5:30 PM EST";
+            }
+
+            toolResults.Add(new ContentBlockParam(new ToolResultBlockParam()
+            {
+                ToolUseID = toolUse.ID,
+                Content = result,
+            }));
+        }
+
+        Console.WriteLine("\nGetting final response...");
+        var finalParameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1024,
+            Messages = [
+                new() { Role = Role.User, Content = "What's the weather in SF and NYC, and what time is it there?" },
+                new() { Role = Role.Assistant, Content = response.Content.Select(block => new ContentBlockParam(block.Json)).ToList() },
+                new() { Role = Role.User, Content = new MessageParamContent(toolResults) }
+            ],
+            Tools = tools
+        };
+
+        var finalResponse = await client.Messages.Create(finalParameters);
+        finalResponse.Content[0].TryPickText(out var text);
+        Console.WriteLine($"\nClaude's response:\n{text?.Text}");
+
+        Console.WriteLine("\n--- Verification ---");
+        Console.WriteLine($"\u2713 Tool results sent in single user message: {toolResults.Count} results");
+        Console.WriteLine("\u2713 No text before tool results in content array");
+        Console.WriteLine("\u2713 Conversation formatted correctly for future parallel tool use");
+    }
+}
+```
+
+```go Go hidelines={1..15,-11..-1}
+package main
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	tools := []anthropic.ToolUnionParam{
+		{OfTool: &anthropic.ToolParam{
+			Name:        "get_weather",
+			Description: anthropic.String("Get the current weather in a given location"),
+			InputSchema: anthropic.ToolInputSchemaParam{
+				Properties: map[string]any{
+					"location": map[string]any{
+						"type":        "string",
+						"description": "The city and state, e.g. San Francisco, CA",
+					},
+				},
+				Required: []string{"location"},
+			},
+		}},
+		{OfTool: &anthropic.ToolParam{
+			Name:        "get_time",
+			Description: anthropic.String("Get the current time in a given timezone"),
+			InputSchema: anthropic.ToolInputSchemaParam{
+				Properties: map[string]any{
+					"timezone": map[string]any{
+						"type":        "string",
+						"description": "The timezone, e.g. America/New_York",
+					},
+				},
+				Required: []string{"timezone"},
+			},
+		}},
+	}
+
+	fmt.Println("Requesting parallel tool calls...")
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("What's the weather in SF and NYC, and what time is it there?")),
+		},
+		Tools: tools,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Find tool use blocks using type switch
+	type toolUseInfo struct {
+		ID    string
+		Name  string
+		Input json.RawMessage
+	}
+	var toolUses []toolUseInfo
+	for _, block := range response.Content {
+		switch variant := block.AsAny().(type) {
+		case anthropic.ToolUseBlock:
+			toolUses = append(toolUses, toolUseInfo{
+				ID:    variant.ID,
+				Name:  variant.Name,
+				Input: variant.Input,
+			})
+		}
+	}
+
+	fmt.Printf("\n✓ Claude made %d tool calls\n", len(toolUses))
+
+	if len(toolUses) > 1 {
+		fmt.Println("✓ Parallel tool calls detected!")
+		for _, tool := range toolUses {
+			fmt.Printf("  - %s: %s\n", tool.Name, string(tool.Input))
+		}
+	} else {
+		fmt.Println("✗ No parallel tool calls detected")
+	}
+
+	// Build tool results
+	var toolResults []anthropic.ContentBlockParamUnion
+	for _, toolUse := range toolUses {
+		var result string
+		inputStr := string(toolUse.Input)
+
+		if toolUse.Name == "get_weather" {
+			if strings.Contains(inputStr, "San Francisco") {
+				result = "San Francisco: 68°F, partly cloudy"
+			} else {
+				result = "New York: 45°F, clear skies"
+			}
+		} else {
+			if strings.Contains(inputStr, "Los_Angeles") {
+				result = "2:30 PM PST"
+			} else {
+				result = "5:30 PM EST"
+			}
+		}
+
+		toolResults = append(toolResults, anthropic.NewToolResultBlock(toolUse.ID, result, false))
+	}
+
+	// Convert response content to param types for the assistant message
+	var contentParams []anthropic.ContentBlockParamUnion
+	for _, block := range response.Content {
+		contentParams = append(contentParams, block.ToParam())
+	}
+
+	fmt.Println("\nGetting final response...")
+	finalResponse, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("What's the weather in SF and NYC, and what time is it there?")),
+			anthropic.NewAssistantMessage(contentParams...),
+			anthropic.NewUserMessage(toolResults...),
+		},
+		Tools: tools,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("\nClaude's response:\n%s\n", finalResponse.Content[0].Text)
+
+	fmt.Println("\n--- Verification ---")
+	fmt.Printf("✓ Tool results sent in single user message: %d results\n", len(toolResults))
+	fmt.Println("✓ No text before tool results in content array")
+	fmt.Println("✓ Conversation formatted correctly for future parallel tool use")
+}
+```
+
+```java Java
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.ContentBlock;
+import com.anthropic.models.messages.ContentBlockParam;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.Tool;
+import com.anthropic.models.messages.Tool.InputSchema;
+import com.anthropic.models.messages.ToolResultBlockParam;
+import com.anthropic.models.messages.ToolUseBlock;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+
+public class ParallelToolsTest {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        Tool weatherTool = Tool.builder()
+            .name("get_weather")
+            .description("Get the current weather in a given location")
+            .inputSchema(InputSchema.builder()
+                .properties(JsonValue.from(Map.of(
+                    "location", Map.of(
+                        "type", "string",
+                        "description", "The city and state, e.g. San Francisco, CA"
+                    )
+                )))
+                .putAdditionalProperty("required", JsonValue.from(List.of("location")))
+                .build())
+            .build();
+
+        Tool timeTool = Tool.builder()
+            .name("get_time")
+            .description("Get the current time in a given timezone")
+            .inputSchema(InputSchema.builder()
+                .properties(JsonValue.from(Map.of(
+                    "timezone", Map.of(
+                        "type", "string",
+                        "description", "The timezone, e.g. America/New_York"
+                    )
+                )))
+                .putAdditionalProperty("required", JsonValue.from(List.of("timezone")))
+                .build())
+            .build();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(1024L)
+            .addTool(weatherTool)
+            .addTool(timeTool)
+            .addUserMessage("What's the weather in SF and NYC, and what time is it there?")
+            .build();
+
+        System.out.println("Requesting parallel tool calls...");
+        Message response = client.messages().create(params);
+
+        List<ToolUseBlock> toolUses = new ArrayList<>();
+        for (ContentBlock block : response.content()) {
+            if (block.toolUse().isPresent()) {
+                toolUses.add(block.toolUse().get());
+            }
+        }
+
+        System.out.println("\n✓ Claude made " + toolUses.size() + " tool calls");
+
+        if (toolUses.size() > 1) {
+            System.out.println("✓ Parallel tool calls detected!");
+            for (ToolUseBlock tool : toolUses) {
+                System.out.println("  - " + tool.name() + ": " + tool._input());
+            }
+        } else {
+            System.out.println("✗ No parallel tool calls detected");
+        }
+
+        List<ContentBlockParam> toolResults = new ArrayList<>();
+        for (ToolUseBlock toolUse : toolUses) {
+            String result;
+            if (toolUse.name().equals("get_weather")) {
+                String location = toolUse._input().toString();
+                result = location.contains("San Francisco")
+                    ? "San Francisco: 68°F, partly cloudy"
+                    : "New York: 45°F, clear skies";
+            } else {
+                String timezone = toolUse._input().toString();
+                result = timezone.contains("Los_Angeles")
+                    ? "2:30 PM PST"
+                    : "5:30 PM EST";
+            }
+            toolResults.add(ContentBlockParam.ofToolResult(
+                ToolResultBlockParam.builder()
+                    .toolUseId(toolUse.id())
+                    .content(result)
+                    .build()
+            ));
+        }
+
+        System.out.println("\nGetting final response...");
+        MessageCreateParams finalParams = MessageCreateParams.builder()
+            .model(Model.CLAUDE_OPUS_4_6)
+            .maxTokens(1024L)
+            .addTool(weatherTool)
+            .addTool(timeTool)
+            .addUserMessage("What's the weather in SF and NYC, and what time is it there?")
+            .addMessage(response)
+            .addUserMessageOfBlockParams(toolResults)
+            .build();
+
+        Message finalResponse = client.messages().create(finalParams);
+        finalResponse.content().stream()
+            .flatMap(block -> block.text().stream())
+            .forEach(textBlock -> System.out.println("\nClaude's response:\n" + textBlock.text()));
+
+        System.out.println("\n--- Verification ---");
+        System.out.println("✓ Tool results sent in single user message: " + toolResults.size() + " results");
+        System.out.println("✓ No text before tool results in content array");
+        System.out.println("✓ Conversation formatted correctly for future parallel tool use");
+    }
+}
+```
+
+```php PHP hidelines={1..6}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$tools = [
+    [
+        'name' => 'get_weather',
+        'description' => 'Get the current weather in a given location',
+        'input_schema' => [
+            'type' => 'object',
+            'properties' => [
+                'location' => [
+                    'type' => 'string',
+                    'description' => 'The city and state, e.g. San Francisco, CA'
+                ]
+            ],
+            'required' => ['location']
+        ]
+    ],
+    [
+        'name' => 'get_time',
+        'description' => 'Get the current time in a given timezone',
+        'input_schema' => [
+            'type' => 'object',
+            'properties' => [
+                'timezone' => [
+                    'type' => 'string',
+                    'description' => 'The timezone, e.g. America/New_York'
+                ]
+            ],
+            'required' => ['timezone']
+        ]
+    ]
+];
+
+echo "Requesting parallel tool calls...\n";
+$response = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => "What's the weather in SF and NYC, and what time is it there?"]
+    ],
+    model: 'claude-opus-4-6',
+    tools: $tools,
+);
+
+$toolUses = array_filter($response->content, fn($block) => $block->type === 'tool_use');
+echo "\n✓ Claude made " . count($toolUses) . " tool calls\n";
+
+if (count($toolUses) > 1) {
+    echo "✓ Parallel tool calls detected!\n";
+    foreach ($toolUses as $tool) {
+        echo "  - {$tool->name}: " . json_encode($tool->input) . "\n";
+    }
+} else {
+    echo "✗ No parallel tool calls detected\n";
+}
+
+$toolResults = [];
+foreach ($toolUses as $toolUse) {
+    if ($toolUse->name === 'get_weather') {
+        $result = str_contains(json_encode($toolUse->input), 'San Francisco')
+            ? 'San Francisco: 68°F, partly cloudy'
+            : 'New York: 45°F, clear skies';
+    } else {
+        $result = str_contains(json_encode($toolUse->input), 'Los_Angeles')
+            ? '2:30 PM PST'
+            : '5:30 PM EST';
+    }
+
+    $toolResults[] = [
+        'type' => 'tool_result',
+        'tool_use_id' => $toolUse->id,
+        'content' => $result
+    ];
+}
+
+echo "\nGetting final response...\n";
+$finalResponse = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => "What's the weather in SF and NYC, and what time is it there?"],
+        ['role' => 'assistant', 'content' => $response->content],
+        ['role' => 'user', 'content' => $toolResults]
+    ],
+    model: 'claude-opus-4-6',
+    tools: $tools,
+);
+
+echo "\nClaude's response:\n{$finalResponse->content[0]->text}\n";
+
+echo "\n--- Verification ---\n";
+echo "✓ Tool results sent in single user message: " . count($toolResults) . " results\n";
+echo "✓ No text before tool results in content array\n";
+echo "✓ Conversation formatted correctly for future parallel tool use\n";
+```
+
+```ruby Ruby
+require "anthropic"
+
+client = Anthropic::Client.new
+
+tools = [
   {
     name: "get_weather",
     description: "Get the current weather in a given location",
@@ -1440,77 +2839,64 @@ const tools = [
       required: ["timezone"]
     }
   }
-];
+]
 
-async function testParallelTools() {
-  // Make initial request
-  console.log("Requesting parallel tool calls...");
-  const response = await anthropic.messages.create({
-    model: "claude-opus-4-6",
-    max_tokens: 1024,
-    messages: [{
-      role: "user",
-      content: "What's the weather in SF and NYC, and what time is it there?"
-    }],
-    tools: tools
-  });
+puts "Requesting parallel tool calls..."
+response = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 1024,
+  messages: [
+    { role: "user", content: "What's the weather in SF and NYC, and what time is it there?" }
+  ],
+  tools: tools
+)
 
-  // Check for parallel tool calls
-  const toolUses = response.content.filter(block => block.type === "tool_use");
-  console.log(`\n✓ Claude made ${toolUses.length} tool calls`);
+tool_uses = response.content.select { |block| block.type == :tool_use }
+puts "\n✓ Claude made #{tool_uses.length} tool calls"
 
-  if (toolUses.length > 1) {
-    console.log("✓ Parallel tool calls detected!");
-    toolUses.forEach(tool => {
-      console.log(`  - ${tool.name}: ${JSON.stringify(tool.input)}`);
-    });
-  } else {
-    console.log("✗ No parallel tool calls detected");
+if tool_uses.length > 1
+  puts "✓ Parallel tool calls detected!"
+  tool_uses.each do |tool|
+    puts "  - #{tool.name}: #{tool.input}"
+  end
+else
+  puts "✗ No parallel tool calls detected"
+end
+
+tool_results = tool_uses.map do |tool_use|
+  result = if tool_use.name == "get_weather"
+    location = tool_use.input["location"].to_s
+    location.include?("San Francisco") ? "San Francisco: 68°F, partly cloudy" : "New York: 45°F, clear skies"
+  else
+    timezone = tool_use.input["timezone"].to_s
+    timezone.include?("Los_Angeles") ? "2:30 PM PST" : "5:30 PM EST"
+  end
+
+  {
+    type: "tool_result",
+    tool_use_id: tool_use.id,
+    content: result
   }
+end
 
-  // Simulate tool execution and format results correctly
-  const toolResults = toolUses.map(toolUse => {
-    let result;
-    if (toolUse.name === "get_weather") {
-      result = toolUse.input.location.includes("San Francisco")
-        ? "San Francisco: 68°F, partly cloudy"
-        : "New York: 45°F, clear skies";
-    } else {
-      result = toolUse.input.timezone.includes("Los_Angeles")
-        ? "2:30 PM PST"
-        : "5:30 PM EST";
-    }
+puts "\nGetting final response..."
+final_response = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 1024,
+  messages: [
+    { role: "user", content: "What's the weather in SF and NYC, and what time is it there?" },
+    { role: "assistant", content: response.content },
+    { role: "user", content: tool_results }
+  ],
+  tools: tools
+)
 
-    return {
-      type: "tool_result",
-      tool_use_id: toolUse.id,
-      content: result
-    };
-  });
+puts "\nClaude's response:\n#{final_response.content.first.text}"
 
-  // Get final response with correct formatting
-  console.log("\nGetting final response...");
-  const finalResponse = await anthropic.messages.create({
-    model: "claude-opus-4-6",
-    max_tokens: 1024,
-    messages: [
-      { role: "user", content: "What's the weather in SF and NYC, and what time is it there?" },
-      { role: "assistant", content: response.content },
-      { role: "user", content: toolResults } // All results in one message!
-    ],
-    tools: tools
-  });
-
-  console.log(`\nClaude's response:\n${finalResponse.content[0].text}`);
-
-  // Verify formatting
-  console.log("\n--- Verification ---");
-  console.log(`✓ Tool results sent in single user message: ${toolResults.length} results`);
-  console.log("✓ No text before tool results in content array");
-  console.log("✓ Conversation formatted correctly for future parallel tool use");
-}
-
-testParallelTools().catch(console.error);
+puts "\n--- Verification ---"
+puts "✓ Tool results sent in single user message: #{tool_results.length} results"
+puts "✓ No text before tool results in content array"
+puts "✓ Conversation formatted correctly for future parallel tool use"
 ```
 </CodeGroup>
 
@@ -1547,7 +2933,7 @@ For maximum efficiency, whenever you perform multiple independent operations, in
 
 You can also encourage parallel tool use within specific user messages:
 
-```python
+```python nocheck
 # Instead of:
 "What's the weather in Paris? Also check London."
 
@@ -1604,7 +2990,7 @@ The response will have a `stop_reason` of `tool_use` and one or more `tool_use` 
       "type": "tool_use",
       "id": "toolu_01A09q90qw90lq917835lq9",
       "name": "get_weather",
-      "input": {"location": "San Francisco, CA", "unit": "celsius"}
+      "input": { "location": "San Francisco, CA", "unit": "celsius" }
     }
   ]
 }
@@ -1628,18 +3014,24 @@ When you receive a tool use response for a client tool, you should:
 
 For example, this will cause a 400 error:
 ```json
-{"role": "user", "content": [
-  {"type": "text", "text": "Here are the results:"},  // ❌ Text before tool_result
-  {"type": "tool_result", "tool_use_id": "toolu_01", ...}
-]}
+{
+  "role": "user",
+  "content": [
+    { "type": "text", "text": "Here are the results:" }, // ❌ Text before tool_result
+    { "type": "tool_result", "tool_use_id": "toolu_01" /* ... */ }
+  ]
+}
 ```
 
 This is correct:
 ```json
-{"role": "user", "content": [
-  {"type": "tool_result", "tool_use_id": "toolu_01", ...},
-  {"type": "text", "text": "What should I do next?"}  // ✅ Text after tool_result
-]}
+{
+  "role": "user",
+  "content": [
+    { "type": "tool_result", "tool_use_id": "toolu_01" /* ... */ },
+    { "type": "text", "text": "What should I do next?" } // ✅ Text after tool_result
+  ]
+}
 ```
 
 If you receive an error like "tool_use ids were found without tool_result blocks immediately after", check that your tool results are formatted correctly.
@@ -1672,13 +3064,13 @@ If you receive an error like "tool_use ids were found without tool_result blocks
       "type": "tool_result",
       "tool_use_id": "toolu_01A09q90qw90lq917835lq9",
       "content": [
-        {"type": "text", "text": "15 degrees"},
+        { "type": "text", "text": "15 degrees" },
         {
           "type": "image",
           "source": {
             "type": "base64",
             "media_type": "image/jpeg",
-            "data": "/9j/4AAQSkZJRg...",
+            "data": "/9j/4AAQSkZJRg..."
           }
         }
       ]
@@ -1696,7 +3088,7 @@ If you receive an error like "tool_use ids were found without tool_result blocks
   "content": [
     {
       "type": "tool_result",
-      "tool_use_id": "toolu_01A09q90qw90lq917835lq9",
+      "tool_use_id": "toolu_01A09q90qw90lq917835lq9"
     }
   ]
 }
@@ -1714,7 +3106,7 @@ If you receive an error like "tool_use ids were found without tool_result blocks
       "type": "tool_result",
       "tool_use_id": "toolu_01A09q90qw90lq917835lq9",
       "content": [
-        {"type": "text", "text": "The weather is"},
+        { "type": "text", "text": "The weather is" },
         {
           "type": "document",
           "source": {
@@ -1751,7 +3143,16 @@ Messages contain arrays of `text`, `image`, `tool_use`, and `tool_result` blocks
 If Claude's [response is cut off due to hitting the `max_tokens` limit](./developer-build-with-claude-handling-stop-reasons.md#max-tokens), and the truncated response contains an incomplete tool use block, you'll need to retry the request with a higher `max_tokens` value to get the full tool use.
 
 <CodeGroup>
-```python Python
+
+```python Python nocheck hidelines={1..8}
+import anthropic
+
+client = anthropic.Anthropic()
+tools: list[dict] = []
+messages: list[dict] = []
+response = client.messages.create(
+    model="claude-opus-4-6", max_tokens=1024, tools=tools, messages=messages
+)
 # Check if response was truncated during tool use
 if response.stop_reason == "max_tokens":
     # Check if the last content block is an incomplete tool_use
@@ -1766,14 +3167,14 @@ if response.stop_reason == "max_tokens":
         )
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck
 // Check if response was truncated during tool use
 if (response.stop_reason === "max_tokens") {
   // Check if the last content block is an incomplete tool_use
   const lastBlock = response.content[response.content.length - 1];
   if (lastBlock.type === "tool_use") {
     // Send the request with higher max_tokens
-    response = await anthropic.messages.create({
+    response = await client.messages.create({
       model: "claude-opus-4-6",
       max_tokens: 4096, // Increased limit
       messages: messages,
@@ -1781,6 +3182,182 @@ if (response.stop_reason === "max_tokens") {
     });
   }
 }
+```
+
+```csharp C# nocheck
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1024,
+            Messages = messages,
+            Tools = tools
+        };
+
+        var response = await client.Messages.Create(parameters);
+
+        if (response.StopReason == "max_tokens")
+        {
+            var lastBlock = response.Content.Last();
+            if (lastBlock.Type == "tool_use")
+            {
+                parameters.MaxTokens = 4096;
+                response = await client.Messages.Create(parameters);
+            }
+        }
+    }
+}
+```
+
+```go Go hidelines={1..15,-3..-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	tools := []anthropic.ToolUnionParam{}
+	messages := []anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock("test"))}
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Messages:  messages,
+		Tools:     tools,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if response.StopReason == "max_tokens" {
+		lastBlock := response.Content[len(response.Content)-1]
+		switch lastBlock.AsAny().(type) {
+		case anthropic.ToolUseBlock:
+			response, err = client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+				Model:     anthropic.ModelClaudeOpus4_6,
+				MaxTokens: 4096,
+				Messages:  messages,
+				Tools:     tools,
+			})
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+	}
+
+	fmt.Println(response)
+}
+```
+
+```java Java nocheck hidelines={1..8,10..13}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.messages.Tool;
+import com.anthropic.models.messages.ContentBlock;
+import java.util.List;
+import com.anthropic.models.messages.StopReason;
+AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+List<MessageCreateParams.Message> messages = List.of();
+List<Tool> tools = List.of();
+Message response = client.messages().create(MessageCreateParams.builder().model(Model.CLAUDE_OPUS_4_6).maxTokens(1024L).addUserMessage("test").build());
+// Check if response was truncated during tool use
+if (response.stopReason().isPresent() && response.stopReason().get().equals(StopReason.MAX_TOKENS)) {
+    ContentBlock lastBlock = response.content().get(response.content().size() - 1);
+    if (lastBlock.toolUse().isPresent()) {
+        // Send the request with higher max_tokens
+        response = client.messages().create(
+            MessageCreateParams.builder()
+                .model(Model.CLAUDE_OPUS_4_6)
+                .maxTokens(4096L) // Increased limit
+                .messages(messages)
+                .tools(tools)
+                .build()
+        );
+    }
+}
+```
+
+```php PHP hidelines={1..6} nocheck
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$response = $client->messages->create(
+    maxTokens: 1024,
+    messages: $messages,
+    model: 'claude-opus-4-6',
+    tools: $tools,
+);
+
+if ($response->stopReason === 'max_tokens') {
+    $lastBlock = end($response->content);
+    if ($lastBlock->type === 'tool_use') {
+        $response = $client->messages->create(
+            maxTokens: 4096,
+            messages: $messages,
+            model: 'claude-opus-4-6',
+            tools: $tools,
+        );
+    }
+}
+```
+
+```ruby Ruby hidelines={1..15}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+tools = [
+  {
+    name: "get_weather",
+    description: "Get the current weather in a given location",
+    input_schema: { type: "object", properties: { location: { type: "string" } }, required: ["location"] }
+  }
+]
+messages = [
+  { role: "user", content: "What's the weather in San Francisco?" }
+]
+
+response = client.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 1024,
+  messages: messages,
+  tools: tools
+)
+
+if response.stop_reason == :max_tokens
+  last_block = response.content.last
+  if last_block.type == :tool_use
+    response = client.messages.create(
+      model: "claude-opus-4-6",
+      max_tokens: 4096,
+      messages: messages,
+      tools: tools
+    )
+  end
+end
 ```
 </CodeGroup>
 
@@ -1791,14 +3368,14 @@ When using server tools like web search, the API may return a `pause_turn` stop 
 Here's how to handle the `pause_turn` stop reason:
 
 <CodeGroup>
-```python Python
+```python Python hidelines={1..4}
 import anthropic
 
 client = anthropic.Anthropic()
 
 # Initial request with web search
 response = client.messages.create(
-    model="claude-3-7-sonnet-latest",
+    model="claude-opus-4-6",
     max_tokens=1024,
     messages=[
         {
@@ -1822,7 +3399,7 @@ if response.stop_reason == "pause_turn":
 
     # Send the continuation request
     continuation = client.messages.create(
-        model="claude-3-7-sonnet-latest",
+        model="claude-opus-4-6",
         max_tokens=1024,
         messages=messages,
         tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 10}],
@@ -1833,52 +3410,336 @@ else:
     print(response)
 ```
 
-```typescript TypeScript
-import { Anthropic } from "@anthropic-ai/sdk";
+```typescript TypeScript hidelines={1..4}
+import Anthropic from "@anthropic-ai/sdk";
 
-const anthropic = new Anthropic();
+const client = new Anthropic();
 
-// Initial request with web search
-const response = await anthropic.messages.create({
-  model: "claude-3-7-sonnet-latest",
+async function main() {
+  // Initial request with web search
+  const response = await client.messages.create({
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    messages: [
+      {
+        role: "user",
+        content:
+          "Search for comprehensive information about quantum computing breakthroughs in 2025"
+      }
+    ],
+    tools: [
+      {
+        type: "web_search_20250305",
+        name: "web_search",
+        max_uses: 10
+      }
+    ]
+  });
+
+  // Check if the response has pause_turn stop reason
+  if (response.stop_reason === "pause_turn") {
+    // Continue the conversation with the paused content
+    const messages: Anthropic.MessageParam[] = [
+      {
+        role: "user",
+        content:
+          "Search for comprehensive information about quantum computing breakthroughs in 2025"
+      },
+      { role: "assistant", content: response.content }
+    ];
+
+    // Send the continuation request
+    const continuation = await client.messages.create({
+      model: "claude-opus-4-6",
+      max_tokens: 1024,
+      messages: messages,
+      tools: [
+        {
+          type: "web_search_20250305",
+          name: "web_search",
+          max_uses: 10
+        }
+      ]
+    });
+
+    console.log(continuation);
+  } else {
+    console.log(response);
+  }
+}
+
+main().catch(console.error);
+```
+
+```csharp C#
+using Anthropic;
+using Anthropic.Models.Messages;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = "claude-opus-4-6",
+            MaxTokens = 1024,
+            Messages = [
+                new() {
+                    Role = Role.User,
+                    Content = "Search for comprehensive information about quantum computing breakthroughs in 2025"
+                }
+            ],
+            Tools = [new ToolUnion(new WebSearchTool20250305() { MaxUses = 10 })]
+        };
+
+        var response = await client.Messages.Create(parameters);
+
+        if (response.StopReason == "pause_turn")
+        {
+            var continuationParams = new MessageCreateParams
+            {
+                Model = "claude-opus-4-6",
+                MaxTokens = 1024,
+                Messages = [
+                    new() {
+                        Role = Role.User,
+                        Content = "Search for comprehensive information about quantum computing breakthroughs in 2025"
+                    },
+                    new() {
+                        Role = Role.Assistant,
+                        Content = response.Content.Select(block => new ContentBlockParam(block.Json)).ToList()
+                    }
+                ],
+                Tools = [new ToolUnion(new WebSearchTool20250305() { MaxUses = 10 })]
+            };
+
+            var continuation = await client.Messages.Create(continuationParams);
+            Console.WriteLine(continuation);
+        }
+        else
+        {
+            Console.WriteLine(response);
+        }
+    }
+}
+```
+
+```go Go hidelines={1..13,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	webSearchTool := []anthropic.ToolUnionParam{
+		{OfWebSearchTool20250305: &anthropic.WebSearchTool20250305Param{
+			MaxUses: anthropic.Int(10),
+		}},
+	}
+
+	response, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("Search for comprehensive information about quantum computing breakthroughs in 2025")),
+		},
+		Tools: webSearchTool,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if response.StopReason == "pause_turn" {
+		// Convert response content to param types for the assistant message
+		var contentParams []anthropic.ContentBlockParamUnion
+		for _, block := range response.Content {
+			contentParams = append(contentParams, block.ToParam())
+		}
+
+		continuation, err := client.Messages.New(context.TODO(), anthropic.MessageNewParams{
+			Model:     anthropic.ModelClaudeOpus4_6,
+			MaxTokens: 1024,
+			Messages: []anthropic.MessageParam{
+				anthropic.NewUserMessage(anthropic.NewTextBlock("Search for comprehensive information about quantum computing breakthroughs in 2025")),
+				anthropic.NewAssistantMessage(contentParams...),
+			},
+			Tools: webSearchTool,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(continuation)
+	} else {
+		fmt.Println(response)
+	}
+}
+```
+
+```java Java hidelines={1..4,7..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.Message;
+import com.anthropic.models.messages.StopReason;
+import com.anthropic.models.messages.WebSearchTool20250305;
+
+public class WebSearchPauseTurn {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(1024L)
+            .addUserMessage("Search for comprehensive information about quantum computing breakthroughs in 2025")
+            .addTool(WebSearchTool20250305.builder()
+                .maxUses(10L)
+                .build())
+            .build();
+
+        Message response = client.messages().create(params);
+
+        if (response.stopReason().isPresent()
+                && response.stopReason().get().equals(StopReason.PAUSE_TURN)) {
+            MessageCreateParams continuationParams = MessageCreateParams.builder()
+                .model("claude-opus-4-6")
+                .maxTokens(1024L)
+                .addUserMessage("Search for comprehensive information about quantum computing breakthroughs in 2025")
+                .addMessage(response)
+                .addTool(WebSearchTool20250305.builder()
+                    .maxUses(10L)
+                    .build())
+                .build();
+
+            Message continuation = client.messages().create(continuationParams);
+            System.out.println(continuation);
+        } else {
+            System.out.println(response);
+        }
+    }
+}
+```
+
+```php PHP hidelines={1..6} nocheck
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$response = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        [
+            'role' => 'user',
+            'content' => 'Search for comprehensive information about quantum computing breakthroughs in 2025'
+        ]
+    ],
+    model: 'claude-opus-4-6',
+    tools: [
+        [
+            'type' => 'web_search_20250305',
+            'name' => 'web_search',
+            'max_uses' => 10
+        ]
+    ],
+);
+
+if ($response->stopReason === 'pause_turn') {
+    $messages = [
+        [
+            'role' => 'user',
+            'content' => 'Search for comprehensive information about quantum computing breakthroughs in 2025'
+        ],
+        [
+            'role' => 'assistant',
+            'content' => $response->content
+        ]
+    ];
+
+    $continuation = $client->messages->create(
+        maxTokens: 1024,
+        messages: $messages,
+        model: 'claude-opus-4-6',
+        tools: [
+            [
+                'type' => 'web_search_20250305',
+                'name' => 'web_search',
+                'max_uses' => 10
+            ]
+        ],
+    );
+
+    echo $continuation;
+} else {
+    echo $response;
+}
+```
+
+```ruby Ruby
+require "anthropic"
+
+client = Anthropic::Client.new
+
+response = client.messages.create(
+  model: "claude-opus-4-6",
   max_tokens: 1024,
   messages: [
     {
       role: "user",
-      content: "Search for comprehensive information about quantum computing breakthroughs in 2025"
+      content:
+        "Search for comprehensive information about quantum computing breakthroughs in 2025"
     }
   ],
-  tools: [{
-    type: "web_search_20250305",
-    name: "web_search",
-    max_uses: 10
-  }]
-});
-
-// Check if the response has pause_turn stop reason
-if (response.stop_reason === "pause_turn") {
-  // Continue the conversation with the paused content
-  const messages = [
-    { role: "user", content: "Search for comprehensive information about quantum computing breakthroughs in 2025" },
-    { role: "assistant", content: response.content }
-  ];
-
-  // Send the continuation request
-  const continuation = await anthropic.messages.create({
-    model: "claude-3-7-sonnet-latest",
-    max_tokens: 1024,
-    messages: messages,
-    tools: [{
+  tools: [
+    {
       type: "web_search_20250305",
       name: "web_search",
       max_uses: 10
-    }]
-  });
+    }
+  ]
+)
 
-  console.log(continuation);
-} else {
-  console.log(response);
-}
+if response.stop_reason == :pause_turn
+  messages = [
+    {
+      role: "user",
+      content: "Search for comprehensive information about quantum computing breakthroughs in 2025"
+    },
+    {
+      role: "assistant",
+      content: response.content
+    }
+  ]
+
+  continuation = client.messages.create(
+    model: "claude-opus-4-6",
+    max_tokens: 1024,
+    messages: messages,
+    tools: [
+      {
+        type: "web_search_20250305",
+        name: "web_search",
+        max_uses: 10
+      }
+    ]
+  )
+
+  puts continuation
+else
+  puts response
+end
 ```
 </CodeGroup>
 
@@ -1914,6 +3775,10 @@ If the tool itself throws an error during execution (for example, a network erro
 ```
 
 Claude will then incorporate this error into its response to the user. For example: "I'm sorry, I was unable to retrieve the current weather because the weather service API is not available. Please try again later."
+
+<Tip>
+Write instructive error messages. Instead of generic errors like `"failed"`, include what went wrong and what Claude should try next, e.g., `"Rate limit exceeded. Retry after 60 seconds."` This gives Claude the context it needs to recover or adapt without guessing.
+</Tip>
 
 </section>
 <section title="Invalid tool name">
@@ -2005,7 +3870,7 @@ Prioritize calling tools in parallel whenever possible.
 
 To verify parallel tool calls are working:
 
-```python
+```python nocheck
 # Calculate average tools per tool-calling message
 tool_call_messages = [
     msg for msg in messages if any(block.type == "tool_use" for block in msg.content)

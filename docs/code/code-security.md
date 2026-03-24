@@ -75,7 +75,7 @@ For full details, please review our [Commercial Terms of Service](https://www.an
 2. Avoid piping untrusted content directly to Claude
 3. Verify proposed changes to critical files
 4. Use virtual machines (VMs) to run scripts and make tool calls, especially when interacting with external web services
-5. Report suspicious behavior with `/bug`
+5. Report suspicious behavior with `/feedback`
 
 <Warning>
   While these protections significantly reduce risk, no system is completely
@@ -106,6 +106,8 @@ When using [Claude Code on the web](./code-claude-code-on-the-web.md), additiona
 
 For more details on cloud execution, see [Claude Code on the web](./code-claude-code-on-the-web.md).
 
+[Remote Control](./code-remote-control.md) sessions work differently: the web interface connects to a Claude Code process running on your local machine. All code execution and file access stays local, and the same data that flows during any local Claude Code session travels through the Anthropic API over TLS. No cloud VMs or sandboxing are involved. The connection uses multiple short-lived, narrowly scoped credentials, each limited to a specific purpose and expiring independently, to limit the blast radius of any single compromised credential.
+
 ## Security best practices
 
 ### Working with sensitive code
@@ -117,7 +119,7 @@ For more details on cloud execution, see [Claude Code on the web](./code-claude-
 
 ### Team security
 
-* Use [managed settings](./code-permissions.md#managed-settings) to enforce organizational standards
+* Use [managed settings](./code-settings.md#settings-files) to enforce organizational standards
 * Share approved permission configurations through version control
 * Train team members on security best practices
 * Monitor Claude Code usage through [OpenTelemetry metrics](./code-monitoring-usage.md)

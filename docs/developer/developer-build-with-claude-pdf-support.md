@@ -4,7 +4,7 @@ Process PDFs with Claude. Extract text, analyze charts, and understand visual co
 
 ---
 
-You can now ask Claude about any text, pictures, charts, and tables in PDFs you provide. Some sample use cases:
+You can ask Claude about any text, pictures, charts, and tables in PDFs you provide. Some sample use cases:
 - Analyzing financial reports and understanding charts/tables
 - Extracting key information from legal documents
 - Translation assistance for documents
@@ -13,15 +13,19 @@ You can now ask Claude about any text, pictures, charts, and tables in PDFs you 
 ## Before you begin
 
 ### Check PDF requirements
-Claude works with any standard PDF. However, you should ensure your request size meets these requirements when using PDF support:
+Claude works with any standard PDF. Ensure your request size meets these requirements:
 
 | Requirement | Limit |
 |------------|--------|
-| Maximum request size | 32MB |
-| Maximum pages per request | 100 |
+| Maximum request size | 32&nbsp;MB ([varies by platform](../api/api-overview.md#request-size-limits)) |
+| Maximum pages per request | 600 (100 for models with a 200k-token context window) |
 | Format | Standard PDF (no passwords/encryption) |
 
-Please note that both limits are on the entire request payload, including any other content sent alongside PDFs.
+Both limits are on the entire request payload, including any other content sent alongside PDFs. For large PDFs, consider uploading with the [Files API](#option-3-files-api) and referencing by `file_id` to keep request payloads small.
+
+<Tip>
+Dense PDFs (many small-font pages, complex tables, or heavy graphics) can fill the context window before reaching the page limit. Requests with large PDFs can also fail before reaching the page limit, even when using the Files API. Try splitting the document into sections; for large files, since each page is processed as an image, downsampling embedded images can also help.
+</Tip>
 
 Since PDF support relies on Claude's vision capabilities, it is subject to the same [limitations and considerations](./developer-build-with-claude-vision.md#limitations) as other vision tasks.
 
@@ -36,7 +40,7 @@ PDF support is now available on Amazon Bedrock with the following considerations
 When using PDF support through Amazon Bedrock's Converse API, there are two distinct document processing modes:
 
 <Note>
-**Important**: To access Claude's full visual PDF understanding capabilities in the Converse API, you must enable citations. Without citations enabled, the API falls back to basic text extraction only. Learn more about [working with citations](./developer-build-with-claude-citations.md).
+**Important:** To access Claude's full visual PDF understanding capabilities in the Converse API, you must enable citations. Without citations enabled, the API falls back to basic text extraction only. Learn more about [working with citations](./developer-build-with-claude-citations.md).
 </Note>
 
 #### Document Processing Modes
@@ -64,7 +68,7 @@ When using PDF support through Amazon Bedrock's Converse API, there are two dist
 If customers report that Claude isn't seeing images or charts in their PDFs when using the Converse API, they likely need to enable the citations flag. Without it, Converse falls back to basic text extraction only.
 
 <Note>
-This is a known constraint with the Converse API that we're working to address. For applications that require visual PDF analysis without citations, consider using the InvokeModel API instead.
+This is a known constraint with the Converse API. For applications that require visual PDF analysis without citations, consider using the InvokeModel API instead.
 </Note>
 
 <Note>
@@ -111,7 +115,7 @@ The simplest approach is to reference a PDF directly from a URL:
         }]
     }'
     ```
-    ```python Python
+    ```python Python hidelines={1..2}
     import anthropic
 
     client = anthropic.Anthropic()
@@ -137,7 +141,7 @@ The simplest approach is to reference a PDF directly from a URL:
 
     print(message.content)
     ```
-    ```typescript TypeScript
+    ```typescript TypeScript hidelines={1..4}
     import Anthropic from "@anthropic-ai/sdk";
 
     const anthropic = new Anthropic();
@@ -171,22 +175,25 @@ The simplest approach is to reference a PDF directly from a URL:
 
     main();
     ```
-    ```java Java
+    ```java Java hidelines={1..8,-2..}
     import com.anthropic.client.AnthropicClient;
     import com.anthropic.client.okhttp.AnthropicOkHttpClient;
     import com.anthropic.models.messages.*;
-    import com.anthropic.models.messages.MessageCreateParams;
     import java.util.List;
 
-    public class PdfExample {
+    public class PdfUrlExample {
 
       public static void main(String[] args) {
         AnthropicClient client = AnthropicOkHttpClient.fromEnv();
 
         // Create document block with URL
         DocumentBlockParam documentParam = DocumentBlockParam.builder()
-          .urlPdfSource(
-            "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
+          .source(
+            UrlPdfSource.builder()
+              .url(
+                "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf"
+              )
+              .build()
           )
           .build();
 
@@ -218,7 +225,8 @@ The simplest approach is to reference a PDF directly from a URL:
 If you need to send PDFs from your local system or when a URL isn't available:
 
 <CodeGroup>
-    ```bash Shell
+    ```bash Shell hidelines={1}
+    cd "$(mktemp -d)"
     # Method 1: Fetch and encode a remote PDF
     curl -s "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf" | base64 | tr -d '\n' > pdf_base64.txt
 
@@ -253,7 +261,7 @@ If you need to send PDFs from your local system or when a URL isn't available:
       -H "anthropic-version: 2023-06-01" \
       -d @request.json
     ```
-    ```python Python
+    ```python Python hidelines={1}
     import anthropic
     import base64
     import httpx
@@ -291,19 +299,19 @@ If you need to send PDFs from your local system or when a URL isn't available:
 
     print(message.content)
     ```
-    ```typescript TypeScript
+    ```typescript TypeScript hidelines={1..3,-3..-1}
     import Anthropic from "@anthropic-ai/sdk";
-    import fetch from "node-fetch";
-    import fs from "fs";
 
     async function main() {
       // Method 1: Fetch and encode a remote PDF
-      const pdfURL = "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf";
+      const pdfURL =
+        "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf";
       const pdfResponse = await fetch(pdfURL);
       const arrayBuffer = await pdfResponse.arrayBuffer();
       const pdfBase64 = Buffer.from(arrayBuffer).toString("base64");
 
       // Method 2: Load from a local file
+      // import fs from "fs";
       // const pdfBase64 = (await fs.readFile('document.pdf')).toString('base64');
 
       // Send the API request with base64-encoded PDF
@@ -338,9 +346,10 @@ If you need to send PDFs from your local system or when a URL isn't available:
     main();
     ```
 
-    ```java Java
+    ```java Java hidelines={1..2,4,6..22,-2..}
     import com.anthropic.client.AnthropicClient;
     import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+    import com.anthropic.models.messages.Base64PdfSource;
     import com.anthropic.models.messages.ContentBlockParam;
     import com.anthropic.models.messages.DocumentBlockParam;
     import com.anthropic.models.messages.Message;
@@ -355,7 +364,7 @@ If you need to send PDFs from your local system or when a URL isn't available:
     import java.util.Base64;
     import java.util.List;
 
-    public class PdfExample {
+    public class PdfBase64Example {
 
       public static void main(String[] args) throws IOException, InterruptedException {
         AnthropicClient client = AnthropicOkHttpClient.fromEnv();
@@ -378,7 +387,7 @@ If you need to send PDFs from your local system or when a URL isn't available:
 
         // Create document block with base64 data
         DocumentBlockParam documentParam = DocumentBlockParam.builder()
-          .base64PdfSource(pdfBase64)
+          .source(Base64PdfSource.builder().data(pdfBase64).build())
           .build();
 
         // Create a message with document and text content blocks
@@ -398,11 +407,7 @@ If you need to send PDFs from your local system or when a URL isn't available:
           .build();
 
         Message message = client.messages().create(params);
-        message
-          .content()
-          .stream()
-          .flatMap(contentBlock -> contentBlock.text().stream())
-          .forEach(textBlock -> System.out.println(textBlock.text()));
+        System.out.println(message.content());
       }
     }
     ```
@@ -414,7 +419,9 @@ If you need to send PDFs from your local system or when a URL isn't available:
 For PDFs you'll use repeatedly, or when you want to avoid encoding overhead, use the [Files API](./developer-build-with-claude-files.md):
 
 <CodeGroup>
-```bash Shell
+```bash Shell hidelines={1..2}
+cd "$(mktemp -d)"
+curl -sSo document.pdf https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf
 # First, upload your PDF to the Files API
 curl -X POST https://api.anthropic.com/v1/files \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
@@ -448,7 +455,7 @@ curl https://api.anthropic.com/v1/messages \
   }'
 ```
 
-```python Python
+```python Python nocheck hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -479,8 +486,8 @@ message = client.beta.messages.create(
 print(message.content)
 ```
 
-```typescript TypeScript
-import { Anthropic, toFile } from "@anthropic-ai/sdk";
+```typescript TypeScript nocheck
+import Anthropic, { toFile } from "@anthropic-ai/sdk";
 import fs from "fs";
 
 const anthropic = new Anthropic();
@@ -488,8 +495,9 @@ const anthropic = new Anthropic();
 async function main() {
   // Upload the PDF file
   const fileUpload = await anthropic.beta.files.upload({
-    file: toFile(fs.createReadStream("document.pdf"), undefined, { type: "application/pdf" })
-  }, {
+    file: await toFile(fs.createReadStream("document.pdf"), undefined, {
+      type: "application/pdf"
+    }),
     betas: ["files-api-2025-04-14"]
   });
 
@@ -524,43 +532,50 @@ async function main() {
 main();
 ```
 
-```java Java
+```java Java nocheck hidelines={1..3,6,8,10..19,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
-import com.anthropic.models.File;
-import com.anthropic.models.files.FileUploadParams;
-import com.anthropic.models.messages.*;
-import java.io.IOException;
-import java.nio.file.Files;
+import com.anthropic.models.messages.Model;
+import com.anthropic.models.beta.files.FileMetadata;
+import com.anthropic.models.beta.files.FileUploadParams;
+import com.anthropic.models.beta.messages.BetaContentBlockParam;
+import com.anthropic.models.beta.messages.BetaFileDocumentSource;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaRequestDocumentBlock;
+import com.anthropic.models.beta.messages.BetaTextBlockParam;
+import com.anthropic.models.beta.messages.MessageCreateParams;
 import java.nio.file.Path;
 import java.util.List;
 
 public class PdfFilesExample {
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) {
     AnthropicClient client = AnthropicOkHttpClient.fromEnv();
 
     // Upload the PDF file
-    File file = client
+    FileMetadata file = client
       .beta()
       .files()
-      .upload(
-        FileUploadParams.builder().file(Files.newInputStream(Path.of("document.pdf"))).build()
-      );
+      .upload(FileUploadParams.builder().file(Path.of("document.pdf")).build());
 
     // Use the uploaded file in a message
-    DocumentBlockParam documentParam = DocumentBlockParam.builder()
-      .fileSource(file.id())
-      .build();
-
     MessageCreateParams params = MessageCreateParams.builder()
       .model(Model.CLAUDE_OPUS_4_6)
+      .addBeta("files-api-2025-04-14")
       .maxTokens(1024)
-      .addUserMessageOfBlockParams(
+      .addUserMessageOfBetaContentBlockParams(
         List.of(
-          ContentBlockParam.ofDocument(documentParam),
-          ContentBlockParam.ofText(
-            TextBlockParam.builder()
+          BetaContentBlockParam.ofDocument(
+            BetaRequestDocumentBlock.builder()
+              .source(
+                BetaFileDocumentSource.builder()
+                  .fileId(file.id())
+                  .build()
+              )
+              .build()
+          ),
+          BetaContentBlockParam.ofText(
+            BetaTextBlockParam.builder()
               .text("What are the key findings in this document?")
               .build()
           )
@@ -568,7 +583,7 @@ public class PdfFilesExample {
       )
       .build();
 
-    Message message = client.messages().create(params);
+    BetaMessage message = client.beta().messages().create(params);
     System.out.println(message.content());
   }
 }
@@ -621,7 +636,9 @@ For high-volume processing, consider these approaches:
 #### Use prompt caching
 Cache PDFs to improve performance on repeated queries:
 <CodeGroup>
-```bash Shell
+```bash Shell hidelines={1..2}
+cd "$(mktemp -d)"
+curl -s "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf" | base64 | tr -d '\n' > pdf_base64.txt
 # Create a JSON request file using the pdf_base64.txt content
 jq -n --rawfile PDF_BASE64 pdf_base64.txt '{
     "model": "claude-opus-4-6",
@@ -653,7 +670,21 @@ curl https://api.anthropic.com/v1/messages \
   -H "anthropic-version: 2023-06-01" \
   -d @request.json
 ```
-```python Python
+
+```python Python nocheck hidelines={1..5,7..13}
+import anthropic
+import base64
+from pypdf import PdfWriter
+import io
+
+client = anthropic.Anthropic()
+
+buf = io.BytesIO()
+writer = PdfWriter()
+writer.add_blank_page(width=72, height=72)
+writer.write(buf)
+pdf_data = base64.standard_b64encode(buf.getvalue()).decode("utf-8")
+
 message = client.messages.create(
     model="claude-opus-4-6",
     max_tokens=1024,
@@ -677,7 +708,7 @@ message = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck
 const response = await anthropic.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -705,7 +736,7 @@ const response = await anthropic.messages.create({
 console.log(response);
 ```
 
-```java Java
+```java Java nocheck hidelines={1..2,5,7..20,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.Base64PdfSource;
@@ -762,7 +793,9 @@ public class MessagesDocumentExample {
 #### Process document batches
 Use the Message Batches API for high-volume workflows:
 <CodeGroup>
-```bash Shell
+```bash Shell hidelines={1..2}
+cd "$(mktemp -d)"
+curl -s "https://assets.anthropic.com/m/1cd9d098ac3e6467/original/Claude-3-Model-Card-October-Addendum.pdf" | base64 | tr -d '\n' > pdf_base64.txt
 # Create a JSON request file using the pdf_base64.txt content
 jq -n --rawfile PDF_BASE64 pdf_base64.txt '
 {
@@ -830,7 +863,21 @@ curl https://api.anthropic.com/v1/messages/batches \
   -H "anthropic-version: 2023-06-01" \
   -d @request.json
 ```
-```python Python
+
+```python Python nocheck hidelines={1..5,7..13}
+import anthropic
+import base64
+from pypdf import PdfWriter
+import io
+
+client = anthropic.Anthropic()
+
+buf = io.BytesIO()
+writer = PdfWriter()
+writer.add_blank_page(width=72, height=72)
+writer.write(buf)
+pdf_data = base64.standard_b64encode(buf.getvalue()).decode("utf-8")
+
 message_batch = client.messages.batches.create(
     requests=[
         {
@@ -860,7 +907,7 @@ message_batch = client.messages.batches.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck
 const response = await anthropic.messages.batches.create({
   requests: [
     {
@@ -920,7 +967,7 @@ const response = await anthropic.messages.batches.create({
 console.log(response);
 ```
 
-```java Java
+```java Java nocheck hidelines={1..3,5..14,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.*;
@@ -1009,7 +1056,7 @@ public class MessagesBatchDocumentExample {
     icon="file"
     href="https://platform.claude.com/cookbook/multimodal-getting-started-with-vision"
   >
-    Explore practical examples of PDF processing in our cookbook recipe.
+    Explore practical examples of PDF processing in the cookbook recipe.
   </Card>
 
   <Card

@@ -10,12 +10,10 @@ Claude 4.6 represents the next generation of Claude models, bringing significant
 
 | Model | API model ID | Description |
 |:------|:-------------|:------------|
-| Claude Opus 4.6 | `claude-opus-4-6` | Our most intelligent model for building agents and coding |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` | Our best combination of speed and intelligence |
+| Claude Opus 4.6 | `claude-opus-4-6` | The most intelligent model for building agents and coding |
+| Claude Sonnet 4.6 | `claude-sonnet-4-6` | The best combination of speed and intelligence |
 
-Claude Opus 4.6 supports a 200K context window (with [1M token context window](./developer-build-with-claude-context-windows.md#1m-token-context-window) available in beta), 128K max output tokens, extended thinking, and all existing Claude API features.
-
-Claude Sonnet 4.6 supports a 200K context window (with [1M token context window](./developer-build-with-claude-context-windows.md#1m-token-context-window) available in beta), 64K max output tokens, extended thinking, and adaptive thinking.
+Claude Opus 4.6 and Sonnet 4.6 both support a [1M token context window](./developer-build-with-claude-context-windows.md), extended thinking, and all existing Claude API features. Opus 4.6 offers 128k max output tokens; Sonnet 4.6 offers 64k max output tokens.
 
 For complete pricing and specs, see the [models overview](./developer-about-claude-models-overview.md).
 
@@ -23,7 +21,7 @@ For complete pricing and specs, see the [models overview](./developer-about-clau
 
 ### Adaptive thinking mode
 
-[Adaptive thinking](./developer-build-with-claude-adaptive-thinking.md) (`thinking: {type: "adaptive"}`) is the recommended thinking mode for Opus 4.6 and Sonnet 4.6. Claude dynamically decides when and how much to think. At the default effort level (`high`), Claude will almost always think. At lower effort levels, it may skip thinking for simpler problems.
+[Adaptive thinking](./developer-build-with-claude-adaptive-thinking.md) (`thinking: {type: "adaptive"}`) is the recommended thinking mode for Opus 4.6 and Sonnet 4.6. Claude dynamically decides when and how much to think. At the default effort level (`high`), Claude almost always thinks. At lower effort levels, it may skip thinking for simpler problems.
 
 `thinking: {type: "enabled"}` and `budget_tokens` are **deprecated** on Opus 4.6 and Sonnet 4.6. They remain functional but will be removed in a future model release. Use adaptive thinking and the [effort parameter](./developer-build-with-claude-effort.md) to control thinking depth instead. Adaptive thinking also automatically enables interleaved thinking.
 
@@ -64,7 +62,7 @@ The following tools are now generally available:
 
 [Compaction](./developer-build-with-claude-compaction.md) provides automatic, server-side context summarization, enabling effectively infinite conversations. When context approaches the window limit, the API automatically summarizes earlier parts of the conversation.
 
-### Fast mode (research preview)
+### Fast mode (beta: research preview)
 
 [Fast mode](./developer-build-with-claude-fast-mode.md) (`speed: "fast"`) delivers significantly faster output token generation for Opus models. Fast mode is up to 2.5x as fast at premium pricing ($30/$150 per MTok). This is the same model running with faster inference (no change to intelligence or capabilities).
 
@@ -82,9 +80,9 @@ response = client.beta.messages.create(
 
 [Fine-grained tool streaming](./developer-agents-and-tools-tool-use-fine-grained-tool-streaming.md) is now generally available on all models and platforms. No beta header is required.
 
-### 128K output tokens
+### 128k output tokens
 
-Opus 4.6 supports up to 128K output tokens, doubling the previous 64K limit. This enables longer thinking budgets and more comprehensive responses. The SDKs require streaming for requests with large `max_tokens` values to avoid HTTP timeouts. If you don't need to process events incrementally, use `.stream()` with `.get_final_message()` to get the complete response. See [Streaming Messages](./developer-build-with-claude-streaming.md#get-the-final-message-without-handling-events) for details.
+Opus 4.6 supports up to 128k output tokens, doubling the previous 64k limit. This enables longer thinking budgets and more comprehensive responses. The SDKs require streaming for requests with large `max_tokens` values to avoid HTTP timeouts. If you don't need to process events incrementally, use `.stream()` with `.get_final_message()` to get the complete response. See [Streaming Messages](./developer-build-with-claude-streaming.md#get-the-final-message-without-handling-events) for details.
 
 ### Data residency controls
 
@@ -106,7 +104,7 @@ The `interleaved-thinking-2025-05-14` beta header is **deprecated** on Opus 4.6.
 
 The `output_format` parameter for [structured outputs](./developer-build-with-claude-structured-outputs.md) has been moved to `output_config.format`. The old parameter remains functional but is deprecated and will be removed in a future model release.
 
-```python
+```python nocheck
 # Before
 response = client.messages.create(
     output_format={"type": "json_schema", "schema": {...}},

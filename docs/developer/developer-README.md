@@ -2,7 +2,7 @@
 
 _This repository is a mirror of the official [Claude Platform](https://platform.claude.com/docs/en/) documentation (Developer). It is updated automatically._
 
-**Last updated:** Sat, 21 Feb 2026 12:37:51 GMT
+**Last updated:** Tue, 24 Mar 2026 07:11:17 GMT
 
 ---
 
@@ -19,30 +19,32 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 
 - [Overview](./developer-agent-sdk-overview.md)
 - [Quickstart](./developer-agent-sdk-quickstart.md)
-- [Typescript](./developer-agent-sdk-typescript.md)
-- [Typescript V2 Preview](./developer-agent-sdk-typescript-v2-preview.md)
-- [Python](./developer-agent-sdk-python.md)
-- [Migration Guide](./developer-agent-sdk-migration-guide.md)
+- [Agent Loop](./developer-agent-sdk-agent-loop.md)
+- [Claude Code Features](./developer-agent-sdk-claude-code-features.md)
+- [Sessions](./developer-agent-sdk-sessions.md)
 - [Streaming Vs Single Mode](./developer-agent-sdk-streaming-vs-single-mode.md)
 - [Streaming Output](./developer-agent-sdk-streaming-output.md)
-- [Stop Reasons](./developer-agent-sdk-stop-reasons.md)
+- [Mcp](./developer-agent-sdk-mcp.md)
+- [Custom Tools](./developer-agent-sdk-custom-tools.md)
+- [Tool Search](./developer-agent-sdk-tool-search.md)
 - [Permissions](./developer-agent-sdk-permissions.md)
 - [User Input](./developer-agent-sdk-user-input.md)
 - [Hooks](./developer-agent-sdk-hooks.md)
-- [Sessions](./developer-agent-sdk-sessions.md)
 - [File Checkpointing](./developer-agent-sdk-file-checkpointing.md)
 - [Structured Outputs](./developer-agent-sdk-structured-outputs.md)
 - [Hosting](./developer-agent-sdk-hosting.md)
 - [Secure Deployment](./developer-agent-sdk-secure-deployment.md)
 - [Modifying System Prompts](./developer-agent-sdk-modifying-system-prompts.md)
-- [Mcp](./developer-agent-sdk-mcp.md)
-- [Custom Tools](./developer-agent-sdk-custom-tools.md)
 - [Subagents](./developer-agent-sdk-subagents.md)
 - [Slash Commands](./developer-agent-sdk-slash-commands.md)
 - [Skills](./developer-agent-sdk-skills.md)
 - [Cost Tracking](./developer-agent-sdk-cost-tracking.md)
 - [Todo Tracking](./developer-agent-sdk-todo-tracking.md)
 - [Plugins](./developer-agent-sdk-plugins.md)
+- [Typescript](./developer-agent-sdk-typescript.md)
+- [Typescript V2 Preview](./developer-agent-sdk-typescript-v2-preview.md)
+- [Python](./developer-agent-sdk-python.md)
+- [Migration Guide](./developer-agent-sdk-migration-guide.md)
 
 ## Agents And Tools
 
@@ -95,17 +97,7 @@ _This repository is a mirror of the official [Claude Platform](https://platform.
 - [Claude In Microsoft Foundry](./developer-build-with-claude-claude-in-microsoft-foundry.md)
 - [Claude On Vertex Ai](./developer-build-with-claude-claude-on-vertex-ai.md)
 - [Prompt Engineering | Overview](./developer-build-with-claude-prompt-engineering-overview.md)
-- [Prompt Engineering | Prompt Generator](./developer-build-with-claude-prompt-engineering-prompt-generator.md)
-- [Prompt Engineering | Prompt Templates And Variables](./developer-build-with-claude-prompt-engineering-prompt-templates-and-variables.md)
-- [Prompt Engineering | Prompt Improver](./developer-build-with-claude-prompt-engineering-prompt-improver.md)
-- [Prompt Engineering | Be Clear And Direct](./developer-build-with-claude-prompt-engineering-be-clear-and-direct.md)
-- [Prompt Engineering | Multishot Prompting](./developer-build-with-claude-prompt-engineering-multishot-prompting.md)
-- [Prompt Engineering | Chain Of Thought](./developer-build-with-claude-prompt-engineering-chain-of-thought.md)
-- [Prompt Engineering | Use Xml Tags](./developer-build-with-claude-prompt-engineering-use-xml-tags.md)
-- [Prompt Engineering | System Prompts](./developer-build-with-claude-prompt-engineering-system-prompts.md)
-- [Prompt Engineering | Chain Prompts](./developer-build-with-claude-prompt-engineering-chain-prompts.md)
-- [Prompt Engineering | Long Context Tips](./developer-build-with-claude-prompt-engineering-long-context-tips.md)
-- [Prompt Engineering | Extended Thinking Tips](./developer-build-with-claude-prompt-engineering-extended-thinking-tips.md)
+- [Prompt Engineering | Prompting Tools](./developer-build-with-claude-prompt-engineering-prompting-tools.md)
 - [Administration Api](./developer-build-with-claude-administration-api.md)
 - [Data Residency](./developer-build-with-claude-data-residency.md)
 - [Workspaces](./developer-build-with-claude-workspaces.md)

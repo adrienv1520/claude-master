@@ -14,13 +14,30 @@ Claude's API surface is organized into five areas:
 
 If you're new, start with [model capabilities](#model-capabilities) and [tools](#tools). Return to the other sections when you're ready to optimize cost, latency, or scale.
 
+## Feature availability
+
+Features on the Claude Platform are assigned one of the following availability classifications per platform (shown in the Availability column of each table below). Not all features pass through every stage. A feature may enter at any classification and may skip stages.
+
+| Classification | Description |
+|----------------|-------------|
+| **Beta**<sup>*</sup> | Preview features used for gathering feedback and iterating on a less mature use case. Availability may be limited, including through sign-up requirements or waitlists, and may not be publicly announced. <br/><br/> Features may change significantly or be discontinued based on feedback. Not guaranteed for ongoing production use. Breaking changes are possible with notice, and some platform-specific limitations may apply. Beta features have a [beta header](../api/api-beta-headers.md). |
+| **Generally available (GA)** | Feature is stable, fully supported, and recommended for production use. Should not have a beta header or other indicator that the feature is in a preview state. Covered by standard API [versioning](../api/api-versioning.md) guarantees. |
+| **Deprecated** | Feature is still functional but no longer recommended. A migration path and removal timeline are provided. |
+| **Retired** | Feature is no longer available. |
+
+_<sup>*</sup> May carry a qualifier indicating narrower availability or added constraints (for example, "beta: research preview"). See the feature's page for details._
+
 ## Model capabilities
 
 Ways to steer Claude and Claude's direct outputs, including response format, reasoning depth, and input modalities.
 
+<Tip>
+You can discover which capabilities a model supports programmatically. The [Models API](../api/api-models-list.md) returns `max_input_tokens`, `max_tokens`, and a `capabilities` object for every available model.
+</Tip>
+
 | Feature | Description | Availability |
 |---------|-------------|--------------|
-| [1M token context window](./developer-build-with-claude-context-windows.md#1m-token-context-window) | An extended context window that allows you to process much larger documents, maintain longer conversations, and work with more extensive codebases. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
+| [Context windows](./developer-build-with-claude-context-windows.md) | Up to 1M tokens for processing large documents, extensive codebases, and long conversations. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 | [Adaptive thinking](./developer-build-with-claude-adaptive-thinking.md) | Let Claude dynamically decide when and how much to think. The recommended thinking mode for Opus 4.6. Use the effort parameter to control thinking depth. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 | [Batch processing](./developer-build-with-claude-batch-processing.md) | Process large volumes of requests asynchronously for cost savings. Send batches with a large number of queries per batch. Batch API calls cost 50% less than standard API calls. | <PlatformAvailability claudeApi bedrock vertexAi /> |
 | [Citations](./developer-build-with-claude-citations.md) | Ground Claude's responses in source documents. With Citations, Claude can provide detailed references to the exact sentences and passages it uses to generate responses, leading to more verifiable, trustworthy outputs. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
@@ -40,7 +57,6 @@ Built-in tools that Claude invokes via `tool_use`. Server-side tools are run by 
 | Feature | Description | Availability |
 |---------|-------------|--------------|
 | [Code execution](./developer-agents-and-tools-tool-use-code-execution-tool.md) | Run code in a sandboxed environment for advanced data analysis, calculations, and file processing. Free when used with web search or web fetch. | <PlatformAvailability claudeApi azureAiBeta /> |
-| [Memory](./developer-agents-and-tools-tool-use-memory-tool.md) | Enable Claude to store and retrieve information across conversations. Build knowledge bases over time, maintain project context, and learn from past interactions. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 | [Web fetch](./developer-agents-and-tools-tool-use-web-fetch-tool.md) | Retrieve full content from specified web pages and PDF documents for in-depth analysis. | <PlatformAvailability claudeApi azureAiBeta /> |
 | [Web search](./developer-agents-and-tools-tool-use-web-search-tool.md) | Augment Claude's comprehensive knowledge with current, real-world data from across the web. | <PlatformAvailability claudeApi vertexAi azureAiBeta /> |
 
@@ -50,6 +66,7 @@ Built-in tools that Claude invokes via `tool_use`. Server-side tools are run by 
 |---------|-------------|--------------|
 | [Bash](./developer-agents-and-tools-tool-use-bash-tool.md) | Execute bash commands and scripts to interact with the system shell and perform command-line operations. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 | [Computer use](./developer-agents-and-tools-tool-use-computer-use-tool.md) | Control computer interfaces by taking screenshots and issuing mouse and keyboard commands. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
+| [Memory](./developer-agents-and-tools-tool-use-memory-tool.md) | Enable Claude to store and retrieve information across conversations. Build knowledge bases over time, maintain project context, and learn from past interactions. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 | [Text editor](./developer-agents-and-tools-tool-use-text-editor-tool.md) | Create and edit text files with a built-in text editor interface for file manipulation tasks. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 
 ## Tool infrastructure
@@ -70,11 +87,11 @@ Infrastructure for controlling and optimizing Claude's context window.
 
 | Feature | Description | Availability |
 |---------|-------------|--------------|
-| [Compaction](./developer-build-with-claude-compaction.md) | Server-side context summarization for long-running conversations. When context approaches the window limit, the API automatically summarizes earlier parts of the conversation. Supported on Opus 4.6 and Haiku 4.5. | <PlatformAvailability claudeApiBeta /> |
+| [Compaction](./developer-build-with-claude-compaction.md) | Server-side context summarization for long-running conversations. When context approaches the window limit, the API automatically summarizes earlier parts of the conversation. Supported on Opus 4.6 and Sonnet 4.6. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
 | [Context editing](./developer-build-with-claude-context-editing.md) | Automatically manage conversation context with configurable strategies. Supports clearing tool results when approaching token limits and managing thinking blocks in extended thinking conversations. | <PlatformAvailability claudeApiBeta bedrockBeta vertexAiBeta azureAiBeta /> |
 | [Automatic prompt caching](./developer-build-with-claude-prompt-caching.md#automatic-caching) | Simplify prompt caching to a single API parameter. The system automatically caches the last cacheable block in your request, moving the cache point forward as conversations grow. | <PlatformAvailability claudeApi azureAiBeta /> |
 | [Prompt caching (5m)](./developer-build-with-claude-prompt-caching.md) | Provide Claude with more background knowledge and example outputs to reduce costs and latency. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
-| [Prompt caching (1hr)](./developer-build-with-claude-prompt-caching.md#1-hour-cache-duration) | Extended 1-hour cache duration for less frequently accessed but important context, complementing the standard 5-minute cache. | <PlatformAvailability claudeApi azureAiBeta /> |
+| [Prompt caching (1hr)](./developer-build-with-claude-prompt-caching.md#1-hour-cache-duration) | Extended 1-hour cache duration for less frequently accessed but important context, complementing the standard 5-minute cache. | <PlatformAvailability claudeApi vertexAi azureAiBeta /> |
 | [Token counting](https://platform.claude.com/docs/en/api/messages-count-tokens.md) | Token counting enables you to determine the number of tokens in a message before sending it to Claude, helping you make informed decisions about your prompts and usage. | <PlatformAvailability claudeApi bedrock vertexAi azureAiBeta /> |
 
 ## Files and assets

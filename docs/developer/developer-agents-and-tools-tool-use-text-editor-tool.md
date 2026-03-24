@@ -22,10 +22,10 @@ Older tool versions are not guaranteed to be backwards-compatible with newer mod
 ## When to use the text editor tool
 
 Some examples of when to use the text editor tool are:
-- **Code debugging**: Have Claude identify and fix bugs in your code, from syntax errors to logic issues.
-- **Code refactoring**: Let Claude improve your code structure, readability, and performance through targeted edits.
-- **Documentation generation**: Ask Claude to add docstrings, comments, or README files to your codebase.
-- **Test creation**: Have Claude create unit tests for your code based on its understanding of the implementation.
+- **Code debugging:** Have Claude identify and fix bugs in your code, from syntax errors to logic issues.
+- **Code refactoring:** Let Claude improve your code structure, readability, and performance through targeted edits.
+- **Documentation generation:** Ask Claude to add docstrings, comments, or README files to your codebase.
+- **Test creation:** Have Claude create unit tests for your code based on its understanding of the implementation.
 
 ## Use the text editor tool
 
@@ -65,7 +65,7 @@ curl https://api.anthropic.com/v1/messages \
   }'
 ```
 
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -89,7 +89,7 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -113,24 +113,26 @@ const response = await anthropic.messages.create({
 });
 ```
 
-```java Java
+```java Java hidelines={1..5,7..10,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.Message;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
-import com.anthropic.models.messages.ToolStrReplaceBasedEditTool20250728;
+import com.anthropic.models.messages.ToolTextEditor20250728;
 
 public class TextEditorToolExample {
 
   public static void main(String[] args) {
     AnthropicClient client = AnthropicOkHttpClient.fromEnv();
 
-    ToolStrReplaceBasedEditTool20250728 editorTool =
-      ToolStrReplaceBasedEditTool20250728.builder().build();
+    ToolTextEditor20250728 editorTool =
+      ToolTextEditor20250728.builder()
+        .maxCharacters(10000L)
+        .build();
 
     MessageCreateParams params = MessageCreateParams.builder()
-      .model(Model.CLAUDE_SONNET_4_0)
+      .model(Model.CLAUDE_OPUS_4_6)
       .maxTokens(1024)
       .addTool(editorTool)
       .addUserMessage("There's a syntax error in my primes.py file. Can you help me fix it?")
@@ -146,7 +148,7 @@ public class TextEditorToolExample {
 Provide the text editor tool (named `str_replace_editor`) to Claude using the Messages API:
 <CodeGroup>
 
-```bash Shell
+```bash Shell nocheck
 curl https://api.anthropic.com/v1/messages \
   -H "content-type: application/json" \
   -H "x-api-key: $ANTHROPIC_API_KEY" \
@@ -169,7 +171,7 @@ curl https://api.anthropic.com/v1/messages \
   }'
 ```
 
-```python Python
+```python Python nocheck hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -187,7 +189,7 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -210,7 +212,7 @@ const response = await anthropic.messages.create({
 });
 ```
 
-```java Java
+```java Java nocheck hidelines={1..5,7..10,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.Message;
@@ -286,8 +288,9 @@ Parameters:
 
 <section title="Example view commands">
 
+Example for viewing a file:
+
 ```json
-// Example for viewing a file
 {
   "type": "tool_use",
   "id": "toolu_01A09q90qw90lq917835lq9",
@@ -297,8 +300,11 @@ Parameters:
     "path": "primes.py"
   }
 }
+```
 
-// Example for viewing a directory
+Example for viewing a directory:
+
+```json
 {
   "type": "tool_use",
   "id": "toolu_02B19r91rw91mr917835mr9",
@@ -455,7 +461,7 @@ curl https://api.anthropic.com/v1/messages \
   }'
 ```
 
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -473,7 +479,7 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -496,24 +502,24 @@ const response = await anthropic.messages.create({
 });
 ```
 
-```java Java
+```java Java hidelines={1..5,7..10,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.models.messages.Message;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
-import com.anthropic.models.messages.ToolStrReplaceBasedEditTool20250728;
+import com.anthropic.models.messages.ToolTextEditor20250728;
 
 public class TextEditorToolExample {
 
   public static void main(String[] args) {
     AnthropicClient client = AnthropicOkHttpClient.fromEnv();
 
-    ToolStrReplaceBasedEditTool20250728 editorTool =
-      ToolStrReplaceBasedEditTool20250728.builder().build();
+    ToolTextEditor20250728 editorTool =
+      ToolTextEditor20250728.builder().build();
 
     MessageCreateParams params = MessageCreateParams.builder()
-      .model(Model.CLAUDE_SONNET_4_0)
+      .model(Model.CLAUDE_OPUS_4_6)
       .maxTokens(1024)
       .addTool(editorTool)
       .addUserMessage("There's a syntax error in my primes.py file. Can you help me fix it?")
@@ -525,7 +531,7 @@ public class TextEditorToolExample {
 ```
 </CodeGroup>
 
-Claude will use the text editor tool first to view the file:
+Claude uses the text editor tool first to view the file:
 
 ```json
 {
@@ -644,7 +650,7 @@ response = client.messages.create(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
@@ -687,7 +693,8 @@ const response = await anthropic.messages.create({
         {
           type: "tool_result",
           tool_use_id: "toolu_01AbCdEfGhIjKlMnOpQrStU",
-          content: "1: def is_prime(n):\n2:     \"\"\"Check if a number is prime.\"\"\"\n3:     if n <= 1:\n4:         return False\n5:     if n <= 3:\n6:         return True\n7:     if n % 2 == 0 or n % 3 == 0:\n8:         return False\n9:     i = 5\n10:     while i * i <= n:\n11:         if n % i == 0 or n % (i + 2) == 0:\n12:             return False\n13:         i += 6\n14:     return True\n15: \n16: def get_primes(limit):\n17:     \"\"\"Generate a list of prime numbers up to the given limit.\"\"\"\n18:     primes = []\n19:     for num in range(2, limit + 1)\n20:         if is_prime(num):\n21:             primes.append(num)\n22:     return primes\n23: \n24: def main():\n25:     \"\"\"Main function to demonstrate prime number generation.\"\"\"\n26:     limit = 100\n27:     prime_list = get_primes(limit)\n28:     print(f\"Prime numbers up to {limit}:\")\n29:     print(prime_list)\n30:     print(f\"Found {len(prime_list)} prime numbers.\")\n31: \n32: if __name__ == \"__main__\":\n33:     main()"
+          content:
+            '1: def is_prime(n):\n2:     """Check if a number is prime."""\n3:     if n <= 1:\n4:         return False\n5:     if n <= 3:\n6:         return True\n7:     if n % 2 == 0 or n % 3 == 0:\n8:         return False\n9:     i = 5\n10:     while i * i <= n:\n11:         if n % i == 0 or n % (i + 2) == 0:\n12:             return False\n13:         i += 6\n14:     return True\n15: \n16: def get_primes(limit):\n17:     """Generate a list of prime numbers up to the given limit."""\n18:     primes = []\n19:     for num in range(2, limit + 1)\n20:         if is_prime(num):\n21:             primes.append(num)\n22:     return primes\n23: \n24: def main():\n25:     """Main function to demonstrate prime number generation."""\n26:     limit = 100\n27:     prime_list = get_primes(limit)\n28:     print(f"Prime numbers up to {limit}:")\n29:     print(prime_list)\n30:     print(f"Found {len(prime_list)} prime numbers.")\n31: \n32: if __name__ == "__main__":\n33:     main()'
         }
       ]
     }
@@ -695,27 +702,61 @@ const response = await anthropic.messages.create({
 });
 ```
 
-```java Java
+```java Java hidelines={1..9,11..16,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.core.JsonValue;
+import com.anthropic.models.messages.ContentBlockParam;
 import com.anthropic.models.messages.Message;
 import com.anthropic.models.messages.MessageCreateParams;
 import com.anthropic.models.messages.Model;
-import com.anthropic.models.messages.ToolStrReplaceBasedEditTool20250728;
+import com.anthropic.models.messages.TextBlockParam;
+import com.anthropic.models.messages.ToolResultBlockParam;
+import com.anthropic.models.messages.ToolTextEditor20250728;
+import com.anthropic.models.messages.ToolUseBlockParam;
+import java.util.List;
 
-public class TextEditorToolExample {
+public class TextEditorToolResultExample {
 
   public static void main(String[] args) {
     AnthropicClient client = AnthropicOkHttpClient.fromEnv();
 
-    ToolStrReplaceBasedEditTool20250728 editorTool =
-      ToolStrReplaceBasedEditTool20250728.builder().build();
-
     MessageCreateParams params = MessageCreateParams.builder()
-      .model(Model.CLAUDE_SONNET_4_0)
+      .model(Model.CLAUDE_OPUS_4_6)
       .maxTokens(1024)
-      .addTool(editorTool)
+      .addTool(ToolTextEditor20250728.builder().build())
       .addUserMessage("There's a syntax error in my primes.py file. Can you help me fix it?")
+      .addAssistantMessageOfBlockParams(
+        List.of(
+          ContentBlockParam.ofText(
+            TextBlockParam.builder()
+              .text("I'll help you fix the syntax error in your primes.py file. First, let me take a look at the file to identify the issue.")
+              .build()
+          ),
+          ContentBlockParam.ofToolUse(
+            ToolUseBlockParam.builder()
+              .id("toolu_01AbCdEfGhIjKlMnOpQrStU")
+              .name("str_replace_based_edit_tool")
+              .input(
+                ToolUseBlockParam.Input.builder()
+                  .putAdditionalProperty("command", JsonValue.from("view"))
+                  .putAdditionalProperty("path", JsonValue.from("primes.py"))
+                  .build()
+              )
+              .build()
+          )
+        )
+      )
+      .addUserMessageOfBlockParams(
+        List.of(
+          ContentBlockParam.ofToolResult(
+            ToolResultBlockParam.builder()
+              .toolUseId("toolu_01AbCdEfGhIjKlMnOpQrStU")
+              .content("1: def is_prime(n):\n2:     \"\"\"Check if a number is prime.\"\"\"\n3:     if n <= 1:\n4:         return False\n5:     if n <= 3:\n6:         return True\n7:     if n % 2 == 0 or n % 3 == 0:\n8:         return False\n9:     i = 5\n10:     while i * i <= n:\n11:         if n % i == 0 or n % (i + 2) == 0:\n12:             return False\n13:         i += 6\n14:     return True\n15: \n16: def get_primes(limit):\n17:     \"\"\"Generate a list of prime numbers up to the given limit.\"\"\"\n18:     primes = []\n19:     for num in range(2, limit + 1)\n20:         if is_prime(num):\n21:             primes.append(num)\n22:     return primes\n23: \n24: def main():\n25:     \"\"\"Main function to demonstrate prime number generation.\"\"\"\n26:     limit = 100\n27:     prime_list = get_primes(limit)\n28:     print(f\"Prime numbers up to {limit}:\")\n29:     print(prime_list)\n30:     print(f\"Found {len(prime_list)} prime numbers.\")\n31: \n32: if __name__ == \"__main__\":\n33:     main()")
+              .build()
+          )
+        )
+      )
       .build();
 
     Message message = client.messages().create(params);
@@ -731,7 +772,7 @@ public class TextEditorToolExample {
 In the example above, the `view` tool result includes file contents with line numbers prepended to each line (e.g., "1: def is_prime(n):"). Line numbers are not required, but they are essential for successfully using the `view_range` parameter to examine specific sections of files and the `insert_line` parameter to add content at precise locations.
 </Tip>
 
-Claude will identify the syntax error and use the `str_replace` command to fix it:
+Claude identifies the syntax error and uses the `str_replace` command to fix it:
 
 ```json
 {
@@ -804,7 +845,7 @@ response = client.messages.create(
 ```
 
 ```typescript TypeScript
-const response = await anthropic.messages.create({
+const response = await client.messages.create({
   model: "claude-opus-4-6",
   max_tokens: 1024,
   tools: [
@@ -849,21 +890,19 @@ const response = await anthropic.messages.create({
 });
 ```
 
-```java Java
+```java Java hidelines={1..9,11..16,-2..}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.core.JsonValue;
 import com.anthropic.models.messages.ContentBlockParam;
 import com.anthropic.models.messages.Message;
 import com.anthropic.models.messages.MessageCreateParams;
-import com.anthropic.models.messages.MessageParam;
 import com.anthropic.models.messages.Model;
 import com.anthropic.models.messages.TextBlockParam;
 import com.anthropic.models.messages.ToolResultBlockParam;
-import com.anthropic.models.messages.ToolStrReplaceBasedEditTool20250728;
+import com.anthropic.models.messages.ToolTextEditor20250728;
 import com.anthropic.models.messages.ToolUseBlockParam;
 import java.util.List;
-import java.util.Map;
 
 public class TextEditorConversationExample {
 
@@ -871,9 +910,9 @@ public class TextEditorConversationExample {
     AnthropicClient client = AnthropicOkHttpClient.fromEnv();
 
     MessageCreateParams params = MessageCreateParams.builder()
-      .model(Model.CLAUDE_SONNET_4_0)
+      .model(Model.CLAUDE_OPUS_4_6)
       .maxTokens(1024)
-      .addTool(ToolStrReplaceBasedEditTool20250728.builder().build())
+      .addTool(ToolTextEditor20250728.builder().build())
       // Previous messages would go here
       .addAssistantMessageOfBlockParams(
         List.of(
@@ -889,18 +928,18 @@ public class TextEditorConversationExample {
               .id("toolu_01PqRsTuVwXyZAbCdEfGh")
               .name("str_replace_based_edit_tool")
               .input(
-                JsonValue.from(
-                  Map.of(
-                    "command",
-                    "str_replace",
-                    "path",
-                    "primes.py",
+                ToolUseBlockParam.Input.builder()
+                  .putAdditionalProperty("command", JsonValue.from("str_replace"))
+                  .putAdditionalProperty("path", JsonValue.from("primes.py"))
+                  .putAdditionalProperty(
                     "old_str",
-                    "    for num in range(2, limit + 1)",
-                    "new_str",
-                    "    for num in range(2, limit + 1):"
+                    JsonValue.from("    for num in range(2, limit + 1)")
                   )
-                )
+                  .putAdditionalProperty(
+                    "new_str",
+                    JsonValue.from("    for num in range(2, limit + 1):")
+                  )
+                  .build()
               )
               .build()
           )
@@ -925,7 +964,7 @@ public class TextEditorConversationExample {
 ```
 </CodeGroup>
 
-Finally, Claude will provide a complete explanation of the fix:
+Finally, Claude provides a complete explanation of the fix:
 
 ```json
 {
@@ -948,7 +987,7 @@ This example demonstrates how Claude Sonnet 3.7 uses the text editor tool to fix
 
 First, your application provides Claude with the text editor tool and a prompt to fix a syntax error:
 
-```python
+```python nocheck hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -981,8 +1020,8 @@ The Claude Sonnet 3.7 examples follow the same format as the Claude 4 examples a
 The text editor tool is implemented as a schema-less tool. When using this tool, you don't need to provide an input schema as with other tools; the schema is built into Claude's model and can't be modified.
 
 The tool type depends on the model version:
-- **Claude 4**: `type: "text_editor_20250728"`
-- **Claude Sonnet 3.7**: `type: "text_editor_20250124"`
+- **Claude 4:** `type: "text_editor_20250728"`
+- **Claude Sonnet 3.7:** `type: "text_editor_20250124"`
 
 <Steps>
   <Step title="Initialize your editor implementation">
@@ -990,7 +1029,8 @@ The tool type depends on the model version:
   </Step>
   <Step title="Handle editor tool calls">
     Create a function that processes tool calls from Claude based on the command type:
-    ```python
+    
+    ```python nocheck
     def handle_editor_tool(tool_call, model_version):
         input_params = tool_call.input
         command = input_params.get("command", "")
@@ -1025,7 +1065,8 @@ The tool type depends on the model version:
   </Step>
   <Step title="Process Claude's responses">
     Extract and handle tool calls from Claude's responses:
-    ```python
+    
+    ```python nocheck
     # Process tool use in Claude's response
     for content in response.content:
         if content.type == "tool_use":
@@ -1045,10 +1086,10 @@ The tool type depends on the model version:
 <Warning>
 When implementing the text editor tool, keep in mind:
 
-1. **Security**: The tool has access to your local filesystem, so implement proper security measures.
-2. **Backup**: Always create backups before allowing edits to important files.
-3. **Validation**: Validate all inputs to prevent unintended changes.
-4. **Unique matching**: Make sure replacements match exactly one location to avoid unintended edits.
+1. **Security:** The tool has access to your local filesystem, so implement proper security measures.
+2. **Backup:** Always create backups before allowing edits to important files.
+3. **Validation:** Validate all inputs to prevent unintended changes.
+4. **Unique matching:** Make sure replacements match exactly one location to avoid unintended edits.
 </Warning>
 
 ### Handle errors
@@ -1161,7 +1202,7 @@ Specify file paths clearly when needed, especially if you're working with multip
 
 Implement a backup system in your application that creates copies of files before allowing Claude to edit them, especially for important or production code.
 
-```python
+```python nocheck
 def backup_file(file_path):
     """Create a backup of a file before editing."""
     backup_path = f"{file_path}.backup"

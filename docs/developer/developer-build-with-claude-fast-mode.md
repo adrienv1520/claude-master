@@ -1,4 +1,4 @@
-# Fast mode (research preview)
+# Fast mode (beta: research preview)
 
 Higher output speed for Claude Opus 4.6, delivering significantly faster token generation for latency-sensitive and agentic workflows.
 
@@ -7,11 +7,11 @@ Higher output speed for Claude Opus 4.6, delivering significantly faster token g
 Fast mode provides significantly faster output token generation for Claude Opus 4.6. By setting `speed: "fast"` in your API request, you get up to 2.5x higher output tokens per second from the same model at premium pricing.
 
 <Note>
-Fast mode is currently in research preview. [Join the waitlist](https://claude.com/fast-mode) to request access. Availability is limited while we gather feedback.
+Fast mode is in beta (research preview). [Join the waitlist](https://claude.com/fast-mode) to request access. Availability is limited while Anthropic gathers feedback.
 </Note>
 
 <Note>
-This feature is [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) eligible. When your organization has a ZDR arrangement, data sent through this feature is not stored after the API response is returned.
+This feature is eligible for [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md). When your organization has a ZDR arrangement, data sent through this feature is not stored after the API response is returned.
 </Note>
 
 ## Supported models
@@ -48,7 +48,7 @@ curl https://api.anthropic.com/v1/messages \
     }'
 ```
 
-```python Python
+```python Python nocheck hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -66,7 +66,7 @@ response = client.beta.messages.create(
 print(response.content[0].text)
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
@@ -76,13 +76,130 @@ const response = await client.beta.messages.create({
   max_tokens: 4096,
   speed: "fast",
   betas: ["fast-mode-2026-02-01"],
-  messages: [{
-    role: "user",
-    content: "Refactor this module to use dependency injection"
-  }]
+  messages: [
+    {
+      role: "user",
+      content: "Refactor this module to use dependency injection"
+    }
+  ]
 });
 
-console.log(response.content[0].text);
+const textBlock = response.content.find(
+  (block): block is Anthropic.Beta.Messages.BetaTextBlock => block.type === "text"
+);
+console.log(textBlock?.text);
+```
+
+```csharp C# hidelines={1..5}
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+AnthropicClient client = new();
+
+var response = await client.Beta.Messages.Create(new MessageCreateParams
+{
+    Model = "claude-opus-4-6",
+    MaxTokens = 4096,
+    Speed = Speed.Fast,
+    Betas = ["fast-mode-2026-02-01"],
+    Messages = [
+        new() { Role = Role.User, Content = "Refactor this module to use dependency injection" }
+    ],
+});
+
+Console.WriteLine(response);
+```
+
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	anthropic "github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 4096,
+		Speed:     anthropic.BetaMessageNewParamsSpeedFast,
+		Betas:     []anthropic.AnthropicBeta{anthropic.AnthropicBetaFastMode2026_02_01},
+		Messages: []anthropic.BetaMessageParam{
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Refactor this module to use dependency injection")),
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response.Content[0].AsText().Text)
+}
+```
+
+```java Java hidelines={1..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.AnthropicBeta;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+
+public class FastModeExample {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        BetaMessage response = client.beta().messages().create(
+                MessageCreateParams.builder()
+                        .model(Model.CLAUDE_OPUS_4_6)
+                        .maxTokens(4096L)
+                        .speed(MessageCreateParams.Speed.FAST)
+                        .addBeta(AnthropicBeta.FAST_MODE_2026_02_01)
+                        .addUserMessage("Refactor this module to use dependency injection")
+                        .build());
+
+        System.out.println(response.content().get(0).text().get().text());
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client();
+
+$response = $client->beta->messages->create(
+    model: 'claude-opus-4-6',
+    maxTokens: 4096,
+    speed: 'fast',
+    betas: ['fast-mode-2026-02-01'],
+    messages: [
+        ['role' => 'user', 'content' => 'Refactor this module to use dependency injection'],
+    ],
+);
+
+echo $response->content[0]->text;
+```
+
+```ruby Ruby hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+
+response = client.beta.messages.create(
+  model: "claude-opus-4-6",
+  max_tokens: 4096,
+  speed: "fast",
+  betas: ["fast-mode-2026-02-01"],
+  messages: [{role: "user", content: "Refactor this module to use dependency injection"}]
+)
+
+puts response.content[0].text
 ```
 
 </CodeGroup>
@@ -104,7 +221,7 @@ For complete pricing details, see the [pricing page](./developer-about-claude-pr
 
 ## Rate limits
 
-Fast mode has a dedicated rate limit that is separate from standard Opus rate limits. Unlike standard speed, which has separate limits for ≤200K and >200K input tokens, fast mode uses a single rate limit that covers the full context range. When your fast mode rate limit is exceeded, the API returns a `429` error with a `retry-after` header indicating when capacity will be available.
+Fast mode has a dedicated rate limit that is separate from standard Opus rate limits. When your fast mode rate limit is exceeded, the API returns a `429` error with a `retry-after` header indicating when capacity will be available.
 
 The response includes headers that indicate your fast mode rate limit status:
 
@@ -136,21 +253,9 @@ curl https://api.anthropic.com/v1/messages \
         "speed": "fast",
         "messages": [{"role": "user", "content": "Hello"}]
     }'
-
-{
-  "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
-  "type": "message",
-  "role": "assistant",
-  ...
-  "usage": {
-    "input_tokens": 523,
-    "output_tokens": 1842,
-    "speed": "fast"
-  }
-}
 ```
 
-```python Python
+```python Python nocheck
 response = client.beta.messages.create(
     model="claude-opus-4-6",
     max_tokens=1024,
@@ -174,7 +279,99 @@ const response = await client.beta.messages.create({
 console.log(response.usage.speed); // "fast" or "standard"
 ```
 
-```ruby Ruby
+```csharp C# hidelines={1..5}
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+
+AnthropicClient client = new();
+
+var response = await client.Beta.Messages.Create(new MessageCreateParams
+{
+    Model = "claude-opus-4-6",
+    MaxTokens = 1024,
+    Speed = Speed.Fast,
+    Betas = ["fast-mode-2026-02-01"],
+    Messages = [new() { Role = Role.User, Content = "Hello" }],
+});
+
+Console.WriteLine(response.Usage.Speed);  // "fast" or "standard"
+```
+
+```go Go hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	anthropic "github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1024,
+		Speed:     anthropic.BetaMessageNewParamsSpeedFast,
+		Betas:     []anthropic.AnthropicBeta{anthropic.AnthropicBetaFastMode2026_02_01},
+		Messages: []anthropic.BetaMessageParam{
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello")),
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response.Usage.Speed) // "fast" or "standard"
+}
+```
+
+```java Java hidelines={1..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.AnthropicBeta;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+
+public class FastModeUsage {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+                .model(Model.CLAUDE_OPUS_4_6)
+                .maxTokens(1024L)
+                .speed(MessageCreateParams.Speed.FAST)
+                .addBeta(AnthropicBeta.FAST_MODE_2026_02_01)
+                .addUserMessage("Hello")
+                .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+        System.out.println(response.usage().speed());  // "fast" or "standard"
+    }
+}
+```
+
+```php PHP hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client();
+
+$response = $client->beta->messages->create(
+    model: 'claude-opus-4-6',
+    maxTokens: 1024,
+    speed: 'fast',
+    betas: ['fast-mode-2026-02-01'],
+    messages: [['role' => 'user', 'content' => 'Hello']],
+);
+
+echo $response->usage->speed;  // "fast" or "standard"
+```
+
+```ruby Ruby nocheck
 response = anthropic.beta.messages.create(
   model: "claude-opus-4-6",
   max_tokens: 1024,
@@ -186,6 +383,23 @@ response = anthropic.beta.messages.create(
 puts(response.usage.speed)  # "fast" or "standard"
 ```
 </CodeGroup>
+
+```json JSON hidelines={5..8}
+{
+  "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
+  "type": "message",
+  "role": "assistant",
+  "content": [{ "type": "text", "text": "Hello!" }],
+  "model": "claude-opus-4-6",
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 523,
+    "output_tokens": 1842,
+    "speed": "fast"
+  }
+}
+```
 
 To track fast mode usage and costs across your organization, see the [Usage and Cost API](./developer-build-with-claude-usage-cost-api.md).
 
@@ -206,7 +420,8 @@ Falling back from fast to standard speed will result in a [prompt cache](./devel
 Since setting `max_retries` to `0` also disables retries for other transient errors (overloaded, internal server errors), the examples below re-issue the original request with default retries for those cases.
 
 <CodeGroup>
-```python Python
+
+```python Python nocheck hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -242,53 +457,108 @@ message = create_message_with_fast_fallback(
 )
 ```
 
-```typescript TypeScript
+```typescript TypeScript hidelines={1..3,-1}
 import Anthropic from "@anthropic-ai/sdk";
-
 const client = new Anthropic();
-
-async function createMessageWithFastFallback(
-  params: Anthropic.Beta.MessageCreateParams,
-  requestOptions?: Anthropic.RequestOptions,
-  maxAttempts: number = 3
-): Promise<Anthropic.Beta.Message> {
-  try {
-    return await client.beta.messages.create(params, requestOptions);
-  } catch (e) {
-    if (e instanceof Anthropic.RateLimitError && params.speed === "fast") {
-      const { speed, ...rest } = params;
-      return createMessageWithFastFallback(rest);
-    }
-    if (
-      e instanceof Anthropic.InternalServerError ||
-      e instanceof Anthropic.APIConnectionError
-    ) {
-      if (maxAttempts > 1) {
-        return createMessageWithFastFallback(params, requestOptions, maxAttempts - 1);
+(async () => {
+  async function createMessageWithFastFallback(
+    params: Anthropic.Beta.MessageCreateParams,
+    requestOptions?: Anthropic.RequestOptions,
+    maxAttempts: number = 3
+  ): Promise<Anthropic.Beta.Messages.BetaMessage> {
+    try {
+      return (await client.beta.messages.create(
+        params,
+        requestOptions
+      )) as Anthropic.Beta.Messages.BetaMessage;
+    } catch (e) {
+      if (e instanceof Anthropic.RateLimitError && params.speed === "fast") {
+        const { speed, ...rest } = params;
+        return createMessageWithFastFallback(rest);
       }
+      if (
+        e instanceof Anthropic.InternalServerError ||
+        e instanceof Anthropic.APIConnectionError
+      ) {
+        if (maxAttempts > 1) {
+          return createMessageWithFastFallback(params, undefined, maxAttempts - 1);
+        }
+      }
+      throw e;
     }
-    throw e;
   }
-}
 
-const message = await createMessageWithFastFallback(
-  {
-    model: "claude-opus-4-6",
-    max_tokens: 1024,
-    messages: [{ role: "user", content: "Hello" }],
-    betas: ["fast-mode-2026-02-01"],
-    speed: "fast"
-  },
-  { maxRetries: 0 }
-);
+  const message = await createMessageWithFastFallback(
+    {
+      model: "claude-opus-4-6",
+      max_tokens: 1024,
+      messages: [{ role: "user", content: "Hello" }],
+      betas: ["fast-mode-2026-02-01"],
+      speed: "fast"
+    },
+    { maxRetries: 0 }
+  );
+})();
 ```
 
-```go Go
+```csharp C# hidelines={1..6}
+using Anthropic;
+using Anthropic.Exceptions;
+using Anthropic.Models.Beta.Messages;
+
+AnthropicClient client = new();
+
+async Task<BetaMessage> CreateMessageWithFastFallback(
+    MessageCreateParams parameters,
+    int? maxRetries = null,
+    int maxAttempts = 3)
+{
+    try
+    {
+        var requestClient = maxRetries is int retries
+            ? client.WithOptions(o => o with { MaxRetries = retries })
+            : client;
+        return await requestClient.Beta.Messages.Create(parameters);
+    }
+    catch (AnthropicRateLimitException)
+    {
+        if (parameters.Speed is not null)
+        {
+            return await CreateMessageWithFastFallback(
+                parameters with { Speed = null });
+        }
+        throw;
+    }
+    catch (Anthropic5xxException)
+    {
+        if (maxAttempts > 1)
+        {
+            return await CreateMessageWithFastFallback(
+                parameters, maxAttempts: maxAttempts - 1);
+        }
+        throw;
+    }
+}
+
+var message = await CreateMessageWithFastFallback(
+    new MessageCreateParams
+    {
+        Model = "claude-opus-4-6",
+        MaxTokens = 1024,
+        Messages = [new() { Role = Role.User, Content = "Hello" }],
+        Betas = ["fast-mode-2026-02-01"],
+        Speed = Speed.Fast,
+    },
+    maxRetries: 0);
+```
+
+```go Go hidelines={1..11}
 package main
 
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	anthropic "github.com/anthropics/anthropic-sdk-go"
 	"github.com/anthropics/anthropic-sdk-go/option"
@@ -317,9 +587,133 @@ func createMessageWithFastFallback(
 	}
 	return message, nil
 }
+
+func main() {
+	client := anthropic.NewClient()
+	message, err := createMessageWithFastFallback(
+		context.TODO(),
+		&client,
+		anthropic.BetaMessageNewParams{
+			Model:     anthropic.ModelClaudeOpus4_6,
+			MaxTokens: 1024,
+			Messages: []anthropic.BetaMessageParam{
+				anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("Hello")),
+			},
+			Speed: "fast",
+			Betas: []anthropic.AnthropicBeta{anthropic.AnthropicBetaFastMode2026_02_01},
+		},
+		3,
+		option.WithMaxRetries(0),
+	)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(message)
+}
 ```
 
-```ruby Ruby
+```java Java hidelines={1..2,5..11,-1}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.errors.InternalServerException;
+import com.anthropic.errors.RateLimitException;
+import com.anthropic.models.beta.AnthropicBeta;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+import com.anthropic.models.messages.Model;
+import java.util.Optional;
+
+public class FastModeFallback {
+    // Disable SDK auto-retry so the fallback logic below handles it
+    static AnthropicClient client =
+            AnthropicOkHttpClient.builder().fromEnv().maxRetries(0).build();
+
+    static BetaMessage createMessageWithFastFallback(
+            MessageCreateParams params, int maxAttempts) {
+        try {
+            return client.beta().messages().create(params);
+        } catch (RateLimitException e) {
+            if (params.speed().isPresent()) {
+                MessageCreateParams retryParams = params.toBuilder()
+                        .speed(Optional.empty())
+                        .build();
+                return createMessageWithFastFallback(retryParams, maxAttempts);
+            }
+            throw e;
+        } catch (InternalServerException e) {
+            if (maxAttempts > 1) {
+                return createMessageWithFastFallback(params, maxAttempts - 1);
+            }
+            throw e;
+        }
+    }
+
+    public static void main(String[] args) {
+        BetaMessage message = createMessageWithFastFallback(
+                MessageCreateParams.builder()
+                        .model(Model.CLAUDE_OPUS_4_6)
+                        .maxTokens(1024L)
+                        .addUserMessage("Hello")
+                        .addBeta(AnthropicBeta.FAST_MODE_2026_02_01)
+                        .speed(MessageCreateParams.Speed.FAST)
+                        .build(),
+                3);
+    }
+}
+```
+
+```php PHP hidelines={1..3,8}
+<?php
+
+use Anthropic\Client;
+use Anthropic\Core\Exceptions\APIConnectionException;
+use Anthropic\Core\Exceptions\InternalServerException;
+use Anthropic\Core\Exceptions\RateLimitException;
+use Anthropic\RequestOptions;
+
+$client = new Client();
+
+function createMessageWithFastFallback(
+    Client $client,
+    array $params,
+    ?RequestOptions $requestOptions = null,
+    int $maxAttempts = 3,
+) {
+    try {
+        return $client->beta->messages->create(
+            ...$params,
+            requestOptions: $requestOptions,
+        );
+    } catch (RateLimitException $e) {
+        if (isset($params['speed'])) {
+            unset($params['speed']);
+            return createMessageWithFastFallback($client, $params);
+        }
+        throw $e;
+    } catch (InternalServerException | APIConnectionException $e) {
+        if ($maxAttempts > 1) {
+            return createMessageWithFastFallback(
+                $client, $params, maxAttempts: $maxAttempts - 1
+            );
+        }
+        throw $e;
+    }
+}
+
+$message = createMessageWithFastFallback(
+    $client,
+    [
+        'model' => 'claude-opus-4-6',
+        'maxTokens' => 1024,
+        'messages' => [['role' => 'user', 'content' => 'Hello']],
+        'betas' => ['fast-mode-2026-02-01'],
+        'speed' => 'fast',
+    ],
+    RequestOptions::with(maxRetries: 0),
+);
+```
+
+```ruby Ruby nocheck hidelines={1..2}
 require "anthropic"
 
 anthropic = Anthropic::Client.new
@@ -332,7 +726,7 @@ rescue Anthropic::Errors::RateLimitError
   create_message_with_fast_fallback(client, **params)
 rescue Anthropic::Errors::InternalServerError, Anthropic::Errors::APIConnectionError
   raise unless max_attempts > 1
-  create_message_with_fast_fallback(client, request_options: request_options, max_attempts: max_attempts - 1, **params)
+  create_message_with_fast_fallback(client, max_attempts: max_attempts - 1, **params)
 end
 
 message = create_message_with_fast_fallback(
@@ -349,11 +743,11 @@ message = create_message_with_fast_fallback(
 
 ## Considerations
 
-- **Prompt caching**: Switching between fast and standard speed invalidates the prompt cache. Requests at different speeds do not share cached prefixes.
-- **Supported models**: Fast mode is currently supported on Opus 4.6 only. Sending `speed: "fast"` with an unsupported model returns an error.
-- **TTFT**: Fast mode's benefits are focused on output tokens per second (OTPS), not time to first token (TTFT).
-- **Batch API**: Fast mode is not available with the [Batch API](./developer-build-with-claude-batch-processing.md).
-- **Priority Tier**: Fast mode is not available with [Priority Tier](../api/api-service-tiers.md).
+- **Prompt caching:** Switching between fast and standard speed invalidates the prompt cache. Requests at different speeds do not share cached prefixes.
+- **Supported models:** Fast mode is currently supported on Opus 4.6 only. Sending `speed: "fast"` with an unsupported model returns an error.
+- **TTFT:** Fast mode's benefits are focused on output tokens per second (OTPS), not time to first token (TTFT).
+- **Batch API:** Fast mode is not available with the [Batch API](./developer-build-with-claude-batch-processing.md).
+- **Priority Tier:** Fast mode is not available with [Priority Tier](../api/api-service-tiers.md).
 
 ## Next steps
 

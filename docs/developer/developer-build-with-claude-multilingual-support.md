@@ -58,11 +58,8 @@ Also follow the general [prompt engineering guidelines](./developer-build-with-c
 - Performance varies by language, with particularly strong capabilities in widely-spoken languages
 - Even in languages with fewer digital resources, Claude maintains meaningful capabilities
 
-<CardGroup cols={2}>
+<CardGroup cols={1}>
   <Card title="Prompt Engineering Guide" icon="edit" href="./developer-build-with-claude-prompt-engineering-overview.md">
     Master the art of prompt crafting to get the most out of Claude.
-  </Card>
-  <Card title="Prompt Library" icon="books" href="https://platform.claude.com/docs/en/resources/prompt-library.md">
-    Find a wide range of pre-crafted prompts for various tasks and industries. Perfect for inspiration or quick starts.
   </Card>
 </CardGroup>

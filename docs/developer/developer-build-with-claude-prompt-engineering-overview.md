@@ -2,10 +2,6 @@
 
 ---
 
-<Note>
-While these tips apply broadly to all Claude models, you can find prompting tips specific to extended thinking models [here](./developer-build-with-claude-prompt-engineering-extended-thinking-tips.md).
-</Note>
-
 ## Before prompt engineering
 
 This guide assumes that you have:
@@ -15,9 +11,14 @@ This guide assumes that you have:
 
 If not, we highly suggest you spend time establishing that first. Check out [Define success criteria and build evaluations](./developer-test-and-evaluate-develop-tests.md) for tips and guidance.
 
-<Card title="Prompt generator" icon="link" href="/dashboard">
-  Don't have a first draft prompt? Try the prompt generator in the Claude Console!
-</Card>
+<CardGroup cols={2}>
+  <Card title="Prompt generator" icon="link" href="/dashboard">
+    Don't have a first draft prompt? Try the prompt generator in the Claude Console!
+  </Card>
+  <Card title="Prompting best practices" icon="link" href="./developer-build-with-claude-prompt-engineering-claude-prompting-best-practices.md">
+    For model-specific tuning guidance for Claude's latest models, start here.
+  </Card>
+</CardGroup>
 
 ***
 
@@ -26,35 +27,13 @@ If not, we highly suggest you spend time establishing that first. Check out [Def
   This guide focuses on success criteria that are controllable through prompt engineering.
   Not every success criteria or failing eval is best solved by prompt engineering. For example, latency and cost can be sometimes more easily improved by selecting a different model.
 
-<section title="Prompting vs. finetuning">
-
-  Prompt engineering is far faster than other methods of model behavior control, such as finetuning, and can often yield leaps in performance in far less time. Here are some reasons to consider prompt engineering over finetuning:<br/>
-  - **Resource efficiency**: Fine-tuning requires high-end GPUs and large memory, while prompt engineering only needs text input, making it much more resource-friendly.
-  - **Cost-effectiveness**: For cloud-based AI services, fine-tuning incurs significant costs. Prompt engineering uses the base model, which is typically cheaper.
-  - **Maintaining model updates**: When providers update models, fine-tuned versions might need retraining. Prompts usually work across versions without changes.
-  - **Time-saving**: Fine-tuning can take hours or even days. In contrast, prompt engineering provides nearly instantaneous results, allowing for quick problem-solving.
-  - **Minimal data needs**: Fine-tuning needs substantial task-specific, labeled data, which can be scarce or expensive. Prompt engineering works with few-shot or even zero-shot learning.
-  - **Flexibility & rapid iteration**: Quickly try various approaches, tweak prompts, and see immediate results. This rapid experimentation is difficult with fine-tuning.
-  - **Domain adaptation**: Easily adapt models to new domains by providing domain-specific context in prompts, without retraining.
-  - **Comprehension improvements**: Prompt engineering is far more effective than finetuning at helping models better understand and utilize external content such as retrieved documents
-  - **Preserves general knowledge**: Fine-tuning risks catastrophic forgetting, where the model loses general knowledge. Prompt engineering maintains the model's broad capabilities.
-  - **Transparency**: Prompts are human-readable, showing exactly what information the model receives. This transparency aids in understanding and debugging.
-
-</section>
-
 ***
 
 ## How to prompt engineer
 
-The prompt engineering pages in this section have been organized from most broadly effective techniques to more specialized techniques. When troubleshooting performance, we suggest you try these techniques in order, although the actual impact of each technique will depend on your use case.
-1. [Prompt generator](./developer-build-with-claude-prompt-engineering-prompt-generator.md)
-2. [Be clear and direct](./developer-build-with-claude-prompt-engineering-be-clear-and-direct.md)
-3. [Use examples (multishot)](./developer-build-with-claude-prompt-engineering-multishot-prompting.md)
-4. [Let Claude think (chain of thought)](./developer-build-with-claude-prompt-engineering-chain-of-thought.md)
-5. [Use XML tags](./developer-build-with-claude-prompt-engineering-use-xml-tags.md)
-6. [Give Claude a role (system prompts)](./developer-build-with-claude-prompt-engineering-system-prompts.md)
-7. [Chain complex prompts](./developer-build-with-claude-prompt-engineering-chain-prompts.md)
-8. [Long context tips](./developer-build-with-claude-prompt-engineering-long-context-tips.md)
+All prompting techniques — from clarity and examples to XML structuring, role prompting, thinking, and prompt chaining — are covered in [Prompting best practices](./developer-build-with-claude-prompt-engineering-claude-prompting-best-practices.md). That's the living reference; start there.
+
+The [Claude Console](/dashboard) also offers [prompting tools](./developer-build-with-claude-prompt-engineering-prompting-tools.md)—prompt generator, templates and variables, and prompt improver—to help you build and refine prompts quickly.
 
 ***
 

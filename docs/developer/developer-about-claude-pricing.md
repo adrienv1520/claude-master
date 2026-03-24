@@ -28,12 +28,7 @@ The following table shows pricing for all Claude models across different usage t
 | Claude Haiku 3    | $0.25 / MTok      | $0.30 / MTok    | $0.50 / MTok    | $0.03 / MTok | $1.25 / MTok  |
 
 <Note>
-MTok = Million tokens. The "Base Input Tokens" column shows standard input pricing, "Cache Writes" and "Cache Hits" are specific to [prompt caching](./developer-build-with-claude-prompt-caching.md), and "Output Tokens" shows output pricing. Prompt caching offers both 5-minute (default) and 1-hour cache durations to optimize costs for different use cases.
-
-The table above reflects the following pricing multipliers for prompt caching:
-- 5-minute cache write tokens are 1.25 times the base input tokens price
-- 1-hour cache write tokens are 2 times the base input tokens price
-- Cache read tokens are 0.1 times the base input tokens price
+MTok = Million tokens. The "Base Input Tokens" column shows standard input pricing, "Cache Writes" and "Cache Hits" are specific to [prompt caching](#prompt-caching), and "Output Tokens" shows output pricing. See [prompt caching pricing](#prompt-caching) below for an explanation of the cache columns and pricing multipliers.
 </Note>
 
 ## Third-party platform pricing
@@ -61,17 +56,40 @@ For implementation details and code examples:
 
 ## Feature-specific pricing
 
+### Prompt caching
+
+Prompt caching reduces costs and latency by reusing previously processed portions of your prompt across API calls. Instead of reprocessing the same large system prompt, document, or conversation history on every request, the API reads from cache at a fraction of the standard input price.
+
+There are two ways to enable prompt caching:
+
+- **Automatic caching:** Add a single `cache_control` field at the top level of your request. The system automatically manages cache breakpoints as conversations grow. This is the recommended starting point for most use cases.
+- **Explicit cache breakpoints:** Place `cache_control` directly on individual content blocks for fine-grained control over exactly what gets cached.
+
+Prompt caching uses the following pricing multipliers relative to base input token rates:
+
+| Cache operation | Multiplier | Duration |
+|:----------------|:-----------|:---------|
+| 5-minute cache write | 1.25x base input price | Cache valid for 5 minutes |
+| 1-hour cache write | 2x base input price | Cache valid for 1 hour |
+| Cache read (hit) | 0.1x base input price | Same duration as the preceding write |
+
+Cache write tokens are charged when content is first stored. Cache read tokens are charged when a subsequent request retrieves the cached content. A cache hit costs 10% of the standard input price, which means caching pays off after just one cache read for the 5-minute duration (1.25x write), or after two cache reads for the 1-hour duration (2x write).
+
+These multipliers stack with other pricing modifiers, including the Batch API discount, long context pricing, and data residency.
+
+For implementation details, supported models, and code examples, see the [prompt caching documentation](./developer-build-with-claude-prompt-caching.md).
+
 ### Data residency pricing
 
 For Claude Opus 4.6 and newer models, specifying US-only inference via the `inference_geo` parameter incurs a 1.1x multiplier on all token pricing categories, including input tokens, output tokens, cache writes, and cache reads. Global routing (the default) uses standard pricing.
 
-This applies to the Claude API (1P) only. Third-party platforms have their own regional pricing. See [AWS Bedrock](https://aws.amazon.com/bedrock/pricing/), [Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/pricing), and [Microsoft Foundry](https://azure.microsoft.com/en-us/pricing/details/ai-foundry/#pricing) for details. Earlier models retain their existing pricing regardless of `inference_geo` settings.
+This applies to the Claude API (1P) only. Third-party platforms have their own regional pricing. See [AWS Bedrock](https://aws.amazon.com/bedrock/pricing/) and [Google Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/pricing) for details. Earlier models retain their existing pricing regardless of `inference_geo` settings.
 
 For more information, see the [data residency documentation](./developer-build-with-claude-data-residency.md).
 
 ### Fast mode pricing
 
-[Fast mode](./developer-build-with-claude-fast-mode.md) for Claude Opus 4.6 (research preview) provides significantly faster output at premium pricing (6x standard rates). Fast mode pricing applies across the full context window, including requests over 200K input tokens. Currently supported on Opus 4.6:
+[Fast mode](./developer-build-with-claude-fast-mode.md) (beta: research preview) for Claude Opus 4.6 provides significantly faster output at premium pricing (6x standard rates). Fast mode pricing applies across the full context window, including requests over 200k input tokens. Currently supported on Opus 4.6:
 
 | Input | Output |
 |:------|:-------|
@@ -108,31 +126,25 @@ For more information about batch processing, see the [batch processing documenta
 
 ### Long context pricing
 
-When using Claude Opus 4.6, Sonnet 4.6, Sonnet 4.5, or Sonnet 4 at standard speed with the [1M token context window enabled](./developer-build-with-claude-context-windows.md#1m-token-context-window), requests that exceed 200K input tokens are automatically charged at premium long context rates. [Fast mode](#fast-mode-pricing) includes the full 1M context window at no additional long context charge.
+Claude Opus 4.6 and Sonnet 4.6 include the full [1M token context window](./developer-build-with-claude-context-windows.md) at standard pricing. (A 900k-token request is billed at the same per-token rate as a 9k-token request.) Prompt caching and batch processing discounts apply at standard rates across the full context window.
 
-<Note>
-The 1M token context window is currently in beta for organizations in [usage tier](../api/api-rate-limits.md) 4 and organizations with custom rate limits. The 1M token context window is only available for Claude Opus 4.6, Sonnet 4.6, Sonnet 4.5, and Sonnet 4.
-</Note>
+For Claude Sonnet 4.5 and Sonnet 4, the 1M token context window is in beta for organizations in [usage tier](../api/api-rate-limits.md) 4 and organizations with custom rate limits. When the `context-1m-2025-08-07` beta header is included, requests that exceed 200k input tokens are automatically charged at premium long context rates:
 
-| Model | ≤ 200K input tokens | > 200K input tokens |
-|-------|-----------------------------------|-------------------------------------|
-| Claude Opus 4.6 | Input: $5 / MTok | Input: $10 / MTok |
-|  | Output: $25 / MTok | Output: $37.50 / MTok |
-| Claude Sonnet 4.6 / 4.5 / 4 | Input: $3 / MTok | Input: $6 / MTok |
-|  | Output: $15 / MTok | Output: $22.50 / MTok |
+| Model | ≤ 200k input tokens<br />Input | ≤ 200k input tokens<br />Output | > 200k input tokens<br />Input | > 200k input tokens<br />Output |
+| --- | --- | --- | --- | --- |
+| Claude Sonnet 4.5 / 4 | \$3 / MTok | \$15 / MTok | \$6 / MTok | \$22.50 / MTok |
 
-Long context pricing stacks with other pricing modifiers:
+Long context pricing for Sonnet 4.5 and Sonnet 4 stacks with other pricing modifiers:
 - The [Batch API 50% discount](#batch-processing) applies to long context pricing
 - [Prompt caching multipliers](#model-pricing) apply on top of long context pricing
-- The [data residency 1.1x multiplier](#data-residency-pricing) applies on top of long context pricing
 
 <Note>
-Even with the beta flag enabled, requests with fewer than 200K input tokens are charged at standard rates. If your request exceeds 200K input tokens, all tokens incur premium pricing.
+Even with the beta flag enabled, requests with fewer than 200k input tokens are charged at standard rates. If your request exceeds 200k input tokens, all tokens incur premium pricing.
 
-The 200K threshold is based solely on input tokens (including cache reads/writes). Output token count does not affect pricing tier selection, though output tokens are charged at the higher rate when the input threshold is exceeded.
+The 200k threshold is based solely on input tokens (including cache reads/writes). Output token count does not affect pricing tier selection, though output tokens are charged at the higher rate when the input threshold is exceeded.
 </Note>
 
-To check if your API request was charged at the 1M context window rates, examine the `usage` object in the API response:
+For Claude Sonnet 4.5 and Sonnet 4, to check if your API request was charged at premium long context rates, examine the `usage` object in the API response:
 
 ```json
 {
@@ -150,7 +162,7 @@ Calculate the total input tokens by summing:
 - `cache_creation_input_tokens` (if using prompt caching)
 - `cache_read_input_tokens` (if using prompt caching)
 
-If the total exceeds 200,000 tokens, the entire request was billed at 1M context rates.
+If the total exceeds 200,000 tokens, the entire request was billed at premium long context rates.
 
 For more information about the `usage` object, see the [API response documentation](../api/api-messages.md#response-usage).
 
@@ -283,9 +295,9 @@ The web fetch tool is available on the Claude API at **no additional cost**. You
 To protect against inadvertently fetching large content that would consume excessive tokens, use the `max_content_tokens` parameter to set appropriate limits based on your use case and budget considerations.
 
 Example token usage for typical content:
-- Average web page (10KB): ~2,500 tokens
-- Large documentation page (100KB): ~25,000 tokens  
-- Research paper PDF (500KB): ~125,000 tokens
+- Average web page (10&nbsp;kB): ~2,500 tokens
+- Large documentation page (100&nbsp;kB): ~25,000 tokens
+- Research paper PDF (500&nbsp;kB): ~125,000 tokens
 
 #### Computer use tool
 
@@ -353,7 +365,7 @@ When building agents with Claude:
 4. **Monitor usage patterns**: Track token consumption to identify optimization opportunities
 
 <Tip>
-  For high-volume agent applications, consider contacting our [enterprise sales team](https://claude.com/contact-sales) for custom pricing arrangements.
+  For high-volume agent applications, contact the [enterprise sales team](https://claude.com/contact-sales) for custom pricing arrangements.
 </Tip>
 
 ## Additional pricing considerations
@@ -370,7 +382,7 @@ Rate limits vary by usage tier and affect how many requests you can make:
 
 For detailed rate limit information, see the [rate limits documentation](../api/api-rate-limits.md).
 
-For higher rate limits or custom pricing arrangements, [contact our sales team](https://claude.com/contact-sales).
+For higher rate limits or custom pricing arrangements, [contact the sales team](https://claude.com/contact-sales).
 
 ### Volume discounts
 
@@ -389,7 +401,7 @@ For enterprise customers with specific needs:
 - Dedicated support
 - Custom terms
 
-Contact our sales team at [sales@anthropic.com](mailto:sales@anthropic.com) or through the [Claude Console](/settings/limits) to discuss enterprise pricing options.
+Contact the sales team at [sales@anthropic.com](mailto:sales@anthropic.com) or through the [Claude Console](/settings/limits) to discuss enterprise pricing options.
 
 ## Billing and payment
 
@@ -410,10 +422,10 @@ New users receive a small amount of free credits to test the API. [Contact sales
 
 **How do discounts stack?**
 
-Batch API and prompt caching discounts can be combined. For example, using both features together provides significant cost savings compared to standard API calls.
+Batch API and prompt caching discounts can be combined. For example, using both features together provides significant cost savings compared to standard API calls. See [prompt caching pricing](#prompt-caching) for how the multipliers interact.
 
 **What payment methods are accepted?**
 
-We accept major credit cards for standard accounts. Enterprise customers can arrange invoicing and other payment methods.
+Major credit cards are accepted for standard accounts. Enterprise customers can arrange invoicing and other payment methods.
 
 For additional questions about pricing, contact [support@anthropic.com](mailto:support@anthropic.com).

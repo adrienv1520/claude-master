@@ -11,7 +11,7 @@ Claude's Model Context Protocol (MCP) connector feature enables you to connect t
 </Note>
 
 <Note>
-This feature is in beta and is **not** covered by [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md) arrangements. Beta features are excluded from ZDR.
+This feature is in beta and is **not** eligible for [Zero Data Retention (ZDR)](./developer-build-with-claude-zero-data-retention.md). Beta features are excluded from ZDR.
 </Note>
 
 ## Key features
@@ -41,7 +41,8 @@ The MCP connector uses two components:
 This example enables all tools from an MCP server with default configuration:
 
 <CodeGroup>
-```bash Shell
+
+```bash Shell nocheck
 curl https://api.anthropic.com/v1/messages \
   -H "Content-Type: application/json" \
   -H "X-API-Key: $ANTHROPIC_API_KEY" \
@@ -68,8 +69,30 @@ curl https://api.anthropic.com/v1/messages \
   }'
 ```
 
-```typescript TypeScript
-import { Anthropic } from "@anthropic-ai/sdk";
+```python Python nocheck hidelines={1..2}
+import anthropic
+
+client = anthropic.Anthropic()
+
+response = client.beta.messages.create(
+    model="claude-opus-4-6",
+    max_tokens=1000,
+    messages=[{"role": "user", "content": "What tools do you have available?"}],
+    mcp_servers=[
+        {
+            "type": "url",
+            "url": "https://example-server.modelcontextprotocol.io/sse",
+            "name": "example-mcp",
+            "authorization_token": "YOUR_TOKEN",
+        }
+    ],
+    tools=[{"type": "mcp_toolset", "mcp_server_name": "example-mcp"}],
+    betas=["mcp-client-2025-11-20"],
+)
+```
+
+```typescript TypeScript nocheck hidelines={1..2}
+import Anthropic from "@anthropic-ai/sdk";
 
 const anthropic = new Anthropic();
 
@@ -100,26 +123,187 @@ const response = await anthropic.beta.messages.create({
 });
 ```
 
-```python Python
-import anthropic
+```csharp C# nocheck
+using Anthropic;
+using Anthropic.Models.Beta.Messages;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-client = anthropic.Anthropic()
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeOpus4_6,
+            MaxTokens = 1000,
+            Messages = new List<BetaMessageParam>
+            {
+                new() { Role = Role.User, Content = "What tools do you have available?" }
+            },
+            McpServers = new List<BetaRequestMcpServerUrlDefinition>
+            {
+                new()
+                {
+                    Url = "https://example-server.modelcontextprotocol.io/sse",
+                    Name = "example-mcp",
+                    AuthorizationToken = "YOUR_TOKEN"
+                }
+            },
+            Tools = new List<BetaToolUnion>
+            {
+                new BetaMcpToolset("example-mcp")
+            },
+            Betas = new List<string> { "mcp-client-2025-11-20" }
+        };
+
+        var message = await client.Beta.Messages.Create(parameters);
+        Console.WriteLine(message);
+    }
+}
+```
+
+```go Go nocheck hidelines={1..11,-1}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+func main() {
+	client := anthropic.NewClient()
+
+	response, err := client.Beta.Messages.New(context.TODO(), anthropic.BetaMessageNewParams{
+		Model:     anthropic.ModelClaudeOpus4_6,
+		MaxTokens: 1000,
+		Messages: []anthropic.BetaMessageParam{
+			anthropic.NewBetaUserMessage(anthropic.NewBetaTextBlock("What tools do you have available?")),
+		},
+		MCPServers: []anthropic.BetaRequestMCPServerURLDefinitionParam{
+			{
+				URL:                "https://example-server.modelcontextprotocol.io/sse",
+				Name:               "example-mcp",
+				AuthorizationToken: anthropic.String("YOUR_TOKEN"),
+			},
+		},
+		Tools: []anthropic.BetaToolUnionParam{
+			{OfMCPToolset: &anthropic.BetaMCPToolsetParam{
+				MCPServerName: "example-mcp",
+			}},
+		},
+		Betas: []anthropic.AnthropicBeta{
+			anthropic.AnthropicBetaMCPClient2025_11_20,
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(response)
+}
+```
+
+```java Java nocheck hidelines={1..2,4,6..9,-2..}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.beta.messages.BetaMcpToolset;
+import com.anthropic.models.beta.messages.BetaMessage;
+import com.anthropic.models.beta.messages.BetaRequestMcpServerUrlDefinition;
+import com.anthropic.models.beta.messages.MessageCreateParams;
+
+public class Main {
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model("claude-opus-4-6")
+            .maxTokens(1000L)
+            .addUserMessage("What tools do you have available?")
+            .addMcpServer(BetaRequestMcpServerUrlDefinition.builder()
+                .url("https://example-server.modelcontextprotocol.io/sse")
+                .name("example-mcp")
+                .authorizationToken("YOUR_TOKEN")
+                .build())
+            .addTool(BetaMcpToolset.builder()
+                .mcpServerName("example-mcp")
+                .build())
+            .addBeta("mcp-client-2025-11-20")
+            .build();
+
+        BetaMessage response = client.beta().messages().create(params);
+        System.out.println(response);
+    }
+}
+```
+
+```php PHP nocheck hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+
+$message = $client->beta->messages->create(
+    maxTokens: 1000,
+    messages: [
+        ['role' => 'user', 'content' => 'What tools do you have available?']
+    ],
+    model: 'claude-opus-4-6',
+    mcpServers: [
+        [
+            'type' => 'url',
+            'url' => 'https://example-server.modelcontextprotocol.io/sse',
+            'name' => 'example-mcp',
+            'authorization_token' => 'YOUR_TOKEN',
+        ],
+    ],
+    tools: [
+        [
+            'type' => 'mcp_toolset',
+            'mcp_server_name' => 'example-mcp',
+        ],
+    ],
+    betas: ['mcp-client-2025-11-20'],
+);
+
+echo $message;
+```
+
+```ruby Ruby nocheck hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
 
 response = client.beta.messages.create(
-    model="claude-opus-4-6",
-    max_tokens=1000,
-    messages=[{"role": "user", "content": "What tools do you have available?"}],
-    mcp_servers=[
-        {
-            "type": "url",
-            "url": "https://mcp.example.com/sse",
-            "name": "example-mcp",
-            "authorization_token": "YOUR_TOKEN",
-        }
-    ],
-    tools=[{"type": "mcp_toolset", "mcp_server_name": "example-mcp"}],
-    betas=["mcp-client-2025-11-20"],
+  model: "claude-opus-4-6",
+  max_tokens: 1000,
+  messages: [
+    { role: "user", content: "What tools do you have available?" }
+  ],
+  mcp_servers: [
+    {
+      type: "url",
+      url: "https://example-server.modelcontextprotocol.io/sse",
+      name: "example-mcp",
+      authorization_token: "YOUR_TOKEN"
+    }
+  ],
+  tools: [
+    {
+      type: "mcp_toolset",
+      mcp_server_name: "example-mcp"
+    }
+  ],
+  betas: ["mcp-client-2025-11-20"]
 )
+
+puts response
 ```
 </CodeGroup>
 
@@ -225,7 +409,7 @@ The simplest pattern - enable all tools from a server:
 ```json
 {
   "type": "mcp_toolset",
-  "mcp_server_name": "google-calendar-mcp",
+  "mcp_server_name": "google-calendar-mcp"
 }
 ```
 
@@ -449,7 +633,7 @@ npm install @anthropic-ai/sdk @modelcontextprotocol/sdk
 
 Import the helpers from the beta namespace:
 
-```typescript
+```typescript nocheck
 import {
   mcpTools,
   mcpMessages,
@@ -469,7 +653,7 @@ import {
 
 Convert MCP tools for use with the SDK's [tool runner](./developer-agents-and-tools-tool-use-implement-tool-use.md#tool-runner-beta), which handles tool execution automatically:
 
-```typescript
+```typescript nocheck hidelines={1}
 import Anthropic from "@anthropic-ai/sdk";
 import { mcpTools } from "@anthropic-ai/sdk/helpers/beta/mcp";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
@@ -496,7 +680,7 @@ const runner = await anthropic.beta.messages.toolRunner({
 
 Convert MCP prompt messages into Claude API message format:
 
-```typescript
+```typescript nocheck
 import { mcpMessages } from "@anthropic-ai/sdk/helpers/beta/mcp";
 
 const { messages } = await mcpClient.getPrompt({ name: "my-prompt" });
@@ -511,7 +695,7 @@ const response = await anthropic.beta.messages.create({
 
 Convert MCP resources into content blocks to include in messages, or into file objects for upload:
 
-```typescript
+```typescript nocheck
 import { mcpResourceToContent, mcpResourceToFile } from "@anthropic-ai/sdk/helpers/beta/mcp";
 
 // As a content block in a message
@@ -557,7 +741,9 @@ If you're using the deprecated `mcp-client-2025-04-04` beta header, follow this 
 {
   "model": "claude-opus-4-6",
   "max_tokens": 1000,
-  "messages": [...],
+  "messages": [
+    // ...
+  ],
   "mcp_servers": [
     {
       "type": "url",
@@ -579,7 +765,9 @@ If you're using the deprecated `mcp-client-2025-04-04` beta header, follow this 
 {
   "model": "claude-opus-4-6",
   "max_tokens": 1000,
-  "messages": [...],
+  "messages": [
+    // ...
+  ],
   "mcp_servers": [
     {
       "type": "url",
@@ -619,7 +807,7 @@ If you're using the deprecated `mcp-client-2025-04-04` beta header, follow this 
 ## Deprecated version: mcp-client-2025-04-04
 
 <Note type="warning">
-  This version is deprecated. Please migrate to `mcp-client-2025-11-20` using the [migration guide](#migration-guide) above.
+  This version is deprecated. Migrate to `mcp-client-2025-11-20` using the [migration guide](#migration-guide) above.
 </Note>
 
 The previous version of the MCP connector included tool configuration directly in the MCP server definition:

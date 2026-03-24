@@ -2303,7 +2303,7 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
   See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-  - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+  - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
     The model that will complete your prompt.
 
@@ -2315,87 +2315,59 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
     - `"claude-sonnet-4-6"`
 
-      Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+      Best combination of speed and intelligence
 
-    - `"claude-opus-4-5-20251101"`
+    - `"claude-haiku-4-5"`
 
-      Premium model combining maximum intelligence with practical performance
+      Fastest model with near-frontier intelligence
+
+    - `"claude-haiku-4-5-20251001"`
+
+      Fastest model with near-frontier intelligence
 
     - `"claude-opus-4-5"`
 
       Premium model combining maximum intelligence with practical performance
 
-    - `"claude-3-7-sonnet-latest"`
+    - `"claude-opus-4-5-20251101"`
 
-      High-performance model with early extended thinking
+      Premium model combining maximum intelligence with practical performance
 
-    - `"claude-3-7-sonnet-20250219"`
+    - `"claude-sonnet-4-5"`
 
-      High-performance model with early extended thinking
+      High-performance model for agents and coding
 
-    - `"claude-3-5-haiku-latest"`
+    - `"claude-sonnet-4-5-20250929"`
 
-      Fastest and most compact model for near-instant responsiveness
+      High-performance model for agents and coding
 
-    - `"claude-3-5-haiku-20241022"`
+    - `"claude-opus-4-1"`
 
-      Our fastest model
+      Exceptional model for specialized complex tasks
 
-    - `"claude-haiku-4-5"`
+    - `"claude-opus-4-1-20250805"`
 
-      Hybrid model, capable of near-instant responses and extended thinking
+      Exceptional model for specialized complex tasks
 
-    - `"claude-haiku-4-5-20251001"`
+    - `"claude-opus-4-0"`
 
-      Hybrid model, capable of near-instant responses and extended thinking
+      Powerful model for complex tasks
 
-    - `"claude-sonnet-4-20250514"`
+    - `"claude-opus-4-20250514"`
 
-      High-performance model with extended thinking
+      Powerful model for complex tasks
 
     - `"claude-sonnet-4-0"`
 
       High-performance model with extended thinking
 
-    - `"claude-4-sonnet-20250514"`
+    - `"claude-sonnet-4-20250514"`
 
       High-performance model with extended thinking
 
-    - `"claude-sonnet-4-5"`
-
-      Our best model for real-world agents and coding
-
-    - `"claude-sonnet-4-5-20250929"`
-
-      Our best model for real-world agents and coding
-
-    - `"claude-opus-4-0"`
-
-      Our most capable model
-
-    - `"claude-opus-4-20250514"`
-
-      Our most capable model
-
-    - `"claude-4-opus-20250514"`
-
-      Our most capable model
-
-    - `"claude-opus-4-1-20250805"`
-
-      Our most capable model
-
-    - `"claude-3-opus-latest"`
-
-      Excels at writing and complex tasks
-
-    - `"claude-3-opus-20240229"`
-
-      Excels at writing and complex tasks
-
     - `"claude-3-haiku-20240307"`
 
-      Our previous most fast and cost-effective
+      Fast and cost-effective model
 
   - `UnionMember1 = string`
 
@@ -2629,7 +2601,7 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
   See [extended thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking) for details.
 
-  - `ThinkingConfigEnabled = object { budget_tokens, type }`
+  - `ThinkingConfigEnabled = object { budget_tokens, type, display }`
 
     - `budget_tokens: number`
 
@@ -2643,17 +2615,33 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
       - `"enabled"`
 
+    - `display: optional "summarized" or "omitted"`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
+
   - `ThinkingConfigDisabled = object { type }`
 
     - `type: "disabled"`
 
       - `"disabled"`
 
-  - `ThinkingConfigAdaptive = object { type }`
+  - `ThinkingConfigAdaptive = object { type, display }`
 
     - `type: "adaptive"`
 
       - `"adaptive"`
+
+    - `display: optional "summarized" or "omitted"`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
 
 - `tool_choice: optional ToolChoice`
 
@@ -3622,6 +3610,87 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
       When true, guarantees schema validation on tool names and inputs
 
+  - `WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }`
+
+    Web fetch tool with use_cache parameter for bypassing cached content.
+
+    - `name: "web_fetch"`
+
+      Name of the tool.
+
+      This is how the tool will be called by the model and in `tool_use` blocks.
+
+      - `"web_fetch"`
+
+    - `type: "web_fetch_20260309"`
+
+      - `"web_fetch_20260309"`
+
+    - `allowed_callers: optional array of "direct" or "code_execution_20250825" or "code_execution_20260120"`
+
+      - `"direct"`
+
+      - `"code_execution_20250825"`
+
+      - `"code_execution_20260120"`
+
+    - `allowed_domains: optional array of string`
+
+      List of domains to allow fetching from
+
+    - `blocked_domains: optional array of string`
+
+      List of domains to block fetching from
+
+    - `cache_control: optional CacheControlEphemeral`
+
+      Create a cache control breakpoint at this content block.
+
+      - `type: "ephemeral"`
+
+        - `"ephemeral"`
+
+      - `ttl: optional "5m" or "1h"`
+
+        The time-to-live for the cache control breakpoint.
+
+        This may be one the following values:
+
+        - `5m`: 5 minutes
+        - `1h`: 1 hour
+
+        Defaults to `5m`.
+
+        - `"5m"`
+
+        - `"1h"`
+
+    - `citations: optional CitationsConfigParam`
+
+      Citations configuration for fetched documents. Citations are disabled by default.
+
+      - `enabled: optional boolean`
+
+    - `defer_loading: optional boolean`
+
+      If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+    - `max_content_tokens: optional number`
+
+      Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+    - `max_uses: optional number`
+
+      Maximum number of times the tool can be used in the API request.
+
+    - `strict: optional boolean`
+
+      When true, guarantees schema validation on tool names and inputs
+
+    - `use_cache: optional boolean`
+
+      Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
+
   - `ToolSearchToolBm25_20251119 = object { name, type, allowed_callers, 3 more }`
 
     - `name: "tool_search_tool_bm25"`
@@ -4461,7 +4530,7 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
     See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-    - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+    - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
       The model that will complete your prompt.
 
@@ -4473,87 +4542,59 @@ Learn more about the Messages API in our [user guide](https://docs.claude.com/en
 
       - `"claude-sonnet-4-6"`
 
-        Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+        Best combination of speed and intelligence
 
-      - `"claude-opus-4-5-20251101"`
+      - `"claude-haiku-4-5"`
 
-        Premium model combining maximum intelligence with practical performance
+        Fastest model with near-frontier intelligence
+
+      - `"claude-haiku-4-5-20251001"`
+
+        Fastest model with near-frontier intelligence
 
       - `"claude-opus-4-5"`
 
         Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-latest"`
+      - `"claude-opus-4-5-20251101"`
 
-        High-performance model with early extended thinking
+        Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-20250219"`
+      - `"claude-sonnet-4-5"`
 
-        High-performance model with early extended thinking
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-latest"`
+      - `"claude-sonnet-4-5-20250929"`
 
-        Fastest and most compact model for near-instant responsiveness
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-20241022"`
+      - `"claude-opus-4-1"`
 
-        Our fastest model
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5"`
+      - `"claude-opus-4-1-20250805"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5-20251001"`
+      - `"claude-opus-4-0"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Powerful model for complex tasks
 
-      - `"claude-sonnet-4-20250514"`
+      - `"claude-opus-4-20250514"`
 
-        High-performance model with extended thinking
+        Powerful model for complex tasks
 
       - `"claude-sonnet-4-0"`
 
         High-performance model with extended thinking
 
-      - `"claude-4-sonnet-20250514"`
+      - `"claude-sonnet-4-20250514"`
 
         High-performance model with extended thinking
 
-      - `"claude-sonnet-4-5"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-sonnet-4-5-20250929"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-opus-4-0"`
-
-        Our most capable model
-
-      - `"claude-opus-4-20250514"`
-
-        Our most capable model
-
-      - `"claude-4-opus-20250514"`
-
-        Our most capable model
-
-      - `"claude-opus-4-1-20250805"`
-
-        Our most capable model
-
-      - `"claude-3-opus-latest"`
-
-        Excels at writing and complex tasks
-
-      - `"claude-3-opus-20240229"`
-
-        Excels at writing and complex tasks
-
       - `"claude-3-haiku-20240307"`
 
-        Our previous most fast and cost-effective
+        Fast and cost-effective model
 
     - `UnionMember1 = string`
 
@@ -6987,7 +7028,7 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
   See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-  - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+  - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
     The model that will complete your prompt.
 
@@ -6999,87 +7040,59 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
     - `"claude-sonnet-4-6"`
 
-      Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+      Best combination of speed and intelligence
 
-    - `"claude-opus-4-5-20251101"`
+    - `"claude-haiku-4-5"`
 
-      Premium model combining maximum intelligence with practical performance
+      Fastest model with near-frontier intelligence
+
+    - `"claude-haiku-4-5-20251001"`
+
+      Fastest model with near-frontier intelligence
 
     - `"claude-opus-4-5"`
 
       Premium model combining maximum intelligence with practical performance
 
-    - `"claude-3-7-sonnet-latest"`
+    - `"claude-opus-4-5-20251101"`
 
-      High-performance model with early extended thinking
+      Premium model combining maximum intelligence with practical performance
 
-    - `"claude-3-7-sonnet-20250219"`
+    - `"claude-sonnet-4-5"`
 
-      High-performance model with early extended thinking
+      High-performance model for agents and coding
 
-    - `"claude-3-5-haiku-latest"`
+    - `"claude-sonnet-4-5-20250929"`
 
-      Fastest and most compact model for near-instant responsiveness
+      High-performance model for agents and coding
 
-    - `"claude-3-5-haiku-20241022"`
+    - `"claude-opus-4-1"`
 
-      Our fastest model
+      Exceptional model for specialized complex tasks
 
-    - `"claude-haiku-4-5"`
+    - `"claude-opus-4-1-20250805"`
 
-      Hybrid model, capable of near-instant responses and extended thinking
+      Exceptional model for specialized complex tasks
 
-    - `"claude-haiku-4-5-20251001"`
+    - `"claude-opus-4-0"`
 
-      Hybrid model, capable of near-instant responses and extended thinking
+      Powerful model for complex tasks
 
-    - `"claude-sonnet-4-20250514"`
+    - `"claude-opus-4-20250514"`
 
-      High-performance model with extended thinking
+      Powerful model for complex tasks
 
     - `"claude-sonnet-4-0"`
 
       High-performance model with extended thinking
 
-    - `"claude-4-sonnet-20250514"`
+    - `"claude-sonnet-4-20250514"`
 
       High-performance model with extended thinking
 
-    - `"claude-sonnet-4-5"`
-
-      Our best model for real-world agents and coding
-
-    - `"claude-sonnet-4-5-20250929"`
-
-      Our best model for real-world agents and coding
-
-    - `"claude-opus-4-0"`
-
-      Our most capable model
-
-    - `"claude-opus-4-20250514"`
-
-      Our most capable model
-
-    - `"claude-4-opus-20250514"`
-
-      Our most capable model
-
-    - `"claude-opus-4-1-20250805"`
-
-      Our most capable model
-
-    - `"claude-3-opus-latest"`
-
-      Excels at writing and complex tasks
-
-    - `"claude-3-opus-20240229"`
-
-      Excels at writing and complex tasks
-
     - `"claude-3-haiku-20240307"`
 
-      Our previous most fast and cost-effective
+      Fast and cost-effective model
 
   - `UnionMember1 = string`
 
@@ -7263,7 +7276,7 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
   See [extended thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking) for details.
 
-  - `ThinkingConfigEnabled = object { budget_tokens, type }`
+  - `ThinkingConfigEnabled = object { budget_tokens, type, display }`
 
     - `budget_tokens: number`
 
@@ -7277,17 +7290,33 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
 
       - `"enabled"`
 
+    - `display: optional "summarized" or "omitted"`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
+
   - `ThinkingConfigDisabled = object { type }`
 
     - `type: "disabled"`
 
       - `"disabled"`
 
-  - `ThinkingConfigAdaptive = object { type }`
+  - `ThinkingConfigAdaptive = object { type, display }`
 
     - `type: "adaptive"`
 
       - `"adaptive"`
+
+    - `display: optional "summarized" or "omitted"`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
 
 - `tool_choice: optional ToolChoice`
 
@@ -8255,6 +8284,87 @@ Learn more about token counting in our [user guide](https://docs.claude.com/en/d
     - `strict: optional boolean`
 
       When true, guarantees schema validation on tool names and inputs
+
+  - `WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }`
+
+    Web fetch tool with use_cache parameter for bypassing cached content.
+
+    - `name: "web_fetch"`
+
+      Name of the tool.
+
+      This is how the tool will be called by the model and in `tool_use` blocks.
+
+      - `"web_fetch"`
+
+    - `type: "web_fetch_20260309"`
+
+      - `"web_fetch_20260309"`
+
+    - `allowed_callers: optional array of "direct" or "code_execution_20250825" or "code_execution_20260120"`
+
+      - `"direct"`
+
+      - `"code_execution_20250825"`
+
+      - `"code_execution_20260120"`
+
+    - `allowed_domains: optional array of string`
+
+      List of domains to allow fetching from
+
+    - `blocked_domains: optional array of string`
+
+      List of domains to block fetching from
+
+    - `cache_control: optional CacheControlEphemeral`
+
+      Create a cache control breakpoint at this content block.
+
+      - `type: "ephemeral"`
+
+        - `"ephemeral"`
+
+      - `ttl: optional "5m" or "1h"`
+
+        The time-to-live for the cache control breakpoint.
+
+        This may be one the following values:
+
+        - `5m`: 5 minutes
+        - `1h`: 1 hour
+
+        Defaults to `5m`.
+
+        - `"5m"`
+
+        - `"1h"`
+
+    - `citations: optional CitationsConfigParam`
+
+      Citations configuration for fetched documents. Citations are disabled by default.
+
+      - `enabled: optional boolean`
+
+    - `defer_loading: optional boolean`
+
+      If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+    - `max_content_tokens: optional number`
+
+      Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+    - `max_uses: optional number`
+
+      Maximum number of times the tool can be used in the API request.
+
+    - `strict: optional boolean`
+
+      When true, guarantees schema validation on tool names and inputs
+
+    - `use_cache: optional boolean`
+
+      Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
   - `ToolSearchToolBm25_20251119 = object { name, type, allowed_callers, 3 more }`
 
@@ -14082,7 +14192,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
     See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-    - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+    - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
       The model that will complete your prompt.
 
@@ -14094,87 +14204,59 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
       - `"claude-sonnet-4-6"`
 
-        Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+        Best combination of speed and intelligence
 
-      - `"claude-opus-4-5-20251101"`
+      - `"claude-haiku-4-5"`
 
-        Premium model combining maximum intelligence with practical performance
+        Fastest model with near-frontier intelligence
+
+      - `"claude-haiku-4-5-20251001"`
+
+        Fastest model with near-frontier intelligence
 
       - `"claude-opus-4-5"`
 
         Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-latest"`
+      - `"claude-opus-4-5-20251101"`
 
-        High-performance model with early extended thinking
+        Premium model combining maximum intelligence with practical performance
 
-      - `"claude-3-7-sonnet-20250219"`
+      - `"claude-sonnet-4-5"`
 
-        High-performance model with early extended thinking
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-latest"`
+      - `"claude-sonnet-4-5-20250929"`
 
-        Fastest and most compact model for near-instant responsiveness
+        High-performance model for agents and coding
 
-      - `"claude-3-5-haiku-20241022"`
+      - `"claude-opus-4-1"`
 
-        Our fastest model
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5"`
+      - `"claude-opus-4-1-20250805"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Exceptional model for specialized complex tasks
 
-      - `"claude-haiku-4-5-20251001"`
+      - `"claude-opus-4-0"`
 
-        Hybrid model, capable of near-instant responses and extended thinking
+        Powerful model for complex tasks
 
-      - `"claude-sonnet-4-20250514"`
+      - `"claude-opus-4-20250514"`
 
-        High-performance model with extended thinking
+        Powerful model for complex tasks
 
       - `"claude-sonnet-4-0"`
 
         High-performance model with extended thinking
 
-      - `"claude-4-sonnet-20250514"`
+      - `"claude-sonnet-4-20250514"`
 
         High-performance model with extended thinking
 
-      - `"claude-sonnet-4-5"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-sonnet-4-5-20250929"`
-
-        Our best model for real-world agents and coding
-
-      - `"claude-opus-4-0"`
-
-        Our most capable model
-
-      - `"claude-opus-4-20250514"`
-
-        Our most capable model
-
-      - `"claude-4-opus-20250514"`
-
-        Our most capable model
-
-      - `"claude-opus-4-1-20250805"`
-
-        Our most capable model
-
-      - `"claude-3-opus-latest"`
-
-        Excels at writing and complex tasks
-
-      - `"claude-3-opus-20240229"`
-
-        Excels at writing and complex tasks
-
       - `"claude-3-haiku-20240307"`
 
-        Our previous most fast and cost-effective
+        Fast and cost-effective model
 
     - `UnionMember1 = string`
 
@@ -14295,7 +14377,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
 ### Message Count Tokens Tool
 
-- `MessageCountTokensTool = Tool or ToolBash20250124 or CodeExecutionTool20250522 or 12 more`
+- `MessageCountTokensTool = Tool or ToolBash20250124 or CodeExecutionTool20250522 or 13 more`
 
   Code execution tool with REPL state persistence (daemon mode + gVisor checkpoint).
 
@@ -15143,6 +15225,87 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
     - `strict: optional boolean`
 
       When true, guarantees schema validation on tool names and inputs
+
+  - `WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }`
+
+    Web fetch tool with use_cache parameter for bypassing cached content.
+
+    - `name: "web_fetch"`
+
+      Name of the tool.
+
+      This is how the tool will be called by the model and in `tool_use` blocks.
+
+      - `"web_fetch"`
+
+    - `type: "web_fetch_20260309"`
+
+      - `"web_fetch_20260309"`
+
+    - `allowed_callers: optional array of "direct" or "code_execution_20250825" or "code_execution_20260120"`
+
+      - `"direct"`
+
+      - `"code_execution_20250825"`
+
+      - `"code_execution_20260120"`
+
+    - `allowed_domains: optional array of string`
+
+      List of domains to allow fetching from
+
+    - `blocked_domains: optional array of string`
+
+      List of domains to block fetching from
+
+    - `cache_control: optional CacheControlEphemeral`
+
+      Create a cache control breakpoint at this content block.
+
+      - `type: "ephemeral"`
+
+        - `"ephemeral"`
+
+      - `ttl: optional "5m" or "1h"`
+
+        The time-to-live for the cache control breakpoint.
+
+        This may be one the following values:
+
+        - `5m`: 5 minutes
+        - `1h`: 1 hour
+
+        Defaults to `5m`.
+
+        - `"5m"`
+
+        - `"1h"`
+
+    - `citations: optional CitationsConfigParam`
+
+      Citations configuration for fetched documents. Citations are disabled by default.
+
+      - `enabled: optional boolean`
+
+    - `defer_loading: optional boolean`
+
+      If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+    - `max_content_tokens: optional number`
+
+      Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+    - `max_uses: optional number`
+
+      Maximum number of times the tool can be used in the API request.
+
+    - `strict: optional boolean`
+
+      When true, guarantees schema validation on tool names and inputs
+
+    - `use_cache: optional boolean`
+
+      Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
   - `ToolSearchToolBm25_20251119 = object { name, type, allowed_callers, 3 more }`
 
@@ -17536,13 +17699,13 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
 ### Model
 
-- `Model = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more or string`
+- `Model = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more or string`
 
   The model that will complete your prompt.
 
   See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-  - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+  - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
     The model that will complete your prompt.
 
@@ -17554,87 +17717,59 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
     - `"claude-sonnet-4-6"`
 
-      Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+      Best combination of speed and intelligence
 
-    - `"claude-opus-4-5-20251101"`
+    - `"claude-haiku-4-5"`
 
-      Premium model combining maximum intelligence with practical performance
+      Fastest model with near-frontier intelligence
+
+    - `"claude-haiku-4-5-20251001"`
+
+      Fastest model with near-frontier intelligence
 
     - `"claude-opus-4-5"`
 
       Premium model combining maximum intelligence with practical performance
 
-    - `"claude-3-7-sonnet-latest"`
+    - `"claude-opus-4-5-20251101"`
 
-      High-performance model with early extended thinking
+      Premium model combining maximum intelligence with practical performance
 
-    - `"claude-3-7-sonnet-20250219"`
+    - `"claude-sonnet-4-5"`
 
-      High-performance model with early extended thinking
+      High-performance model for agents and coding
 
-    - `"claude-3-5-haiku-latest"`
+    - `"claude-sonnet-4-5-20250929"`
 
-      Fastest and most compact model for near-instant responsiveness
+      High-performance model for agents and coding
 
-    - `"claude-3-5-haiku-20241022"`
+    - `"claude-opus-4-1"`
 
-      Our fastest model
+      Exceptional model for specialized complex tasks
 
-    - `"claude-haiku-4-5"`
+    - `"claude-opus-4-1-20250805"`
 
-      Hybrid model, capable of near-instant responses and extended thinking
+      Exceptional model for specialized complex tasks
 
-    - `"claude-haiku-4-5-20251001"`
+    - `"claude-opus-4-0"`
 
-      Hybrid model, capable of near-instant responses and extended thinking
+      Powerful model for complex tasks
 
-    - `"claude-sonnet-4-20250514"`
+    - `"claude-opus-4-20250514"`
 
-      High-performance model with extended thinking
+      Powerful model for complex tasks
 
     - `"claude-sonnet-4-0"`
 
       High-performance model with extended thinking
 
-    - `"claude-4-sonnet-20250514"`
+    - `"claude-sonnet-4-20250514"`
 
       High-performance model with extended thinking
 
-    - `"claude-sonnet-4-5"`
-
-      Our best model for real-world agents and coding
-
-    - `"claude-sonnet-4-5-20250929"`
-
-      Our best model for real-world agents and coding
-
-    - `"claude-opus-4-0"`
-
-      Our most capable model
-
-    - `"claude-opus-4-20250514"`
-
-      Our most capable model
-
-    - `"claude-4-opus-20250514"`
-
-      Our most capable model
-
-    - `"claude-opus-4-1-20250805"`
-
-      Our most capable model
-
-    - `"claude-3-opus-latest"`
-
-      Excels at writing and complex tasks
-
-    - `"claude-3-opus-20240229"`
-
-      Excels at writing and complex tasks
-
     - `"claude-3-haiku-20240307"`
 
-      Our previous most fast and cost-effective
+      Fast and cost-effective model
 
   - `UnionMember1 = string`
 
@@ -19421,7 +19556,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
       See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-      - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+      - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
         The model that will complete your prompt.
 
@@ -19433,87 +19568,59 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
         - `"claude-sonnet-4-6"`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `"claude-opus-4-5-20251101"`
+        - `"claude-haiku-4-5"`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `"claude-haiku-4-5-20251001"`
+
+          Fastest model with near-frontier intelligence
 
         - `"claude-opus-4-5"`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-latest"`
+        - `"claude-opus-4-5-20251101"`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-20250219"`
+        - `"claude-sonnet-4-5"`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-latest"`
+        - `"claude-sonnet-4-5-20250929"`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-20241022"`
+        - `"claude-opus-4-1"`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5"`
+        - `"claude-opus-4-1-20250805"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5-20251001"`
+        - `"claude-opus-4-0"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `"claude-sonnet-4-20250514"`
+        - `"claude-opus-4-20250514"`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `"claude-sonnet-4-0"`
 
           High-performance model with extended thinking
 
-        - `"claude-4-sonnet-20250514"`
+        - `"claude-sonnet-4-20250514"`
 
           High-performance model with extended thinking
 
-        - `"claude-sonnet-4-5"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-sonnet-4-5-20250929"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-opus-4-0"`
-
-          Our most capable model
-
-        - `"claude-opus-4-20250514"`
-
-          Our most capable model
-
-        - `"claude-4-opus-20250514"`
-
-          Our most capable model
-
-        - `"claude-opus-4-1-20250805"`
-
-          Our most capable model
-
-        - `"claude-3-opus-latest"`
-
-          Excels at writing and complex tasks
-
-        - `"claude-3-opus-20240229"`
-
-          Excels at writing and complex tasks
-
         - `"claude-3-haiku-20240307"`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `UnionMember1 = string`
 
@@ -20361,7 +20468,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
         See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-        - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+        - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
           The model that will complete your prompt.
 
@@ -20373,87 +20480,59 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
           - `"claude-sonnet-4-6"`
 
-            Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+            Best combination of speed and intelligence
 
-          - `"claude-opus-4-5-20251101"`
+          - `"claude-haiku-4-5"`
 
-            Premium model combining maximum intelligence with practical performance
+            Fastest model with near-frontier intelligence
+
+          - `"claude-haiku-4-5-20251001"`
+
+            Fastest model with near-frontier intelligence
 
           - `"claude-opus-4-5"`
 
             Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-latest"`
+          - `"claude-opus-4-5-20251101"`
 
-            High-performance model with early extended thinking
+            Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-20250219"`
+          - `"claude-sonnet-4-5"`
 
-            High-performance model with early extended thinking
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-latest"`
+          - `"claude-sonnet-4-5-20250929"`
 
-            Fastest and most compact model for near-instant responsiveness
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-20241022"`
+          - `"claude-opus-4-1"`
 
-            Our fastest model
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5"`
+          - `"claude-opus-4-1-20250805"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5-20251001"`
+          - `"claude-opus-4-0"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Powerful model for complex tasks
 
-          - `"claude-sonnet-4-20250514"`
+          - `"claude-opus-4-20250514"`
 
-            High-performance model with extended thinking
+            Powerful model for complex tasks
 
           - `"claude-sonnet-4-0"`
 
             High-performance model with extended thinking
 
-          - `"claude-4-sonnet-20250514"`
+          - `"claude-sonnet-4-20250514"`
 
             High-performance model with extended thinking
 
-          - `"claude-sonnet-4-5"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-sonnet-4-5-20250929"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-opus-4-0"`
-
-            Our most capable model
-
-          - `"claude-opus-4-20250514"`
-
-            Our most capable model
-
-          - `"claude-4-opus-20250514"`
-
-            Our most capable model
-
-          - `"claude-opus-4-1-20250805"`
-
-            Our most capable model
-
-          - `"claude-3-opus-latest"`
-
-            Excels at writing and complex tasks
-
-          - `"claude-3-opus-20240229"`
-
-            Excels at writing and complex tasks
-
           - `"claude-3-haiku-20240307"`
 
-            Our previous most fast and cost-effective
+            Fast and cost-effective model
 
         - `UnionMember1 = string`
 
@@ -22609,11 +22688,19 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
 ### Thinking Config Adaptive
 
-- `ThinkingConfigAdaptive = object { type }`
+- `ThinkingConfigAdaptive = object { type, display }`
 
   - `type: "adaptive"`
 
     - `"adaptive"`
+
+  - `display: optional "summarized" or "omitted"`
+
+    Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+    - `"summarized"`
+
+    - `"omitted"`
 
 ### Thinking Config Disabled
 
@@ -22625,7 +22712,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
 ### Thinking Config Enabled
 
-- `ThinkingConfigEnabled = object { budget_tokens, type }`
+- `ThinkingConfigEnabled = object { budget_tokens, type, display }`
 
   - `budget_tokens: number`
 
@@ -22639,6 +22726,14 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
     - `"enabled"`
 
+  - `display: optional "summarized" or "omitted"`
+
+    Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+    - `"summarized"`
+
+    - `"omitted"`
+
 ### Thinking Config Param
 
 - `ThinkingConfigParam = ThinkingConfigEnabled or ThinkingConfigDisabled or ThinkingConfigAdaptive`
@@ -22649,7 +22744,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
   See [extended thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking) for details.
 
-  - `ThinkingConfigEnabled = object { budget_tokens, type }`
+  - `ThinkingConfigEnabled = object { budget_tokens, type, display }`
 
     - `budget_tokens: number`
 
@@ -22663,17 +22758,33 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
       - `"enabled"`
 
+    - `display: optional "summarized" or "omitted"`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
+
   - `ThinkingConfigDisabled = object { type }`
 
     - `type: "disabled"`
 
       - `"disabled"`
 
-  - `ThinkingConfigAdaptive = object { type }`
+  - `ThinkingConfigAdaptive = object { type, display }`
 
     - `type: "adaptive"`
 
       - `"adaptive"`
+
+    - `display: optional "summarized" or "omitted"`
+
+      Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+      - `"summarized"`
+
+      - `"omitted"`
 
 ### Thinking Delta
 
@@ -24163,7 +24274,7 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
 ### Tool Union
 
-- `ToolUnion = Tool or ToolBash20250124 or CodeExecutionTool20250522 or 12 more`
+- `ToolUnion = Tool or ToolBash20250124 or CodeExecutionTool20250522 or 13 more`
 
   Code execution tool with REPL state persistence (daemon mode + gVisor checkpoint).
 
@@ -25012,6 +25123,87 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
 
       When true, guarantees schema validation on tool names and inputs
 
+  - `WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }`
+
+    Web fetch tool with use_cache parameter for bypassing cached content.
+
+    - `name: "web_fetch"`
+
+      Name of the tool.
+
+      This is how the tool will be called by the model and in `tool_use` blocks.
+
+      - `"web_fetch"`
+
+    - `type: "web_fetch_20260309"`
+
+      - `"web_fetch_20260309"`
+
+    - `allowed_callers: optional array of "direct" or "code_execution_20250825" or "code_execution_20260120"`
+
+      - `"direct"`
+
+      - `"code_execution_20250825"`
+
+      - `"code_execution_20260120"`
+
+    - `allowed_domains: optional array of string`
+
+      List of domains to allow fetching from
+
+    - `blocked_domains: optional array of string`
+
+      List of domains to block fetching from
+
+    - `cache_control: optional CacheControlEphemeral`
+
+      Create a cache control breakpoint at this content block.
+
+      - `type: "ephemeral"`
+
+        - `"ephemeral"`
+
+      - `ttl: optional "5m" or "1h"`
+
+        The time-to-live for the cache control breakpoint.
+
+        This may be one the following values:
+
+        - `5m`: 5 minutes
+        - `1h`: 1 hour
+
+        Defaults to `5m`.
+
+        - `"5m"`
+
+        - `"1h"`
+
+    - `citations: optional CitationsConfigParam`
+
+      Citations configuration for fetched documents. Citations are disabled by default.
+
+      - `enabled: optional boolean`
+
+    - `defer_loading: optional boolean`
+
+      If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+    - `max_content_tokens: optional number`
+
+      Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+    - `max_uses: optional number`
+
+      Maximum number of times the tool can be used in the API request.
+
+    - `strict: optional boolean`
+
+      When true, guarantees schema validation on tool names and inputs
+
+    - `use_cache: optional boolean`
+
+      Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
+
   - `ToolSearchToolBm25_20251119 = object { name, type, allowed_callers, 3 more }`
 
     - `name: "tool_search_tool_bm25"`
@@ -25815,6 +26007,89 @@ curl https://api.anthropic.com/v1/messages/count_tokens \
   - `strict: optional boolean`
 
     When true, guarantees schema validation on tool names and inputs
+
+### Web Fetch Tool 20260309
+
+- `WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }`
+
+  Web fetch tool with use_cache parameter for bypassing cached content.
+
+  - `name: "web_fetch"`
+
+    Name of the tool.
+
+    This is how the tool will be called by the model and in `tool_use` blocks.
+
+    - `"web_fetch"`
+
+  - `type: "web_fetch_20260309"`
+
+    - `"web_fetch_20260309"`
+
+  - `allowed_callers: optional array of "direct" or "code_execution_20250825" or "code_execution_20260120"`
+
+    - `"direct"`
+
+    - `"code_execution_20250825"`
+
+    - `"code_execution_20260120"`
+
+  - `allowed_domains: optional array of string`
+
+    List of domains to allow fetching from
+
+  - `blocked_domains: optional array of string`
+
+    List of domains to block fetching from
+
+  - `cache_control: optional CacheControlEphemeral`
+
+    Create a cache control breakpoint at this content block.
+
+    - `type: "ephemeral"`
+
+      - `"ephemeral"`
+
+    - `ttl: optional "5m" or "1h"`
+
+      The time-to-live for the cache control breakpoint.
+
+      This may be one the following values:
+
+      - `5m`: 5 minutes
+      - `1h`: 1 hour
+
+      Defaults to `5m`.
+
+      - `"5m"`
+
+      - `"1h"`
+
+  - `citations: optional CitationsConfigParam`
+
+    Citations configuration for fetched documents. Citations are disabled by default.
+
+    - `enabled: optional boolean`
+
+  - `defer_loading: optional boolean`
+
+    If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+  - `max_content_tokens: optional number`
+
+    Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+  - `max_uses: optional number`
+
+    Maximum number of times the tool can be used in the API request.
+
+  - `strict: optional boolean`
+
+    When true, guarantees schema validation on tool names and inputs
+
+  - `use_cache: optional boolean`
+
+    Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
 ### Web Fetch Tool Result Block
 
@@ -29212,7 +29487,7 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
       See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-      - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+      - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
         The model that will complete your prompt.
 
@@ -29224,87 +29499,59 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
         - `"claude-sonnet-4-6"`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `"claude-opus-4-5-20251101"`
+        - `"claude-haiku-4-5"`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `"claude-haiku-4-5-20251001"`
+
+          Fastest model with near-frontier intelligence
 
         - `"claude-opus-4-5"`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-latest"`
+        - `"claude-opus-4-5-20251101"`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-20250219"`
+        - `"claude-sonnet-4-5"`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-latest"`
+        - `"claude-sonnet-4-5-20250929"`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-20241022"`
+        - `"claude-opus-4-1"`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5"`
+        - `"claude-opus-4-1-20250805"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5-20251001"`
+        - `"claude-opus-4-0"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `"claude-sonnet-4-20250514"`
+        - `"claude-opus-4-20250514"`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `"claude-sonnet-4-0"`
 
           High-performance model with extended thinking
 
-        - `"claude-4-sonnet-20250514"`
+        - `"claude-sonnet-4-20250514"`
 
           High-performance model with extended thinking
 
-        - `"claude-sonnet-4-5"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-sonnet-4-5-20250929"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-opus-4-0"`
-
-          Our most capable model
-
-        - `"claude-opus-4-20250514"`
-
-          Our most capable model
-
-        - `"claude-4-opus-20250514"`
-
-          Our most capable model
-
-        - `"claude-opus-4-1-20250805"`
-
-          Our most capable model
-
-        - `"claude-3-opus-latest"`
-
-          Excels at writing and complex tasks
-
-        - `"claude-3-opus-20240229"`
-
-          Excels at writing and complex tasks
-
         - `"claude-3-haiku-20240307"`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `UnionMember1 = string`
 
@@ -29538,7 +29785,7 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
       See [extended thinking](https://docs.claude.com/en/docs/build-with-claude/extended-thinking) for details.
 
-      - `ThinkingConfigEnabled = object { budget_tokens, type }`
+      - `ThinkingConfigEnabled = object { budget_tokens, type, display }`
 
         - `budget_tokens: number`
 
@@ -29552,17 +29799,33 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
           - `"enabled"`
 
+        - `display: optional "summarized" or "omitted"`
+
+          Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+          - `"summarized"`
+
+          - `"omitted"`
+
       - `ThinkingConfigDisabled = object { type }`
 
         - `type: "disabled"`
 
           - `"disabled"`
 
-      - `ThinkingConfigAdaptive = object { type }`
+      - `ThinkingConfigAdaptive = object { type, display }`
 
         - `type: "adaptive"`
 
           - `"adaptive"`
+
+        - `display: optional "summarized" or "omitted"`
+
+          Controls how thinking content appears in the response. When set to `summarized`, thinking is returned normally. When set to `omitted`, thinking content is redacted but a signature is returned for multi-turn continuity. Defaults to `summarized`.
+
+          - `"summarized"`
+
+          - `"omitted"`
 
     - `tool_choice: optional ToolChoice`
 
@@ -30530,6 +30793,87 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
         - `strict: optional boolean`
 
           When true, guarantees schema validation on tool names and inputs
+
+      - `WebFetchTool20260309 = object { name, type, allowed_callers, 9 more }`
+
+        Web fetch tool with use_cache parameter for bypassing cached content.
+
+        - `name: "web_fetch"`
+
+          Name of the tool.
+
+          This is how the tool will be called by the model and in `tool_use` blocks.
+
+          - `"web_fetch"`
+
+        - `type: "web_fetch_20260309"`
+
+          - `"web_fetch_20260309"`
+
+        - `allowed_callers: optional array of "direct" or "code_execution_20250825" or "code_execution_20260120"`
+
+          - `"direct"`
+
+          - `"code_execution_20250825"`
+
+          - `"code_execution_20260120"`
+
+        - `allowed_domains: optional array of string`
+
+          List of domains to allow fetching from
+
+        - `blocked_domains: optional array of string`
+
+          List of domains to block fetching from
+
+        - `cache_control: optional CacheControlEphemeral`
+
+          Create a cache control breakpoint at this content block.
+
+          - `type: "ephemeral"`
+
+            - `"ephemeral"`
+
+          - `ttl: optional "5m" or "1h"`
+
+            The time-to-live for the cache control breakpoint.
+
+            This may be one the following values:
+
+            - `5m`: 5 minutes
+            - `1h`: 1 hour
+
+            Defaults to `5m`.
+
+            - `"5m"`
+
+            - `"1h"`
+
+        - `citations: optional CitationsConfigParam`
+
+          Citations configuration for fetched documents. Citations are disabled by default.
+
+          - `enabled: optional boolean`
+
+        - `defer_loading: optional boolean`
+
+          If true, tool will not be included in initial system prompt. Only loaded when returned via tool_reference from tool search.
+
+        - `max_content_tokens: optional number`
+
+          Maximum number of tokens used by including web page text content in the context. The limit is approximate and does not apply to binary content such as PDFs.
+
+        - `max_uses: optional number`
+
+          Maximum number of times the tool can be used in the API request.
+
+        - `strict: optional boolean`
+
+          When true, guarantees schema validation on tool names and inputs
+
+        - `use_cache: optional boolean`
+
+          Whether to use cached content. Set to false to bypass the cache and fetch fresh content. Only set to false when the user explicitly requests fresh content or when fetching rapidly-changing sources.
 
       - `ToolSearchToolBm25_20251119 = object { name, type, allowed_callers, 3 more }`
 
@@ -31922,7 +32266,7 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
           See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-          - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+          - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
             The model that will complete your prompt.
 
@@ -31934,87 +32278,59 @@ Learn more about the Message Batches API in our [user guide](https://docs.claude
 
             - `"claude-sonnet-4-6"`
 
-              Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+              Best combination of speed and intelligence
 
-            - `"claude-opus-4-5-20251101"`
+            - `"claude-haiku-4-5"`
 
-              Premium model combining maximum intelligence with practical performance
+              Fastest model with near-frontier intelligence
+
+            - `"claude-haiku-4-5-20251001"`
+
+              Fastest model with near-frontier intelligence
 
             - `"claude-opus-4-5"`
 
               Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-latest"`
+            - `"claude-opus-4-5-20251101"`
 
-              High-performance model with early extended thinking
+              Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-20250219"`
+            - `"claude-sonnet-4-5"`
 
-              High-performance model with early extended thinking
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-latest"`
+            - `"claude-sonnet-4-5-20250929"`
 
-              Fastest and most compact model for near-instant responsiveness
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-20241022"`
+            - `"claude-opus-4-1"`
 
-              Our fastest model
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5"`
+            - `"claude-opus-4-1-20250805"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5-20251001"`
+            - `"claude-opus-4-0"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Powerful model for complex tasks
 
-            - `"claude-sonnet-4-20250514"`
+            - `"claude-opus-4-20250514"`
 
-              High-performance model with extended thinking
+              Powerful model for complex tasks
 
             - `"claude-sonnet-4-0"`
 
               High-performance model with extended thinking
 
-            - `"claude-4-sonnet-20250514"`
+            - `"claude-sonnet-4-20250514"`
 
               High-performance model with extended thinking
 
-            - `"claude-sonnet-4-5"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-sonnet-4-5-20250929"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-opus-4-0"`
-
-              Our most capable model
-
-            - `"claude-opus-4-20250514"`
-
-              Our most capable model
-
-            - `"claude-4-opus-20250514"`
-
-              Our most capable model
-
-            - `"claude-opus-4-1-20250805"`
-
-              Our most capable model
-
-            - `"claude-3-opus-latest"`
-
-              Excels at writing and complex tasks
-
-            - `"claude-3-opus-20240229"`
-
-              Excels at writing and complex tasks
-
             - `"claude-3-haiku-20240307"`
 
-              Our previous most fast and cost-effective
+              Fast and cost-effective model
 
           - `UnionMember1 = string`
 
@@ -33190,7 +33506,7 @@ curl https://api.anthropic.com/v1/messages/batches/$MESSAGE_BATCH_ID/results \
 
           See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-          - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+          - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
             The model that will complete your prompt.
 
@@ -33202,87 +33518,59 @@ curl https://api.anthropic.com/v1/messages/batches/$MESSAGE_BATCH_ID/results \
 
             - `"claude-sonnet-4-6"`
 
-              Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+              Best combination of speed and intelligence
 
-            - `"claude-opus-4-5-20251101"`
+            - `"claude-haiku-4-5"`
 
-              Premium model combining maximum intelligence with practical performance
+              Fastest model with near-frontier intelligence
+
+            - `"claude-haiku-4-5-20251001"`
+
+              Fastest model with near-frontier intelligence
 
             - `"claude-opus-4-5"`
 
               Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-latest"`
+            - `"claude-opus-4-5-20251101"`
 
-              High-performance model with early extended thinking
+              Premium model combining maximum intelligence with practical performance
 
-            - `"claude-3-7-sonnet-20250219"`
+            - `"claude-sonnet-4-5"`
 
-              High-performance model with early extended thinking
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-latest"`
+            - `"claude-sonnet-4-5-20250929"`
 
-              Fastest and most compact model for near-instant responsiveness
+              High-performance model for agents and coding
 
-            - `"claude-3-5-haiku-20241022"`
+            - `"claude-opus-4-1"`
 
-              Our fastest model
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5"`
+            - `"claude-opus-4-1-20250805"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Exceptional model for specialized complex tasks
 
-            - `"claude-haiku-4-5-20251001"`
+            - `"claude-opus-4-0"`
 
-              Hybrid model, capable of near-instant responses and extended thinking
+              Powerful model for complex tasks
 
-            - `"claude-sonnet-4-20250514"`
+            - `"claude-opus-4-20250514"`
 
-              High-performance model with extended thinking
+              Powerful model for complex tasks
 
             - `"claude-sonnet-4-0"`
 
               High-performance model with extended thinking
 
-            - `"claude-4-sonnet-20250514"`
+            - `"claude-sonnet-4-20250514"`
 
               High-performance model with extended thinking
 
-            - `"claude-sonnet-4-5"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-sonnet-4-5-20250929"`
-
-              Our best model for real-world agents and coding
-
-            - `"claude-opus-4-0"`
-
-              Our most capable model
-
-            - `"claude-opus-4-20250514"`
-
-              Our most capable model
-
-            - `"claude-4-opus-20250514"`
-
-              Our most capable model
-
-            - `"claude-opus-4-1-20250805"`
-
-              Our most capable model
-
-            - `"claude-3-opus-latest"`
-
-              Excels at writing and complex tasks
-
-            - `"claude-3-opus-20240229"`
-
-              Excels at writing and complex tasks
-
             - `"claude-3-haiku-20240307"`
 
-              Our previous most fast and cost-effective
+              Fast and cost-effective model
 
           - `UnionMember1 = string`
 
@@ -34258,7 +34546,7 @@ curl https://api.anthropic.com/v1/messages/batches/$MESSAGE_BATCH_ID/results \
 
         See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-        - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+        - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
           The model that will complete your prompt.
 
@@ -34270,87 +34558,59 @@ curl https://api.anthropic.com/v1/messages/batches/$MESSAGE_BATCH_ID/results \
 
           - `"claude-sonnet-4-6"`
 
-            Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+            Best combination of speed and intelligence
 
-          - `"claude-opus-4-5-20251101"`
+          - `"claude-haiku-4-5"`
 
-            Premium model combining maximum intelligence with practical performance
+            Fastest model with near-frontier intelligence
+
+          - `"claude-haiku-4-5-20251001"`
+
+            Fastest model with near-frontier intelligence
 
           - `"claude-opus-4-5"`
 
             Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-latest"`
+          - `"claude-opus-4-5-20251101"`
 
-            High-performance model with early extended thinking
+            Premium model combining maximum intelligence with practical performance
 
-          - `"claude-3-7-sonnet-20250219"`
+          - `"claude-sonnet-4-5"`
 
-            High-performance model with early extended thinking
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-latest"`
+          - `"claude-sonnet-4-5-20250929"`
 
-            Fastest and most compact model for near-instant responsiveness
+            High-performance model for agents and coding
 
-          - `"claude-3-5-haiku-20241022"`
+          - `"claude-opus-4-1"`
 
-            Our fastest model
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5"`
+          - `"claude-opus-4-1-20250805"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Exceptional model for specialized complex tasks
 
-          - `"claude-haiku-4-5-20251001"`
+          - `"claude-opus-4-0"`
 
-            Hybrid model, capable of near-instant responses and extended thinking
+            Powerful model for complex tasks
 
-          - `"claude-sonnet-4-20250514"`
+          - `"claude-opus-4-20250514"`
 
-            High-performance model with extended thinking
+            Powerful model for complex tasks
 
           - `"claude-sonnet-4-0"`
 
             High-performance model with extended thinking
 
-          - `"claude-4-sonnet-20250514"`
+          - `"claude-sonnet-4-20250514"`
 
             High-performance model with extended thinking
 
-          - `"claude-sonnet-4-5"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-sonnet-4-5-20250929"`
-
-            Our best model for real-world agents and coding
-
-          - `"claude-opus-4-0"`
-
-            Our most capable model
-
-          - `"claude-opus-4-20250514"`
-
-            Our most capable model
-
-          - `"claude-4-opus-20250514"`
-
-            Our most capable model
-
-          - `"claude-opus-4-1-20250805"`
-
-            Our most capable model
-
-          - `"claude-3-opus-latest"`
-
-            Excels at writing and complex tasks
-
-          - `"claude-3-opus-20240229"`
-
-            Excels at writing and complex tasks
-
           - `"claude-3-haiku-20240307"`
 
-            Our previous most fast and cost-effective
+            Fast and cost-effective model
 
         - `UnionMember1 = string`
 
@@ -35288,7 +35548,7 @@ curl https://api.anthropic.com/v1/messages/batches/$MESSAGE_BATCH_ID/results \
 
       See [models](https://docs.anthropic.com/en/docs/models-overview) for additional details and options.
 
-      - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-opus-4-5-20251101" or 19 more`
+      - `UnionMember0 = "claude-opus-4-6" or "claude-sonnet-4-6" or "claude-haiku-4-5" or 12 more`
 
         The model that will complete your prompt.
 
@@ -35300,87 +35560,59 @@ curl https://api.anthropic.com/v1/messages/batches/$MESSAGE_BATCH_ID/results \
 
         - `"claude-sonnet-4-6"`
 
-          Frontier intelligence at scale — built for coding, agents, and enterprise workflows
+          Best combination of speed and intelligence
 
-        - `"claude-opus-4-5-20251101"`
+        - `"claude-haiku-4-5"`
 
-          Premium model combining maximum intelligence with practical performance
+          Fastest model with near-frontier intelligence
+
+        - `"claude-haiku-4-5-20251001"`
+
+          Fastest model with near-frontier intelligence
 
         - `"claude-opus-4-5"`
 
           Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-latest"`
+        - `"claude-opus-4-5-20251101"`
 
-          High-performance model with early extended thinking
+          Premium model combining maximum intelligence with practical performance
 
-        - `"claude-3-7-sonnet-20250219"`
+        - `"claude-sonnet-4-5"`
 
-          High-performance model with early extended thinking
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-latest"`
+        - `"claude-sonnet-4-5-20250929"`
 
-          Fastest and most compact model for near-instant responsiveness
+          High-performance model for agents and coding
 
-        - `"claude-3-5-haiku-20241022"`
+        - `"claude-opus-4-1"`
 
-          Our fastest model
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5"`
+        - `"claude-opus-4-1-20250805"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Exceptional model for specialized complex tasks
 
-        - `"claude-haiku-4-5-20251001"`
+        - `"claude-opus-4-0"`
 
-          Hybrid model, capable of near-instant responses and extended thinking
+          Powerful model for complex tasks
 
-        - `"claude-sonnet-4-20250514"`
+        - `"claude-opus-4-20250514"`
 
-          High-performance model with extended thinking
+          Powerful model for complex tasks
 
         - `"claude-sonnet-4-0"`
 
           High-performance model with extended thinking
 
-        - `"claude-4-sonnet-20250514"`
+        - `"claude-sonnet-4-20250514"`
 
           High-performance model with extended thinking
 
-        - `"claude-sonnet-4-5"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-sonnet-4-5-20250929"`
-
-          Our best model for real-world agents and coding
-
-        - `"claude-opus-4-0"`
-
-          Our most capable model
-
-        - `"claude-opus-4-20250514"`
-
-          Our most capable model
-
-        - `"claude-4-opus-20250514"`
-
-          Our most capable model
-
-        - `"claude-opus-4-1-20250805"`
-
-          Our most capable model
-
-        - `"claude-3-opus-latest"`
-
-          Excels at writing and complex tasks
-
-        - `"claude-3-opus-20240229"`
-
-          Excels at writing and complex tasks
-
         - `"claude-3-haiku-20240307"`
 
-          Our previous most fast and cost-effective
+          Fast and cost-effective model
 
       - `UnionMember1 = string`
 

@@ -4,7 +4,7 @@ This guide walks through how to leverage Claude's advanced natural language proc
 
 ---
 
-> Visit our [summarization cookbook](https://platform.claude.com/cookbook/capabilities-summarization-guide) to see an example legal summarization implementation using Claude.
+> Visit the [summarization cookbook](https://platform.claude.com/cookbook/capabilities-summarization-guide) to see an example legal summarization implementation using Claude.
 
 ## Before building with Claude
 
@@ -67,7 +67,7 @@ The text should be clear and easy to understand. If the audience is not legal ex
 The summary should present an unbiased and fair depiction of the legal arguments and positions.
 </section>
 
-See our guide on [establishing success criteria](../developer/developer-test-and-evaluate-develop-tests.md) for more information.
+See the guide on [establishing success criteria](../developer/developer-test-and-evaluate-develop-tests.md) for more information.
 
 ---
 
@@ -107,7 +107,7 @@ Before you begin summarizing documents, you need to prepare your data. This invo
 
 Here is a demonstration of this process on a sample pdf:
 
-```python
+```python nocheck
 from io import BytesIO
 import re
 
@@ -142,9 +142,9 @@ document_text = get_llm_text(pdf_file)
 print(document_text[:50000])
 ```
 
-In this example, we first download a pdf of a sample sublease agreement used in the [summarization cookbook](https://platform.claude.com/cookbook/capabilities-summarization-guide). This agreement was sourced from a publicly available sublease agreement from the [sec.gov website](https://www.sec.gov/Archives/edgar/data/1045425/000119312507044370/dex1032.htm).
+In this example, you first download a pdf of a sample sublease agreement used in the [summarization cookbook](https://platform.claude.com/cookbook/capabilities-summarization-guide). This agreement was sourced from a publicly available sublease agreement from the [sec.gov website](https://www.sec.gov/Archives/edgar/data/1045425/000119312507044370/dex1032.htm).
 
-We use the pypdf library to extract the contents of the pdf and convert it to text. The text data is then cleaned by removing extra whitespace and page numbers.
+The example uses the pypdf library to extract the contents of the pdf and convert it to text. The text data is then cleaned by removing extra whitespace and page numbers.
 
 ### Build a strong prompt
 
@@ -152,7 +152,7 @@ Claude can adapt to various summarization styles. You can change the details of 
 
 Here’s an example of how to create a prompt that ensures the generated summaries follow a consistent structure when analyzing sublease agreements:
 
-```python
+```python nocheck hidelines={1..2}
 import anthropic
 
 # Initialize the Anthropic client
@@ -204,15 +204,15 @@ sublease_summary = summarize_document(document_text, details_to_extract)
 print(sublease_summary)
 ```
 
-This code implements a `summarize_document` function that uses Claude to summarize the contents of a sublease agreement. The function accepts a text string and a list of details to extract as inputs. In this example, we call the function with the `document_text` and `details_to_extract` variables that were defined in the previous code snippets.
+This code implements a `summarize_document` function that uses Claude to summarize the contents of a sublease agreement. The function accepts a text string and a list of details to extract as inputs. In this example, the code calls the function with the `document_text` and `details_to_extract` variables that were defined in the previous code snippets.
 
 Within the function, a prompt is generated for Claude, including the document to be summarized, the details to extract, and specific instructions for summarizing the document. The prompt instructs Claude to respond with a summary of each detail to extract nested within XML headers.
 
-Because we decided to output each section of the summary within tags, each section can easily be parsed out as a post-processing step. This approach enables structured summaries that can be adapted for your use case, so that each summary follows the same pattern.
+Because the code outputs each section of the summary within tags, each section can easily be parsed out as a post-processing step. This approach enables structured summaries that can be adapted for your use case, so that each summary follows the same pattern.
 
 ### Evaluate your prompt
 
-Prompting often requires testing and optimization for it to be production ready. To determine the readiness of your solution, evaluate the quality of your summaries using a systematic process combining quantitative and qualitative methods. Creating a [strong empirical evaluation](../developer/developer-test-and-evaluate-develop-tests.md#building-evals-and-test-cases) based on your defined success criteria will allow you to optimize your prompts. Here are some metrics you may wish to include within your empirical evaluation:
+Prompting often requires testing and optimization for it to be production ready. To determine the readiness of your solution, evaluate the quality of your summaries using a systematic process combining quantitative and qualitative methods. Creating a [strong empirical evaluation](../developer/developer-test-and-evaluate-develop-tests.md#building-evals-and-test-cases) based on your defined success criteria allows you to optimize your prompts. Here are some metrics you may wish to include within your empirical evaluation:
 
 <section title="ROUGE scores">
 This measures the overlap between the generated summary and an expert-created reference summary. This metric primarily focuses on recall and is useful for evaluating content coverage.
@@ -236,7 +236,7 @@ Here are some additional considerations to keep in mind as you deploy your solut
 
 1. **Ensure no liability:** Understand the legal implications of errors in the summaries, which could lead to legal liability for your organization or clients. Provide disclaimers or legal notices clarifying that the summaries are generated by AI and should be reviewed by legal professionals.
 
-2. **Handle diverse document types:** In this guide, we’ve discussed how to extract text from PDFs. In the real-world, documents may come in a variety of formats (PDFs, Word documents, text files, etc.). Ensure your data extraction pipeline can convert all of the file formats you expect to receive.
+2. **Handle diverse document types:** This guide discusses how to extract text from PDFs. In the real-world, documents may come in a variety of formats (PDFs, Word documents, text files, etc.). Ensure your data extraction pipeline can convert all of the file formats you expect to receive.
 
 3. **Parallelize API calls to Claude:** Long documents with a large number of tokens may require up to a minute for Claude to generate a summary. For large document collections, you may want to send API calls to Claude in parallel so that the summaries can be completed in a reasonable timeframe. Refer to Anthropic’s [rate limits](../api/api-rate-limits.md#rate-limits) to determine the maximum amount of API calls that can be performed in parallel.
 
@@ -252,7 +252,7 @@ Legal summarization often involves handling long documents or many related docum
 
 Here's an example of how to perform meta-summarization:
 
-```python
+```python nocheck hidelines={1..2}
 import anthropic
 
 # Initialize the Anthropic client
@@ -324,7 +324,7 @@ The `summarize_long_document` function builds upon the earlier `summarize_docume
 
 The code achieves this by applying the `summarize_document` function to each chunk of 20,000 characters within the original document. The individual summaries are then combined, and a final summary is created from these chunk summaries.
 
-Note that the `summarize_long_document` function isn’t strictly necessary for our example pdf, as the entire document fits within Claude’s context window. However, it becomes essential for documents exceeding Claude’s context window or when summarizing multiple related documents together. Regardless, this meta-summarization technique often captures additional important details in the final summary that were missed in the earlier single-summary approach.
+Note that the `summarize_long_document` function isn't strictly necessary for the example pdf, as the entire document fits within Claude's context window. However, it becomes essential for documents exceeding Claude's context window or when summarizing multiple related documents together. Regardless, this meta-summarization technique often captures additional important details in the final summary that were missed in the earlier single-summary approach.
 
 ### Use summary indexed documents to explore a large collection of documents
 
@@ -349,6 +349,6 @@ Another advanced technique to improve Claude's ability to generate summaries is 
     View a fully implemented code-based example of how to use Claude to summarize contracts.
   </Card>
   <Card title="Citations cookbook" icon="link" href="https://platform.claude.com/cookbook/misc-using-citations">
-    Explore our Citations cookbook recipe for guidance on how to ensure accuracy and explainability of information.
+    Explore the Citations cookbook recipe for guidance on how to ensure accuracy and explainability of information.
   </Card>
 </CardGroup>

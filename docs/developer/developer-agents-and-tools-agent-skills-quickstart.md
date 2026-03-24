@@ -12,14 +12,14 @@ This tutorial shows you how to use Agent Skills to create a PowerPoint presentat
 - Python 3.7+ or curl installed
 - Basic familiarity with making API requests
 
-## What are Agent Skills?
+## Agent Skills overview
 
 Pre-built Agent Skills extend Claude's capabilities with specialized expertise for tasks like creating documents, analyzing data, and processing files. Anthropic provides the following pre-built Agent Skills in the API:
 
-- **PowerPoint (pptx)**: Create and edit presentations
-- **Excel (xlsx)**: Create and analyze spreadsheets
-- **Word (docx)**: Create and edit documents
-- **PDF (pdf)**: Generate PDF documents
+- **PowerPoint (pptx):** Create and edit presentations
+- **Excel (xlsx):** Create and analyze spreadsheets
+- **Word (docx):** Create and edit documents
+- **PDF (pdf):** Generate PDF documents
 
 <Note>
 **Want to create custom Skills?** See the [Agent Skills Cookbook](https://platform.claude.com/cookbook/skills-notebooks-01-skills-introduction) for examples of building your own Skills with domain-specific expertise.
@@ -119,14 +119,18 @@ const response = await client.beta.messages.create({
       }
     ]
   },
-  messages: [{
-    role: "user",
-    content: "Create a presentation about renewable energy with 5 slides"
-  }],
-  tools: [{
-    type: "code_execution_20250825",
-    name: "code_execution"
-  }]
+  messages: [
+    {
+      role: "user",
+      content: "Create a presentation about renewable energy with 5 slides"
+    }
+  ],
+  tools: [
+    {
+      type: "code_execution_20250825",
+      name: "code_execution"
+    }
+  ]
 });
 
 console.log(response.content);
@@ -164,12 +168,12 @@ curl https://api.anthropic.com/v1/messages \
 
 Let's break down what each part does:
 
-- **`container.skills`**: Specifies which Skills Claude can use
-- **`type: "anthropic"`**: Indicates this is an Anthropic-managed Skill
-- **`skill_id: "pptx"`**: The PowerPoint Skill identifier
-- **`version: "latest"`**: The Skill version set to the most recently published
-- **`tools`**: Enables code execution (required for Skills)
-- **Beta headers**: `code-execution-2025-08-25` and `skills-2025-10-02`
+- **`container.skills`:** Specifies which Skills Claude can use
+- **`type: "anthropic"`:** Indicates this is an Anthropic-managed Skill
+- **`skill_id: "pptx"`:** The PowerPoint Skill identifier
+- **`version: "latest"`:** The Skill version set to the most recently published
+- **`tools`:** Enables code execution (required for Skills)
+- **Beta headers:** `code-execution-2025-08-25` and `skills-2025-10-02`
 
 When you make this request, Claude automatically matches your task to the relevant Skill. Since you asked for a presentation, Claude determines the PowerPoint Skill is relevant and loads its full instructions: the second level of progressive disclosure. Then Claude executes the Skill's code to create your presentation.
 
@@ -178,7 +182,11 @@ When you make this request, Claude automatically matches your task to the releva
 The presentation was created in the code execution container and saved as a file. The response includes a file reference with a file ID. Extract the file ID and download it using the Files API:
 
 <CodeGroup>
-```python Python
+
+```python Python nocheck
+from typing import Any
+
+response: Any = None
 # Extract file ID from response
 file_id = None
 for block in response.content:
@@ -202,7 +210,7 @@ if file_id:
     print(f"Presentation saved to renewable_energy.pptx")
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck
 // Extract file ID from response
 let fileId: string | null = null;
 for (const block of response.content) {
@@ -231,7 +239,7 @@ if (fileId) {
 }
 ```
 
-```bash Shell
+```bash Shell nocheck
 # Extract file_id from response (using jq)
 FILE_ID=$(echo "$RESPONSE" | jq -r '.content[] | select(.type=="tool_use" and .name=="code_execution") | .content[] | select(.file_id) | .file_id')
 
@@ -289,14 +297,18 @@ const response = await client.beta.messages.create({
       }
     ]
   },
-  messages: [{
-    role: "user",
-    content: "Create a quarterly sales tracking spreadsheet with sample data"
-  }],
-  tools: [{
-    type: "code_execution_20250825",
-    name: "code_execution"
-  }]
+  messages: [
+    {
+      role: "user",
+      content: "Create a quarterly sales tracking spreadsheet with sample data"
+    }
+  ],
+  tools: [
+    {
+      type: "code_execution_20250825",
+      name: "code_execution"
+    }
+  ]
 });
 ```
 
@@ -365,14 +377,18 @@ const response = await client.beta.messages.create({
       }
     ]
   },
-  messages: [{
-    role: "user",
-    content: "Write a 2-page report on the benefits of renewable energy"
-  }],
-  tools: [{
-    type: "code_execution_20250825",
-    name: "code_execution"
-  }]
+  messages: [
+    {
+      role: "user",
+      content: "Write a 2-page report on the benefits of renewable energy"
+    }
+  ],
+  tools: [
+    {
+      type: "code_execution_20250825",
+      name: "code_execution"
+    }
+  ]
 });
 ```
 
@@ -436,14 +452,18 @@ const response = await client.beta.messages.create({
       }
     ]
   },
-  messages: [{
-    role: "user",
-    content: "Generate a PDF invoice template"
-  }],
-  tools: [{
-    type: "code_execution_20250825",
-    name: "code_execution"
-  }]
+  messages: [
+    {
+      role: "user",
+      content: "Generate a PDF invoice template"
+    }
+  ],
+  tools: [
+    {
+      type: "code_execution_20250825",
+      name: "code_execution"
+    }
+  ]
 });
 ```
 

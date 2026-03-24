@@ -2,7 +2,7 @@
 
 ---
 
-The bash tool enables Claude to execute shell commands in a persistent bash session, allowing system operations, script execution, and command-line automation.
+The bash tool enables Claude to execute shell commands in a persistent bash session, allowing system operations, script execution, and command-line automation. Shell access is a foundational agent capability. On [Terminal-Bench 2.0](https://github.com/terminal-bench/terminal-bench), a benchmark that evaluates real-world terminal tasks using shell-only validation, Claude shows strong performance gains with access to a persistent bash session.
 
 ## Overview
 
@@ -24,10 +24,10 @@ Older tool versions are not guaranteed to be backwards-compatible with newer mod
 
 ## Use cases
 
-- **Development workflows**: Run build commands, tests, and development tools
-- **System automation**: Execute scripts, manage files, automate tasks
-- **Data processing**: Process files, run analysis scripts, manage datasets
-- **Environment setup**: Install packages, configure environments
+- **Development workflows:** Run build commands, tests, and development tools
+- **System automation:** Execute scripts, manage files, automate tasks
+- **Data processing:** Process files, run analysis scripts, manage datasets
+- **Environment setup:** Install packages, configure environments
 
 ## Quick start
 
@@ -91,13 +91,17 @@ The bash tool maintains a persistent session:
 
 <section title="Example usage">
 
+Run a command:
+
 ```json
-// Run a command
 {
   "command": "ls -la *.py"
 }
+```
 
-// Restart the session
+Restart the session:
+
+```json
 {
   "restart": true
 }
@@ -109,7 +113,7 @@ The bash tool maintains a persistent session:
 
 Claude can chain commands to complete complex tasks:
 
-```python
+```python nocheck
 # User request
 "Install the requests library and create a simple Python script that fetches a joke from an API, then run it."
 
@@ -137,7 +141,8 @@ The bash tool is implemented as a schema-less tool. When using this tool, you do
 <Steps>
   <Step title="Set up a bash environment">
     Create a persistent bash session that Claude can interact with:
-    ```python
+
+    ```python nocheck
     import subprocess
     import threading
     import queue
@@ -160,7 +165,8 @@ The bash tool is implemented as a schema-less tool. When using this tool, you do
   </Step>
   <Step title="Handle command execution">
     Create a function to execute commands and capture output:
-    ```python
+
+    ```python nocheck
     def execute_command(self, command):
         # Send command to bash
         self.process.stdin.write(command + "\n")
@@ -173,7 +179,8 @@ The bash tool is implemented as a schema-less tool. When using this tool, you do
   </Step>
   <Step title="Process Claude's tool calls">
     Extract and execute commands from Claude's responses:
-    ```python
+
+    ```python nocheck
     for content in response.content:
         if content.type == "tool_use" and content.name == "bash":
             if content.input.get("restart"):
@@ -276,7 +283,8 @@ If there are permission issues:
 <section title="Use command timeouts">
 
 Implement timeouts to prevent hanging commands:
-```python
+
+```python nocheck
 def execute_with_timeout(command, timeout=30):
     try:
         result = subprocess.run(
@@ -383,6 +391,15 @@ See [tool use pricing](./developer-agents-and-tools-tool-use-overview.md#pricing
 - Building projects: `npm install && npm run build`
 - Git operations: `git status && git add . && git commit -m "message"`
 
+#### Git-based checkpointing
+
+Git serves as a structured recovery mechanism in long-running agent workflows, not just a way to save changes:
+
+- **Capture a baseline:** Before any agent work begins, commit the current state. This is the known-good starting point.
+- **Commit per feature:** Each completed feature gets its own commit. These serve as rollback points if something goes wrong later.
+- **Reconstruct state at session start:** Read `git log` alongside a progress file to understand what has already been done and what comes next.
+- **Revert on failure:** If work goes sideways, `git checkout` reverts to the last good commit instead of trying to debug a broken state.
+
 ### File operations
 - Processing data: `wc -l *.csv && ls -lh *.csv`
 - Searching files: `find . -name "*.py" | xargs grep "pattern"`
@@ -395,11 +412,11 @@ See [tool use pricing](./developer-agents-and-tools-tool-use-overview.md#pricing
 
 ## Limitations
 
-- **No interactive commands**: Cannot handle `vim`, `less`, or password prompts
-- **No GUI applications**: Command-line only
-- **Session scope**: Persists within conversation, lost between API calls
-- **Output limits**: Large outputs may be truncated
-- **No streaming**: Results returned after completion
+- **No interactive commands:** Cannot handle `vim`, `less`, or password prompts
+- **No GUI applications:** Command-line only
+- **Session scope:** Persists within conversation, lost between API calls
+- **Output limits:** Large outputs may be truncated
+- **No streaming:** Results returned after completion
 
 ## Combining with other tools
 

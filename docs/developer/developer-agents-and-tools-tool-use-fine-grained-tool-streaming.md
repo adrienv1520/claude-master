@@ -51,15 +51,15 @@ Here's an example of how to use fine-grained tool streaming with the API:
         }
       ],
       "stream": true
-    }' | jq '.usage'
+    }'
   ```
 
-  ```python Python
+  ```python Python hidelines={1..2}
   import anthropic
 
   client = anthropic.Anthropic()
 
-  response = client.messages.stream(
+  with client.messages.stream(
       max_tokens=65536,
       model="claude-opus-4-6",
       tools=[
@@ -89,44 +89,52 @@ Here's an example of how to use fine-grained tool streaming with the API:
               "content": "Can you write a long poem and make a file called poem.txt?",
           }
       ],
-  )
+  ) as stream:
+      for event in stream:
+          pass
+      final_message = stream.get_final_message()
 
-  print(response.usage)
+  print(final_message.usage)
   ```
 
-  ```typescript TypeScript
+  ```typescript TypeScript hidelines={1..2}
   import Anthropic from "@anthropic-ai/sdk";
 
   const anthropic = new Anthropic();
 
-  const message = await anthropic.messages.stream({
+  const stream = anthropic.messages.stream({
     model: "claude-opus-4-6",
     max_tokens: 65536,
-    tools: [{
-      name: "make_file",
-      description: "Write text to a file",
-      eager_input_streaming: true,
-      input_schema: {
-        type: "object",
-        properties: {
-          filename: {
-            type: "string",
-            description: "The filename to write text to"
+    tools: [
+      {
+        name: "make_file",
+        description: "Write text to a file",
+        eager_input_streaming: true,
+        input_schema: {
+          type: "object",
+          properties: {
+            filename: {
+              type: "string",
+              description: "The filename to write text to"
+            },
+            lines_of_text: {
+              type: "array",
+              description: "An array of lines of text to write to the file"
+            }
           },
-          lines_of_text: {
-            type: "array",
-            description: "An array of lines of text to write to the file"
-          }
-        },
-        required: ["filename", "lines_of_text"]
+          required: ["filename", "lines_of_text"]
+        }
       }
-    }],
-    messages: [{
-      role: "user",
-      content: "Can you write a long poem and make a file called poem.txt?"
-    }]
+    ],
+    messages: [
+      {
+        role: "user",
+        content: "Can you write a long poem and make a file called poem.txt?"
+      }
+    ]
   });
 
+  const message = await stream.finalMessage();
   console.log(message.usage);
   ```
 </CodeGroup>
@@ -160,7 +168,7 @@ Chunk 2: ' new features comparison'
 
 <Warning>
 Because fine-grained streaming sends parameters without buffering or JSON validation, there is no guarantee that the resulting stream will complete in a valid JSON string.
-Particularly, if the [stop reason](./developer-build-with-claude-handling-stop-reasons.md) `max_tokens` is reached, the stream may end midway through a parameter and may be incomplete. You will generally have to write specific support to handle when `max_tokens` is reached.
+Particularly, if the [stop reason](./developer-build-with-claude-handling-stop-reasons.md) `max_tokens` is reached, the stream may end midway through a parameter and may be incomplete. You generally have to write specific support to handle when `max_tokens` is reached.
 </Warning>
 
 ## Handling invalid JSON in tool responses

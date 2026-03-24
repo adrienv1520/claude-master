@@ -10,7 +10,7 @@ To learn more about refusals triggered by API safety filters for Claude Sonnet 4
 
 ## API response format
 
-When streaming classifiers detect content that violates our policies, the API returns this response:
+When streaming classifiers detect content that violates Anthropic's policies, the API returns this response:
 
 ```json
 {
@@ -68,7 +68,7 @@ if echo "$response" | grep -q '"stop_reason":"refusal"'; then
 fi
 ```
 
-```python Python
+```python Python hidelines={1..2}
 import anthropic
 
 client = anthropic.Anthropic()
@@ -98,7 +98,7 @@ except Exception as e:
     print(f"Error: {e}")
 ```
 
-```typescript TypeScript
+```typescript TypeScript nocheck hidelines={1..2}
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
@@ -128,11 +128,211 @@ try {
   console.error("Error:", error);
 }
 ```
-</CodeGroup>
 
-<Note>
-If you need to test refusal handling in your application, you can use this special test string as your prompt: `ANTHROPIC_MAGIC_STRING_TRIGGER_REFUSAL_1FAEFB6177B4672DEE07F9D3AFC62588CCD2631EDCF22E8CCC1FB35B501C9C86`
-</Note>
+```csharp C# nocheck
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Anthropic;
+using Anthropic.Models.Messages;
+
+class Program
+{
+    private static List<Message> messages = new();
+
+    static async Task Main(string[] args)
+    {
+        AnthropicClient client = new();
+
+        var parameters = new MessageCreateParams
+        {
+            Model = Model.ClaudeSonnet4_6,
+            MaxTokens = 1024,
+            Messages = [new() { Role = Role.User, Content = "Hello" }]
+        };
+
+        try
+        {
+            await foreach (var msg in client.Messages.CreateStreaming(parameters))
+            {
+                if (msg.Type == "message_delta" && msg.Delta?.StopReason == "refusal")
+                {
+                    ResetConversation();
+                    break;
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Error: {e.Message}");
+        }
+    }
+
+    private static void ResetConversation()
+    {
+        messages.Clear();
+        Console.WriteLine("Conversation reset due to refusal");
+    }
+}
+```
+
+```go Go nocheck hidelines={1..10,17..18,-1..}
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+
+	"github.com/anthropics/anthropic-sdk-go"
+)
+
+var messages []anthropic.MessageParam
+
+func resetConversation() {
+	messages = []anthropic.MessageParam{}
+	fmt.Println("Conversation reset due to refusal")
+}
+
+func main() {
+	client := anthropic.NewClient()
+
+	stream := client.Messages.NewStreaming(context.TODO(), anthropic.MessageNewParams{
+		Model:     anthropic.Model("claude-sonnet-4-6"),
+		MaxTokens: 1024,
+		Messages: []anthropic.MessageParam{
+			anthropic.NewUserMessage(anthropic.NewTextBlock("Hello")),
+		},
+	})
+
+streamLoop:
+	for stream.Next() {
+		event := stream.Current()
+		switch eventVariant := event.AsAny().(type) {
+		case anthropic.MessageDeltaEvent:
+			if eventVariant.Delta.StopReason == "refusal" {
+				resetConversation()
+				break streamLoop
+			}
+		}
+	}
+
+	if err := stream.Err(); err != nil {
+		log.Fatal(err)
+	}
+}
+```
+
+```java Java hidelines={1..5,9..12,14..15,37..38,-1}
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.models.messages.MessageCreateParams;
+import com.anthropic.models.messages.MessageParam;
+import com.anthropic.models.messages.Model;
+import com.anthropic.core.http.StreamResponse;
+import com.anthropic.models.messages.RawMessageStreamEvent;
+import com.anthropic.models.messages.StopReason;
+import java.util.ArrayList;
+import java.util.List;
+
+public class RefusalHandling {
+    private static List<MessageParam> messages = new ArrayList<>();
+
+    public static void main(String[] args) {
+        AnthropicClient client = AnthropicOkHttpClient.fromEnv();
+
+        MessageCreateParams params = MessageCreateParams.builder()
+            .model(Model.CLAUDE_SONNET_4_6)
+            .maxTokens(1024L)
+            .addUserMessage("Hello")
+            .build();
+
+        try (StreamResponse<RawMessageStreamEvent> stream = client.messages().createStreaming(params)) {
+            stream.stream().forEach(event -> {
+                event.messageDelta().ifPresent(deltaEvent -> {
+                    deltaEvent.delta().stopReason().ifPresent(stopReason -> {
+                        if (stopReason.equals(StopReason.REFUSAL)) {
+                            resetConversation();
+                        }
+                    });
+                });
+            });
+        } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void resetConversation() {
+        messages.clear();
+        System.out.println("Conversation reset due to content policy violation");
+    }
+}
+```
+
+```php PHP nocheck hidelines={1..4}
+<?php
+
+use Anthropic\Client;
+
+$client = new Client(apiKey: getenv("ANTHROPIC_API_KEY"));
+$messages = [];
+
+function resetConversation(&$messages) {
+    $messages = [];
+    echo "Conversation reset due to refusal\n";
+}
+
+try {
+    $stream = $client->messages->createStream(
+        maxTokens: 1024,
+        messages: [
+            ['role' => 'user', 'content' => 'Hello']
+        ],
+        model: 'claude-sonnet-4-6',
+    );
+
+    foreach ($stream as $event) {
+        if (isset($event->type) && $event->type === 'message_delta') {
+            if (isset($event->delta->stopReason) && $event->delta->stopReason === 'refusal') {
+                resetConversation($messages);
+                break;
+            }
+        }
+    }
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}
+```
+
+```ruby Ruby nocheck hidelines={1..2}
+require "anthropic"
+
+client = Anthropic::Client.new
+messages = []
+
+def reset_conversation(messages)
+  messages.clear
+  puts "Conversation reset due to refusal"
+end
+
+begin
+  stream = client.messages.stream(
+    model: :"claude-sonnet-4-6",
+    max_tokens: 1024,
+    messages: [{ role: "user", content: "Hello" }]
+  )
+
+  stream.each do |event|
+    if event.type == :message_delta && event.delta.stop_reason == :refusal
+      reset_conversation(messages)
+      break
+    end
+  end
+rescue => e
+  puts "Error: #{e.message}"
+end
+```
+</CodeGroup>
 
 ## Current refusal types
 

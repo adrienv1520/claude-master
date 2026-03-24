@@ -4,12 +4,12 @@ Access Claude models through Microsoft Foundry with Azure-native endpoints and a
 
 ---
 
-This guide will walk you through the process of setting up and making API calls to Claude in Foundry in Python, TypeScript, or using direct HTTP requests. When you can access Claude in Foundry, you will be billed for Claude usage in the Microsoft Marketplace with your Azure subscription, allowing you to access Claude's latest capabilities while managing costs through your Azure subscription.
+This guide walks you through the process of setting up and making API calls to Claude in Foundry in Python, TypeScript, or using direct HTTP requests. When you can access Claude in Foundry, you are billed for Claude usage in the Microsoft Marketplace with your Azure subscription, allowing you to access Claude's latest capabilities while managing costs through your Azure subscription.
 
 Regional availability: At launch, Claude is available as a Global Standard deployment type in Foundry resources (US DataZone coming soon). Pricing for Claude in the Microsoft Marketplace uses Anthropic's standard API pricing. Visit the [pricing page](https://claude.com/pricing#api) for details.
 
 <Note>
-Foundry is supported by the C#, Java, Python, and TypeScript SDKs. The Go, PHP, and Ruby SDKs do not currently support Microsoft Foundry. For available SDK platform integrations, see [Client SDKs](../api/api-client-sdks.md).
+Foundry is supported by the C#, Java, PHP, Python, and TypeScript SDKs. The Go and Ruby SDKs do not currently support Microsoft Foundry. For available SDK platform integrations, see [Client SDKs](../api/api-client-sdks.md).
 </Note>
 
 ## Preview
@@ -41,11 +41,17 @@ npm install @anthropic-ai/foundry-sdk
 ```
 </Tab>
 
+<Tab title="C#">
+```bash
+dotnet add package Anthropic.Foundry
+```
+</Tab>
+
 <Tab title="Java">
 <Tabs>
 <Tab title="Gradle">
 ```kotlin
-implementation("com.anthropic:anthropic-java-foundry:2.14.0")
+implementation("com.anthropic:anthropic-java-foundry:2.18.0")
 ```
 </Tab>
 <Tab title="Maven">
@@ -53,16 +59,16 @@ implementation("com.anthropic:anthropic-java-foundry:2.14.0")
 <dependency>
     <groupId>com.anthropic</groupId>
     <artifactId>anthropic-java-foundry</artifactId>
-    <version>2.14.0</version>
+    <version>2.18.0</version>
 </dependency>
 ```
 </Tab>
 </Tabs>
 </Tab>
 
-<Tab title="C#">
+<Tab title="PHP">
 ```bash
-dotnet add package Anthropic.Foundry
+composer require anthropic-ai/sdk
 ```
 </Tab>
 </Tabs>
@@ -91,8 +97,8 @@ After creating your resource, deploy a Claude model to make it available for API
 2. Go to **Models + endpoints** and select **+ Deploy model** > **Deploy base model**
 3. Search for and select a Claude model (e.g., `claude-sonnet-4-6`)
 4. Configure deployment settings:
-   - **Deployment name**: Defaults to the model ID, but you can customize it (e.g., `my-claude-deployment`). The deployment name cannot be changed after it has been created.
-   - **Deployment type**: Select Global Standard (recommended for Claude)
+   - **Deployment name:** Defaults to the model ID, but you can customize it (e.g., `my-claude-deployment`). The deployment name cannot be changed after it has been created.
+   - **Deployment type:** Select Global Standard (recommended for Claude)
 5. Select **Deploy** and wait for provisioning to complete
 6. Once deployed, you can find your endpoint URL and keys under **Keys and Endpoint**
 
@@ -125,8 +131,27 @@ The `resource` and `base_url` parameters are mutually exclusive. Provide either 
 
 **Example using API key:**
 
-<CodeGroup>
-```python Python
+<Tabs>
+<Tab title="Shell">
+
+```bash nocheck
+curl https://{resource}.services.ai.azure.com/anthropic/v1/messages \
+  -H "content-type: application/json" \
+  -H "api-key: YOUR_AZURE_API_KEY" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-opus-4-6",
+    "max_tokens": 1024,
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+</Tab>
+
+<Tab title="Python">
+
+```python nocheck
 import os
 from anthropic import AnthropicFoundry
 
@@ -142,8 +167,11 @@ message = client.messages.create(
 )
 print(message.content)
 ```
+</Tab>
 
-```typescript TypeScript
+<Tab title="TypeScript">
+
+```typescript nocheck
 import AnthropicFoundry from "@anthropic-ai/foundry-sdk";
 
 const client = new AnthropicFoundry({
@@ -158,30 +186,11 @@ const message = await client.messages.create({
 });
 console.log(message.content);
 ```
+</Tab>
 
-```java Java
-import com.anthropic.client.AnthropicClient;
-import com.anthropic.client.okhttp.AnthropicOkHttpClient;
-import com.anthropic.foundry.backends.FoundryBackend;
-import com.anthropic.models.messages.MessageCreateParams;
+<Tab title="C#">
 
-// Requires env vars: ANTHROPIC_FOUNDRY_API_KEY, ANTHROPIC_FOUNDRY_RESOURCE
-AnthropicClient client = AnthropicOkHttpClient.builder()
-  .backend(FoundryBackend.fromEnv())
-  .build();
-
-MessageCreateParams params = MessageCreateParams.builder()
-  .model("claude-opus-4-6")
-  .maxTokens(1024)
-  .addUserMessage("Hello!")
-  .build();
-
-client.messages().create(params).content().stream()
-  .flatMap(block -> block.text().stream())
-  .forEach(textBlock -> System.out.println(textBlock.text()));
-```
-
-```csharp C#
+```csharp nocheck
 using Anthropic.Foundry;
 using Anthropic.Models.Messages;
 
@@ -204,21 +213,62 @@ Console.WriteLine(
         .Where(c => c.Value is TextBlock)
         .Select(c => (c.Value as TextBlock)!.Text)));
 ```
+</Tab>
 
-```bash Shell
-curl https://{resource}.services.ai.azure.com/anthropic/v1/messages \
-  -H "content-type: application/json" \
-  -H "api-key: YOUR_AZURE_API_KEY" \
-  -H "anthropic-version: 2023-06-01" \
-  -d '{
-    "model": "claude-opus-4-6",
-    "max_tokens": 1024,
-    "messages": [
-      {"role": "user", "content": "Hello!"}
-    ]
-  }'
+<Tab title="Java">
+
+```java Java nocheck
+import com.anthropic.client.AnthropicClient;
+import com.anthropic.client.okhttp.AnthropicOkHttpClient;
+import com.anthropic.foundry.backends.FoundryBackend;
+import com.anthropic.models.messages.MessageCreateParams;
+
+// Requires env vars: ANTHROPIC_FOUNDRY_API_KEY, ANTHROPIC_FOUNDRY_RESOURCE
+AnthropicClient client = AnthropicOkHttpClient.builder()
+  .backend(FoundryBackend.fromEnv())
+  .build();
+
+MessageCreateParams params = MessageCreateParams.builder()
+  .model("claude-opus-4-6")
+  .maxTokens(1024)
+  .addUserMessage("Hello!")
+  .build();
+
+client.messages().create(params).content().stream()
+  .flatMap(block -> block.text().stream())
+  .forEach(textBlock -> System.out.println(textBlock.text()));
 ```
-</CodeGroup>
+</Tab>
+
+<Tab title="PHP">
+
+```php PHP nocheck
+<?php
+
+use Anthropic\Foundry;
+
+$client = Foundry\Client::withCredentials(
+    apiKey: getenv('ANTHROPIC_FOUNDRY_API_KEY'),
+    baseUrl: 'https://example-resource.services.ai.azure.com/anthropic/v1',
+);
+
+$message = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => 'Hello!']
+    ],
+    model: 'claude-opus-4-6',
+);
+echo $message->content[0]->text;
+```
+</Tab>
+
+<Tab title="Ruby">
+<Note>
+The Anthropic Ruby SDK does not currently support Microsoft Azure AI Foundry. You can use the standard `Anthropic::Client` with a custom `base_url` pointing to your Foundry endpoint, but Azure-specific authentication (Entra ID) is not built in. For full Foundry support, use the Python or TypeScript SDKs.
+</Note>
+</Tab>
+</Tabs>
 
 <Warning>
 Keep your API keys secure. Never commit them to version control or share them publicly. Anyone with access to your API key can make requests to Claude through your Foundry resource.
@@ -234,8 +284,31 @@ For enhanced security and centralized access management, you can use Entra ID (f
 
 **Example using Entra ID:**
 
-<CodeGroup>
-```python Python
+<Tabs>
+<Tab title="Shell">
+
+```bash nocheck
+# Get Azure Entra ID token
+ACCESS_TOKEN=$(az account get-access-token --resource https://cognitiveservices.azure.com --query accessToken -o tsv)
+
+# Make request with token. Replace {resource} with your resource name
+curl https://{resource}.services.ai.azure.com/anthropic/v1/messages \
+  -H "content-type: application/json" \
+  -H "Authorization: Bearer $ACCESS_TOKEN" \
+  -H "anthropic-version: 2023-06-01" \
+  -d '{
+    "model": "claude-opus-4-6",
+    "max_tokens": 1024,
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+</Tab>
+
+<Tab title="Python">
+
+```python nocheck
 import os
 from anthropic import AnthropicFoundry
 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
@@ -259,13 +332,13 @@ message = client.messages.create(
 )
 print(message.content)
 ```
+</Tab>
 
-```typescript TypeScript
+<Tab title="TypeScript">
+
+```typescript nocheck
 import AnthropicFoundry from "@anthropic-ai/foundry-sdk";
-import {
-  DefaultAzureCredential,
-  getBearerTokenProvider
-} from "@azure/identity";
+import { DefaultAzureCredential, getBearerTokenProvider } from "@azure/identity";
 
 // Get Entra ID token using token provider pattern
 const credential = new DefaultAzureCredential();
@@ -288,8 +361,39 @@ const message = await client.messages.create({
 });
 console.log(message.content);
 ```
+</Tab>
 
-```java Java
+<Tab title="C#">
+
+```csharp nocheck
+using Anthropic.Foundry;
+using Anthropic.Models.Messages;
+using Azure.Identity;
+
+var client = new AnthropicFoundryClient(
+    new AnthropicFoundryIdentityTokenCredentials(
+        new DefaultAzureCredential(),
+        "example-resource"
+    )
+);
+
+var response = await client.Messages.Create(new MessageCreateParams
+{
+    Model = "claude-opus-4-6",
+    MaxTokens = 1024,
+    Messages = [new() { Role = Role.User, Content = "Hello!" }],
+});
+
+Console.WriteLine(
+    string.Join("", response.Content
+        .Where(c => c.Value is TextBlock)
+        .Select(c => (c.Value as TextBlock)!.Text)));
+```
+</Tab>
+
+<Tab title="Java">
+
+```java Java nocheck hidelines={1..2,4,8}
 import com.anthropic.client.AnthropicClient;
 import com.anthropic.client.okhttp.AnthropicOkHttpClient;
 import com.anthropic.foundry.backends.FoundryBackend;
@@ -320,50 +424,38 @@ client.messages().create(params).content().stream()
   .flatMap(block -> block.text().stream())
   .forEach(textBlock -> System.out.println(textBlock.text()));
 ```
+</Tab>
 
-```csharp C#
-using Anthropic.Foundry;
-using Anthropic.Models.Messages;
-using Azure.Identity;
+<Tab title="PHP">
 
-var client = new AnthropicFoundryClient(
-    new AnthropicFoundryIdentityTokenCredentials(
-        new DefaultAzureCredential(),
-        "example-resource"
-    )
+```php PHP nocheck
+<?php
+
+use Anthropic\Foundry;
+
+// Azure Entra ID authentication
+$client = Foundry\Client::withCredentials(
+    authToken: $token,
+    baseUrl: 'https://example-resource.services.ai.azure.com/anthropic/v1',
 );
 
-var response = await client.Messages.Create(new MessageCreateParams
-{
-    Model = "claude-opus-4-6",
-    MaxTokens = 1024,
-    Messages = [new() { Role = Role.User, Content = "Hello!" }],
-});
-
-Console.WriteLine(
-    string.Join("", response.Content
-        .Where(c => c.Value is TextBlock)
-        .Select(c => (c.Value as TextBlock)!.Text)));
+$message = $client->messages->create(
+    maxTokens: 1024,
+    messages: [
+        ['role' => 'user', 'content' => 'Hello!']
+    ],
+    model: 'claude-opus-4-6',
+);
+echo $message->content[0]->text;
 ```
+</Tab>
 
-```bash Shell
-# Get Azure Entra ID token
-ACCESS_TOKEN=$(az account get-access-token --resource https://cognitiveservices.azure.com --query accessToken -o tsv)
-
-# Make request with token. Replace {resource} with your resource name
-curl https://{resource}.services.ai.azure.com/anthropic/v1/messages \
-  -H "content-type: application/json" \
-  -H "Authorization: Bearer $ACCESS_TOKEN" \
-  -H "anthropic-version: 2023-06-01" \
-  -d '{
-    "model": "claude-opus-4-6",
-    "max_tokens": 1024,
-    "messages": [
-      {"role": "user", "content": "Hello!"}
-    ]
-  }'
-```
-</CodeGroup>
+<Tab title="Ruby">
+<Note>
+The Anthropic Ruby SDK does not currently support Microsoft Azure AI Foundry. You can use the standard `Anthropic::Client` with a custom `base_url` pointing to your Foundry endpoint, but Azure-specific authentication (Entra ID) is not built in. For full Foundry support, use the Python or TypeScript SDKs.
+</Note>
+</Tab>
+</Tabs>
 
 <Note>
 Azure Entra ID authentication allows you to manage access using Azure RBAC, integrate with your organization's identity management, and avoid managing API keys manually.
@@ -376,6 +468,14 @@ Foundry includes request identifiers in HTTP response headers for debugging and 
 ## Supported features
 
 Claude on Foundry supports most of Claude's powerful features. You can find all the features currently supported in the [overview documentation](./developer-build-with-claude-overview.md).
+
+### Context window
+
+Claude Opus 4.6, Sonnet 4.6, and Sonnet 4.5 have a [1M-token context window](./developer-build-with-claude-context-windows.md) on Microsoft Foundry.
+
+<Note>
+For Claude Sonnet 4.5, the 1M-token context window is in beta. To use, include the `context-1m-2025-08-07` [beta header](../api/api-beta-headers.md) in your API requests.
+</Note>
 
 ### Features not supported
 
@@ -408,9 +508,9 @@ By default, deployment names match the model IDs shown above. However, you can c
 
 Azure provides comprehensive monitoring and logging capabilities for your Claude usage through standard Azure patterns:
 
-- **Azure Monitor**: Track API usage, latency, and error rates
-- **Azure Log Analytics**: Query and analyze request/response logs
-- **Cost Management**: Monitor and forecast costs associated with Claude usage
+- **Azure Monitor:** Track API usage, latency, and error rates
+- **Azure Log Analytics:** Query and analyze request/response logs
+- **Cost Management:** Monitor and forecast costs associated with Claude usage
 
 Anthropic recommends logging your activity on at least a 30-day rolling basis to understand usage patterns and investigate any potential issues.
 
@@ -422,21 +522,21 @@ Azure's logging services are configured within your Azure subscription. Enabling
 
 ### Authentication errors
 
-**Error**: `401 Unauthorized` or `Invalid API key`
+**Error:** `401 Unauthorized` or `Invalid API key`
 
-- **Solution**: Verify your API key is correct. You can obtain a new API key from the Azure portal under **Keys and Endpoint** for your Claude resource.
-- **Solution**: If using Azure Entra ID, ensure your access token is valid and hasn't expired. Tokens typically expire after 1 hour.
+- **Solution:** Verify your API key is correct. You can obtain a new API key from the Azure portal under **Keys and Endpoint** for your Claude resource.
+- **Solution:** If using Azure Entra ID, ensure your access token is valid and hasn't expired. Tokens typically expire after 1 hour.
 
-**Error**: `403 Forbidden`
+**Error:** `403 Forbidden`
 
-- **Solution**: Your Azure account may lack the necessary permissions. Ensure you have the appropriate Azure RBAC role assigned (e.g., "Cognitive Services OpenAI User").
+- **Solution:** Your Azure account may lack the necessary permissions. Ensure you have the appropriate Azure RBAC role assigned (e.g., "Cognitive Services OpenAI User").
 
 ### Rate limiting
 
-**Error**: `429 Too Many Requests`
+**Error:** `429 Too Many Requests`
 
-- **Solution**: You've exceeded your rate limit. Implement exponential backoff and retry logic in your application.
-- **Solution**: Consider requesting rate limit increases through the Azure portal or Azure support.
+- **Solution:** You've exceeded your rate limit. Implement exponential backoff and retry logic in your application.
+- **Solution:** Consider requesting rate limit increases through the Azure portal or Azure support.
 
 #### Rate limit headers
 
@@ -444,19 +544,19 @@ Foundry does not include Anthropic's standard rate limit headers (`anthropic-rat
 
 ### Model and deployment errors
 
-**Error**: `Model not found` or `Deployment not found`
+**Error:** `Model not found` or `Deployment not found`
 
-- **Solution**: Verify you're using the correct deployment name. If you haven't created a custom deployment, use the default model ID (e.g., `claude-sonnet-4-6`).
-- **Solution**: Ensure the model/deployment is available in your Azure region.
+- **Solution:** Verify you're using the correct deployment name. If you haven't created a custom deployment, use the default model ID (e.g., `claude-sonnet-4-6`).
+- **Solution:** Ensure the model/deployment is available in your Azure region.
 
-**Error**: `Invalid model parameter`
+**Error:** `Invalid model parameter`
 
-- **Solution**: The model parameter should contain your deployment name, which can be customized in the Foundry portal. Verify the deployment exists and is properly configured.
+- **Solution:** The model parameter should contain your deployment name, which can be customized in the Foundry portal. Verify the deployment exists and is properly configured.
 
 ## Additional resources
 
-- **Foundry documentation**: [ai.azure.com/catalog](https://ai.azure.com/catalog/publishers/anthropic)
-- **Azure pricing**: [azure.microsoft.com/en-us/pricing](https://azure.microsoft.com/en-us/pricing/)
-- **Anthropic pricing details**: [Pricing documentation](./developer-about-claude-pricing.md#third-party-platform-pricing)
-- **Authentication guide**: See the [authentication section](#authentication) above
-- **Azure portal**: [portal.azure.com](https://portal.azure.com/)
+- **Foundry documentation:** [ai.azure.com/catalog](https://ai.azure.com/catalog/publishers/anthropic)
+- **Azure pricing:** [azure.microsoft.com/en-us/pricing](https://azure.microsoft.com/en-us/pricing/)
+- **Anthropic pricing details:** [Pricing documentation](./developer-about-claude-pricing.md#third-party-platform-pricing)
+- **Authentication guide:** See the [authentication section](#authentication) above
+- **Azure portal:** [portal.azure.com](https://portal.azure.com/)

@@ -91,7 +91,7 @@ See this table for the available options:
 
 To temporarily use a modified client configuration, while reusing the same connection and thread pools, call `WithOptions` on any client or service:
 
-```csharp
+```csharp nocheck
 using System;
 
 var message = await client
@@ -119,7 +119,7 @@ A streaming method always has a `Streaming` suffix in its name, even if it doesn
 
 These streaming methods return [`IAsyncEnumerable`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1):
 
-```csharp
+```csharp nocheck
 using System;
 using Anthropic.Models.Messages;
 
@@ -194,7 +194,7 @@ AnthropicClient client = new() { MaxRetries = 3 };
 
 Or configure a single method call using `WithOptions`:
 
-```csharp
+```csharp nocheck
 using System;
 
 var message = await client
@@ -221,7 +221,7 @@ AnthropicClient client = new() { Timeout = TimeSpan.FromSeconds(42) };
 
 Or configure a single method call using `WithOptions`:
 
-```csharp
+```csharp nocheck
 using System;
 
 var message = await client
@@ -241,7 +241,7 @@ The SDK defines methods that return paginated lists of results. It provides conv
 
 To iterate through all results across all pages, use the `Paginate` method, which automatically fetches more pages as needed. The method returns an [`IAsyncEnumerable`](https://learn.microsoft.com/en-us/dotnet/api/system.collections.generic.iasyncenumerable-1):
 
-```csharp
+```csharp nocheck
 using System;
 
 var page = await client.Messages.Batches.List(parameters);
@@ -255,8 +255,11 @@ await foreach (var item in page.Paginate())
 
 To access individual page items and manually request the next page, use the `Items` property, and `HasNext` and `Next` methods:
 
-```csharp
+```csharp hidelines={1..5}
+using Anthropic;
 using System;
+
+AnthropicClient client = new();
 
 var page = await client.Messages.Batches.List();
 while (true)
@@ -275,11 +278,11 @@ while (true)
 
 ## Response validation
 
-In rare cases, the API may return a response that doesn't match the expected type. By default, the SDK will not throw an exception in this case. It will throw `AnthropicInvalidDataException` only if you directly access the property.
+In rare cases, the API may return a response that doesn't match the expected type. By default, the SDK does not throw an exception in this case. It throws `AnthropicInvalidDataException` only if you directly access the property.
 
 If you would prefer to check that the response is completely well-typed upfront, then either call `Validate`:
 
-```csharp
+```csharp nocheck
 var message = await client.Messages.Create(parameters);
 message.Validate();
 ```
@@ -294,7 +297,7 @@ AnthropicClient client = new() { ResponseValidation = true };
 
 Or configure a single method call using `WithOptions`:
 
-```csharp
+```csharp nocheck
 using System;
 
 var message = await client
@@ -310,7 +313,7 @@ Console.WriteLine(message);
 
 The SDK provides an implementation of the `IChatClient` interface from the `Microsoft.Extensions.AI.Abstractions` library. This enables `AnthropicClient` (and `Anthropic.Services.IBetaService`) to be used with other libraries that integrate with these core abstractions. For example, tools in the MCP C# SDK (`ModelContextProtocol`) library can be used directly with an `AnthropicClient` exposed via `IChatClient`.
 
-```csharp
+```csharp nocheck
 using Anthropic;
 using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
@@ -344,7 +347,7 @@ The SDK defines methods that return binary responses, which are used for API res
 
 These methods return `HttpResponse`:
 
-```csharp
+```csharp nocheck
 using System;
 using Anthropic.Models.Beta.Files;
 
@@ -357,7 +360,7 @@ Console.WriteLine(response);
 
 To save the response content to a file, or any [`Stream`](https://learn.microsoft.com/en-us/dotnet/api/system.io.stream), use the [`CopyToAsync`](https://learn.microsoft.com/en-us/dotnet/api/system.io.stream.copytoasync) method:
 
-```csharp
+```csharp nocheck
 using System.IO;
 
 using var response = await client.Beta.Files.Download(parameters);
@@ -370,7 +373,7 @@ await contentStream.CopyToAsync(fileStream); // Or any other Stream
 
 The SDK defines methods that deserialize responses into instances of C# classes. To access response headers, status code, or the raw response body, prefix any HTTP method call on a client or service with `WithRawResponse`:
 
-```csharp
+```csharp nocheck
 var response = await client.WithRawResponse.Messages.Create(parameters);
 var statusCode = response.StatusCode;
 var headers = response.Headers;
@@ -380,7 +383,7 @@ The raw `HttpResponseMessage` can also be accessed through the `RawMessage` prop
 
 For non-streaming responses, you can deserialize the response into an instance of a C# class if needed:
 
-```csharp
+```csharp nocheck
 using System;
 using Anthropic.Models.Messages;
 
@@ -391,7 +394,7 @@ Console.WriteLine(deserialized);
 
 For streaming responses, you can deserialize the response to an `IAsyncEnumerable` if needed:
 
-```csharp
+```csharp nocheck
 using System;
 
 var response = await client.WithRawResponse.Messages.CreateStreaming(parameters);
@@ -427,8 +430,8 @@ For detailed platform setup guides with code examples, see:
 
 The C# SDK supports Bedrock and Foundry through separate NuGet packages:
 
-- **Bedrock**: `Anthropic.Bedrock`. Uses `AnthropicBedrockClient` with `AnthropicBedrockCredentialsHelper.FromEnv()` or explicit credentials.
-- **Foundry**: `Anthropic.Foundry`. Uses `AnthropicFoundryClient` with `DefaultAnthropicFoundryCredentials.FromEnv()` or explicit credentials.
+- **Bedrock:** `Anthropic.Bedrock`. Uses `AnthropicBedrockClient` with `AnthropicBedrockCredentialsHelper.FromEnv()` or explicit credentials.
+- **Foundry:** `Anthropic.Foundry`. Uses `AnthropicFoundryClient` with `DefaultAnthropicFoundryCredentials.FromEnv()` or explicit credentials.
 
 ## Semantic versioning
 

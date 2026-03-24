@@ -154,34 +154,26 @@ MCP tools follow the naming pattern `mcp__<server-name>__<tool-name>`. For examp
 
 Use `allowedTools` to specify which MCP tools Claude can use:
 
-```typescript
-options: {
-  mcpServers: { /* your servers */ },
-  allowedTools: [
-    "mcp__github__*",              // All tools from the github server
-    "mcp__db__query",              // Only the query tool from db server
-    "mcp__slack__send_message"     // Only send_message from slack server
-  ]
-}
+```typescript hidelines={1,-1}
+const _ = {
+  options: {
+    mcpServers: {
+      // your servers
+    },
+    allowedTools: [
+      "mcp__github__*", // All tools from the github server
+      "mcp__db__query", // Only the query tool from db server
+      "mcp__slack__send_message" // Only send_message from slack server
+    ]
+  }
+};
 ```
 
 Wildcards (`*`) let you allow all tools from a server without listing each one individually.
 
-### Alternative: Change the permission mode
-
-Instead of listing allowed tools, you can change the permission mode to grant broader access:
-
-- `permissionMode: "acceptEdits"`: Automatically approves tool usage (still prompts for destructive operations)
-- `permissionMode: "bypassPermissions"`: Skips all safety prompts, including for destructive operations like file deletion or running shell commands. Use with caution, especially in production. This mode propagates to subagents spawned by the Task tool.
-
-```typescript
-options: {
-  mcpServers: { /* your servers */ },
-  permissionMode: "acceptEdits"  // No need for allowedTools
-}
-```
-
-See [Permissions](./developer-agent-sdk-permissions.md) for more details on permission modes.
+<Note>
+**Prefer `allowedTools` over permission modes for MCP access.** `permissionMode: "acceptEdits"` does not auto-approve MCP tools (only file edits and filesystem Bash commands). `permissionMode: "bypassPermissions"` does auto-approve MCP tools but also disables all other safety prompts, which is broader than necessary. A wildcard in `allowedTools` grants exactly the MCP server you want and nothing more. See [Permission modes](./developer-agent-sdk-permissions.md#permission-modes) for a full comparison.
+</Note>
 
 ### Discover available tools
 
@@ -211,20 +203,21 @@ Local processes that communicate via stdin/stdout. Use this for MCP servers you 
   <Tab title="In code">
     <CodeGroup>
 
-    
-    ```typescript TypeScript
-    options: {
-      mcpServers: {
-        "github": {
-          command: "npx",
-          args: ["-y", "@modelcontextprotocol/server-github"],
-          env: {
-            GITHUB_TOKEN: process.env.GITHUB_TOKEN
+        ```typescript TypeScript hidelines={1,-1}
+        const _ = {
+          options: {
+            mcpServers: {
+              github: {
+                command: "npx",
+                args: ["-y", "@modelcontextprotocol/server-github"],
+                env: {
+                  GITHUB_TOKEN: process.env.GITHUB_TOKEN
+                }
+              }
+            },
+            allowedTools: ["mcp__github__list_issues", "mcp__github__search_issues"]
           }
-        }
-      },
-      allowedTools: ["mcp__github__list_issues", "mcp__github__search_issues"]
-    }
+        };
     ```
 
     ```python Python
@@ -267,20 +260,21 @@ Use HTTP or SSE for cloud-hosted MCP servers and remote APIs:
   <Tab title="In code">
     <CodeGroup>
 
-    
-    ```typescript TypeScript
-    options: {
-      mcpServers: {
-        "remote-api": {
-          type: "sse",
-          url: "https://api.example.com/mcp/sse",
-          headers: {
-            Authorization: `Bearer ${process.env.API_TOKEN}`
+        ```typescript TypeScript hidelines={1,-1}
+        const _ = {
+          options: {
+            mcpServers: {
+              "remote-api": {
+                type: "sse",
+                url: "https://api.example.com/mcp/sse",
+                headers: {
+                  Authorization: `Bearer ${process.env.API_TOKEN}`
+                }
+              }
+            },
+            allowedTools: ["mcp__remote-api__*"]
           }
-        }
-      },
-      allowedTools: ["mcp__remote-api__*"]
-    }
+        };
     ```
 
     ```python Python
@@ -323,52 +317,11 @@ Define custom tools directly in your application code instead of running a separ
 
 ## MCP tool search
 
-When you have many MCP tools configured, tool definitions can consume a significant portion of your context window. MCP tool search solves this by dynamically loading tools on-demand instead of preloading all of them.
+When you have many MCP tools configured, tool definitions can consume a significant portion of your context window. Tool search solves this by withholding tool definitions from context and loading only the ones Claude needs for each turn.
 
-### How it works
+Tool search is enabled by default. See [Tool search](./developer-agent-sdk-tool-search.md) for configuration options and details.
 
-Tool search runs in auto mode by default. It activates when your MCP tool descriptions would consume more than 10% of the context window. When triggered:
-
-1. MCP tools are marked with `defer_loading: true` rather than loaded into context upfront
-2. Claude uses a search tool to discover relevant MCP tools when needed
-3. Only the tools Claude actually needs are loaded into context
-
-Tool search requires models that support `tool_reference` blocks: Sonnet 4 and later, or Opus 4 and later. Haiku models do not support tool search.
-
-### Configure tool search
-
-Control tool search behavior with the `ENABLE_TOOL_SEARCH` environment variable:
-
-| Value | Behavior |
-|:------|:---------|
-| `auto` | Activates when MCP tools exceed 10% of context (default) |
-| `auto:5` | Activates at 5% threshold (customize the percentage) |
-| `true` | Always enabled |
-| `false` | Disabled, all MCP tools loaded upfront |
-
-Set the value in the `env` option:
-
-<CodeGroup>
-
-```typescript TypeScript
-const options = {
-  mcpServers: { /* your MCP servers */ },
-  env: {
-    ENABLE_TOOL_SEARCH: "auto:5" // Enable at 5% threshold
-  }
-};
-```
-
-```python Python
-options = ClaudeAgentOptions(
-    mcp_servers={...},  # your MCP servers
-    env={
-        "ENABLE_TOOL_SEARCH": "auto:5"  # Enable at 5% threshold
-    },
-)
-```
-
-</CodeGroup>
+For more detail, including best practices and using tool search with custom SDK tools, see the [tool search guide](./developer-agent-sdk-tool-search.md).
 
 ## Authentication
 
@@ -382,20 +335,21 @@ Use the `env` field to pass API keys, tokens, and other credentials to the MCP s
   <Tab title="In code">
     <CodeGroup>
 
-    
-    ```typescript TypeScript
-    options: {
-      mcpServers: {
-        "github": {
-          command: "npx",
-          args: ["-y", "@modelcontextprotocol/server-github"],
-          env: {
-            GITHUB_TOKEN: process.env.GITHUB_TOKEN
+        ```typescript TypeScript hidelines={1,-1}
+        const _ = {
+          options: {
+            mcpServers: {
+              github: {
+                command: "npx",
+                args: ["-y", "@modelcontextprotocol/server-github"],
+                env: {
+                  GITHUB_TOKEN: process.env.GITHUB_TOKEN
+                }
+              }
+            },
+            allowedTools: ["mcp__github__list_issues"]
           }
-        }
-      },
-      allowedTools: ["mcp__github__list_issues"]
-    }
+        };
     ```
 
     ```python Python
@@ -442,20 +396,21 @@ For HTTP and SSE servers, pass authentication headers directly in the server con
   <Tab title="In code">
     <CodeGroup>
 
-    
-    ```typescript TypeScript
-    options: {
-      mcpServers: {
-        "secure-api": {
-          type: "http",
-          url: "https://api.example.com/mcp",
-          headers: {
-            Authorization: `Bearer ${process.env.API_TOKEN}`
+        ```typescript TypeScript hidelines={1,-1}
+        const _ = {
+          options: {
+            mcpServers: {
+              "secure-api": {
+                type: "http",
+                url: "https://api.example.com/mcp",
+                headers: {
+                  Authorization: `Bearer ${process.env.API_TOKEN}`
+                }
+              }
+            },
+            allowedTools: ["mcp__secure-api__*"]
           }
-        }
-      },
-      allowedTools: ["mcp__secure-api__*"]
-    }
+        };
     ```
 
     ```python Python
@@ -573,7 +528,7 @@ for await (const message of query({
 
   // Log when Claude calls an MCP tool
   if (message.type === "assistant") {
-    for (const block of message.content) {
+    for (const block of message.message.content) {
       if (block.type === "tool_use" && block.name.startsWith("mcp__")) {
         console.log("MCP tool called:", block.name);
       }
@@ -728,9 +683,7 @@ for await (const message of query({
   }
 })) {
   if (message.type === "system" && message.subtype === "init") {
-    const failedServers = message.mcp_servers.filter(
-      s => s.status !== "connected"
-    );
+    const failedServers = message.mcp_servers.filter((s) => s.status !== "connected");
 
     if (failedServers.length > 0) {
       console.warn("Failed to connect:", failedServers);
@@ -799,13 +752,17 @@ Common causes:
 
 ### Tools not being called
 
-If Claude sees tools but doesn't use them, check that you've granted permission with `allowedTools` or by [changing the permission mode](#alternative-change-the-permission-mode):
+If Claude sees tools but doesn't use them, check that you've granted permission with `allowedTools`:
 
-```typescript
-options: {
-  mcpServers: { /* your servers */ },
-  allowedTools: ["mcp__servername__*"]  // Required for Claude to use the tools
-}
+```typescript hidelines={1,-1}
+const _ = {
+  options: {
+    mcpServers: {
+      // your servers
+    },
+    allowedTools: ["mcp__servername__*"] // Required for Claude to use the tools
+  }
+};
 ```
 
 ### Connection timeouts

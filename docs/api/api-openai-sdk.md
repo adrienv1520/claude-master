@@ -23,23 +23,26 @@ To use the OpenAI SDK compatibility feature, you'll need to:
 1. Use an official OpenAI SDK
 2. Change the following
    * Update your base URL to point to the Claude API
-   * Replace your API key with an [Claude API key](/settings/keys)
+   * Replace your API key with a [Claude API key](/settings/keys)
    * Update your model name to use a [Claude model](../developer/developer-about-claude-models-overview.md)
 3. Review the documentation below for what features are supported
 
 ### Quick start example
 
 <CodeGroup>
-    ```python Python
+    
+    ```python Python nocheck
+    import os
+
     from openai import OpenAI
 
     client = OpenAI(
-        api_key="ANTHROPIC_API_KEY",  # Your Claude API key
+        api_key=os.environ.get("ANTHROPIC_API_KEY"),  # Your Claude API key
         base_url="https://api.anthropic.com/v1/",  # the Claude API endpoint
     )
 
     response = client.chat.completions.create(
-        model="claude-opus-4-6",  # Anthropic model name
+        model="claude-opus-4-6",  # Claude model name
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "Who are you?"},
@@ -49,7 +52,8 @@ To use the OpenAI SDK compatibility feature, you'll need to:
     print(response.choices[0].message.content)
     ```
 
-    ```typescript TypeScript
+    
+    ```typescript TypeScript nocheck
     import OpenAI from "openai";
 
     const openai = new OpenAI({
@@ -58,14 +62,13 @@ To use the OpenAI SDK compatibility feature, you'll need to:
     });
 
     const response = await openai.chat.completions.create({
-      messages: [
-        { role: "user", content: "Who are you?" }
-      ],
+      messages: [{ role: "user", content: "Who are you?" }],
       model: "claude-opus-4-6" // Claude model name
     });
 
     console.log(response.choices[0].message.content);
     ```
+
 </CodeGroup>
 
 ## Important OpenAI compatibility limitations
@@ -85,41 +88,50 @@ Most unsupported fields are silently ignored rather than producing errors. These
 
 If you’ve done lots of tweaking to your prompt, it’s likely to be well-tuned to OpenAI specifically. Consider using the [prompt improver in the Claude Console](/dashboard) as a good starting point.
 
-### System / Developer message hoisting
+### System / developer message hoisting
 
 Most of the inputs to the OpenAI SDK clearly map directly to Anthropic’s API parameters, but one distinct difference is the handling of system / developer prompts. These two prompts can be put throughout a chat conversation via OpenAI. Since Anthropic only supports an initial system message, the API takes all system/developer messages and concatenates them together with a single newline (`\n`) in between them. This full string is then supplied as a single system message at the start of the messages.
 
 ### Extended thinking support
 
-You can enable [extended thinking](../developer/developer-build-with-claude-extended-thinking.md) capabilities by adding the `thinking` parameter. While this will improve Claude's reasoning for complex tasks, the OpenAI SDK won't return Claude's detailed thought process. For full extended thinking features, including access to Claude's step-by-step reasoning output, use the native Claude API.
+You can enable [extended thinking](../developer/developer-build-with-claude-extended-thinking.md) capabilities by adding the `thinking` parameter. While this improves Claude's reasoning for complex tasks, the OpenAI SDK doesn't return Claude's detailed thought process. For full extended thinking features, including access to Claude's step-by-step reasoning output, use the native Claude API.
 
 <CodeGroup>
-    ```python Python
+    
+    ```python Python nocheck hidelines={1..9}
+    import os
+
+    from openai import OpenAI
+
+    client = OpenAI(
+        api_key=os.environ.get("ANTHROPIC_API_KEY"),
+        base_url="https://api.anthropic.com/v1/",
+    )
+
     response = client.chat.completions.create(
         model="claude-sonnet-4-6",
-        messages=...,
+        messages=[{"role": "user", "content": "Who are you?"}],
         extra_body={"thinking": {"type": "enabled", "budget_tokens": 2000}},
     )
     ```
 
-    ```typescript TypeScript
+    
+    ```typescript TypeScript nocheck
     const response = await openai.chat.completions.create({
-      messages: [
-        { role: "user", content: "Who are you?" }
-      ],
+      messages: [{ role: "user", content: "Who are you?" }],
       model: "claude-sonnet-4-6",
       // @ts-expect-error
       thinking: { type: "enabled", budget_tokens: 2000 }
     });
-
     ```
+
 </CodeGroup>
 
 ## Rate limits
 
 Rate limits follow Anthropic's [standard limits](./api-rate-limits.md) for the `/v1/messages` endpoint.
 
-## Detailed OpenAI Compatible API Support
+## Detailed OpenAI compatible API support
 ### Request fields
 #### Simple fields
 | Field | Support status |
