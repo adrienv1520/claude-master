@@ -1,6 +1,6 @@
 {
   "name": "claude-master",
-  "version": "1.1.87",
+  "version": "1.1.88",
   "author": "Adrien Valcke <adrienvalcke@icloud.com> (https://github.com/adrienv1520)",
   "description": "An automatically updated, structured mirror of the official Claude documentation combined with a production-ready system-prompt framework that lets you build a fully grounded, Claude Master assistant inside any Claude Project.",
   "type": "module",
@@ -12,7 +12,8 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "update": "node scripts/update-docs.js"
+    "update": "node scripts/update-docs.js",
+    "zip": "node scripts/zip.js"
   },
   "repository": {
     "type": "git",

@@ -1,5 +1,9 @@
 # Changelog
 
+## 🧑‍💻 v1.1.88 - 24/03/2026
+
+- feat: add a zip script
+
 ## 🤖 v1.1.87 - 24/03/2026
 
 File Changes:
