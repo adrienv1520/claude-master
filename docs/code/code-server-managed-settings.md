@@ -41,7 +41,7 @@ If your devices are enrolled in an MDM or endpoint management solution, endpoint
   </Step>
 
   <Step title="Define your settings">
-    Add your configuration as JSON. All [settings available in `settings.json`](./code-settings.md#available-settings) are supported, including [hooks](./code-hooks.md), [environment variables](./code-env-vars.md), and [managed-only settings](./code-permissions.md#managed-only-settings) like `disableBypassPermissionsMode`.
+    Add your configuration as JSON. All [settings available in `settings.json`](./code-settings.md#available-settings) are supported, including [hooks](./code-hooks.md), [environment variables](./code-env-vars.md), and [managed-only settings](./code-permissions.md#managed-only-settings) like `allowManagedPermissionRulesOnly`.
 
     This example enforces a permission deny list and prevents users from bypassing permissions:
 
@@ -78,7 +78,21 @@ If your devices are enrolled in an MDM or endpoint management solution, endpoint
     }
     ```
 
-    Because hooks execute shell commands, users see a [security approval dialog](#security-approval-dialogs) before they're applied.
+    To configure the [auto mode](./code-permission-modes.md#eliminate-prompts-with-auto-mode) classifier so it knows which repos, buckets, and domains your organization trusts:
+
+    ```json  theme={null}
+    {
+      "autoMode": {
+        "environment": [
+          "Source control: github.example.com/acme-corp and all repos under it",
+          "Trusted cloud buckets: s3://acme-build-artifacts, gs://acme-ml-datasets",
+          "Trusted internal domains: *.corp.example.com"
+        ]
+      }
+    }
+    ```
+
+    Because hooks execute shell commands, users see a [security approval dialog](#security-approval-dialogs) before they're applied. See [Configure the auto mode classifier](./code-permissions.md#configure-the-auto-mode-classifier) for how the `autoMode` entries affect what the classifier blocks and important warnings about the `allow` and `soft_deny` fields.
   </Step>
 
   <Step title="Save and deploy">

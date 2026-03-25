@@ -183,7 +183,7 @@ Claude Code offers several ways to work when you're not at your terminal. They d
 ## Related resources
 
 * [Claude Code on the web](./code-claude-code-on-the-web.md): run sessions in Anthropic-managed cloud environments instead of on your machine
-* [Channels](./code-channels.md): forward Telegram or Discord into a session so Claude reacts to messages while you're away
+* [Channels](./code-channels.md): forward Telegram, Discord, or iMessage into a session so Claude reacts to messages while you're away
 * [Dispatch](./code-desktop.md#sessions-from-dispatch): message a task from your phone and it can spawn a Desktop session to handle it
 * [Authentication](./code-authentication.md): set up `/login` and manage credentials for claude.ai
 * [CLI reference](./code-cli-reference.md): full list of flags and commands including `claude remote-control`
