@@ -69,7 +69,7 @@ When you run `claude` in a directory, Claude Code gains access to:
 * **Your terminal.** Any command you could run: build tools, git, package managers, system utilities, scripts. If you can do it from the command line, Claude can too.
 * **Your git state.** Current branch, uncommitted changes, and recent commit history.
 * **Your [CLAUDE.md](./code-memory.md).** A markdown file where you store project-specific instructions, conventions, and context that Claude should know every session.
-* **[Auto memory](./code-memory.md#auto-memory).** Learnings Claude saves automatically as you work, like project patterns and your preferences. The first 200 lines of MEMORY.md are loaded at the start of each session.
+* **[Auto memory](./code-memory.md#auto-memory).** Learnings Claude saves automatically as you work, like project patterns and your preferences. The first 200 lines or 25KB of MEMORY.md, whichever comes first, load at the start of each session.
 * **Extensions you configure.** [MCP servers](./code-mcp.md) for external services, [skills](./code-skills.md) for workflows, [subagents](./code-sub-agents.md) for delegated work, and [Claude in Chrome](./code-chrome.md) for browser interaction.
 
 Because Claude sees your whole project, it can work across it. When you ask Claude to "fix the authentication bug," it searches for relevant files, reads multiple files to understand context, makes coordinated edits across them, runs tests to verify the fix, and commits the changes if you ask. This is different from inline code assistants that only see the current file.
@@ -126,13 +126,15 @@ This creates a new session ID while preserving the conversation history up to th
 
 Claude's context window holds your conversation history, file contents, command outputs, [CLAUDE.md](./code-memory.md), [auto memory](./code-memory.md#auto-memory), loaded skills, and system instructions. As you work, context fills up. Claude compacts automatically, but instructions from early in the conversation can get lost. Put persistent rules in CLAUDE.md, and run `/context` to see what's using space.
 
+For an interactive walkthrough of what loads and when, see [Explore the context window](./code-context-window.md).
+
 #### When context fills up
 
 Claude Code manages context automatically as you approach the limit. It clears older tool outputs first, then summarizes the conversation if needed. Your requests and key code snippets are preserved; detailed instructions from early in the conversation may be lost. Put persistent rules in CLAUDE.md rather than relying on conversation history.
 
 To control what's preserved during compaction, add a "Compact Instructions" section to CLAUDE.md or run `/compact` with a focus (like `/compact focus on the API changes`).
 
-Run `/context` to see what's using space. MCP servers add tool definitions to every request, so a few servers can consume significant context before you start working. Run `/mcp` to check per-server costs.
+Run `/context` to see what's using space. MCP tool definitions are deferred by default and loaded on demand via [tool search](./code-mcp.md#scale-with-mcp-tool-search), so only tool names consume context until Claude uses a specific tool. Run `/mcp` to check per-server costs.
 
 #### Manage context with skills and subagents
 

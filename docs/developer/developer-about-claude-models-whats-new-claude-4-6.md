@@ -55,7 +55,7 @@ The following tools are now generally available:
 - [Web fetch](./developer-agents-and-tools-tool-use-web-fetch-tool.md)
 - [Programmatic tool calling](./developer-agents-and-tools-tool-use-programmatic-tool-calling.md)
 - [Tool search tool](./developer-agents-and-tools-tool-use-tool-search-tool.md)
-- [Tool use examples](./developer-agents-and-tools-tool-use-implement-tool-use.md#providing-tool-use-examples)
+- [Tool use examples](./developer-agents-and-tools-tool-use-define-tools.md#providing-tool-use-examples)
 - [Memory tool](./developer-agents-and-tools-tool-use-memory-tool.md)
 
 ### Compaction API (beta)
@@ -92,13 +92,13 @@ Opus 4.6 supports up to 128k output tokens, doubling the previous 64k limit. Thi
 
 ### `type: "enabled"` and `budget_tokens`
 
-`thinking: {type: "enabled", budget_tokens: N}` is **deprecated** on Opus 4.6. It remains functional but will be removed in a future model release. Migrate to `thinking: {type: "adaptive"}` with the [effort parameter](./developer-build-with-claude-effort.md).
+`thinking: {type: "enabled", budget_tokens: N}` is [**deprecated**](./developer-build-with-claude-overview.md#feature-availability) on Opus 4.6 and Sonnet 4.6. It is still functional but no longer recommended and will be removed in a future model release. Migrate to `thinking: {type: "adaptive"}` with the [effort parameter](./developer-build-with-claude-effort.md).
 
 ### `interleaved-thinking-2025-05-14` beta header
 
 The `interleaved-thinking-2025-05-14` beta header is **deprecated** on Opus 4.6. It is safely ignored if included, but is no longer required. [Adaptive thinking](./developer-build-with-claude-adaptive-thinking.md) automatically enables [interleaved thinking](./developer-build-with-claude-extended-thinking.md#interleaved-thinking). Remove `betas=["interleaved-thinking-2025-05-14"]` from your requests when using Opus 4.6.
 
-**Sonnet 4.6** continues to support the `interleaved-thinking-2025-05-14` beta header for use with manual extended thinking (`thinking: {type: "enabled"}`). You can use either interleaved thinking with the beta header or adaptive thinking on Sonnet 4.6.
+On **Sonnet 4.6**, the `interleaved-thinking-2025-05-14` beta header is still functional for use with manual extended thinking (`thinking: {type: "enabled"}`), but manual mode is deprecated. Adaptive thinking is the recommended path and automatically enables interleaved thinking.
 
 ### `output_format`
 

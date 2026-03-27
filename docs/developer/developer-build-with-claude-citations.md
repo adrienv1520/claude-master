@@ -2,6 +2,10 @@
 
 ---
 
+<Note>
+This feature is eligible for [Zero Data Retention (ZDR)](./developer-build-with-claude-api-and-data-retention.md). When your organization has a ZDR arrangement, data sent through this feature is not stored after the API response is returned.
+</Note>
+
 Claude is capable of providing detailed citations when answering questions about documents, helping you track and verify information sources in responses.
 
 All [active models](./developer-about-claude-models-overview.md) support citations, with the exception of Haiku 3.

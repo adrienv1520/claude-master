@@ -20,7 +20,7 @@ Most best practices are based on one constraint: Claude's context window fills u
 
 Claude's context window holds your entire conversation, including every message, every file Claude reads, and every command output. However, this can fill up fast. A single debugging session or codebase exploration might generate and consume tens of thousands of tokens.
 
-This matters since LLM performance degrades as context fills. When the context window is getting full, Claude may start "forgetting" earlier instructions or making more mistakes. The context window is the most important resource to manage. Track context usage continuously with a [custom status line](./code-statusline.md), and see [Reduce token usage](./code-costs.md#reduce-token-usage) for strategies on reducing token usage.
+This matters since LLM performance degrades as context fills. When the context window is getting full, Claude may start "forgetting" earlier instructions or making more mistakes. The context window is the most important resource to manage. To see how a session fills up in practice, [watch an interactive walkthrough](./code-context-window.md) of what loads at startup and what each file read costs. Track context usage continuously with a [custom status line](./code-statusline.md), and see [Reduce token usage](./code-costs.md#reduce-token-usage) for strategies on reducing token usage.
 
 ***
 
