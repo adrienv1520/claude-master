@@ -224,6 +224,7 @@ These are the most frequently encountered errors and how to resolve them:
 
 ## See also
 
+* [Computer use](./code-computer-use.md): control native macOS apps when a task can't be done in a browser
 * [Use Claude Code in VS Code](./code-vs-code.md#automate-browser-tasks-with-chrome): browser automation in the VS Code extension
 * [CLI reference](./code-cli-reference.md): command-line flags including `--chrome`
 * [Common workflows](./code-common-workflows.md): more ways to use Claude Code
