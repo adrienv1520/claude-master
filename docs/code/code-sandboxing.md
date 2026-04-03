@@ -169,7 +169,7 @@ The `.` in `allowRead` resolves to the project root because this configuration l
 
   * Many CLI tools require accessing certain hosts. As you use these tools, they will request permission to access certain hosts. Granting permission will allow them to access these hosts now and in the future, enabling them to safely execute inside the sandbox.
   * `watchman` is incompatible with running in the sandbox. If you're running `jest`, consider using `jest --no-watchman`
-  * `docker` is incompatible with running in the sandbox. Consider specifying `docker` in `excludedCommands` to force it to run outside of the sandbox.
+  * `docker` is incompatible with running in the sandbox. Consider specifying `docker *` in `excludedCommands` to force it to run outside of the sandbox.
 </Tip>
 
 <Note>
@@ -314,7 +314,7 @@ For implementation details and source code, visit the [GitHub repository](https:
 The sandbox isolates Bash subprocesses. Other tools operate under different boundaries:
 
 * **Built-in file tools**: Read, Edit, and Write use the permission system directly rather than running through the sandbox. See [permissions](./code-permissions.md).
-* **Computer use**: when Claude opens apps and controls your screen on macOS, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use in the CLI](./code-computer-use.md) or [computer use in Desktop](./code-desktop.md#let-claude-use-your-computer).
+* **Computer use**: when Claude opens apps and controls your screen, it runs on your actual desktop rather than in an isolated environment. Per-app permission prompts gate each application. See [computer use in the CLI](./code-computer-use.md) or [computer use in Desktop](./code-desktop.md#let-claude-use-your-computer).
 
 ## See also
 

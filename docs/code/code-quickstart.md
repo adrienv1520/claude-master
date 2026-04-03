@@ -623,7 +623,7 @@ Make sure you have:
 * A terminal or command prompt open
   * If you've never used the terminal before, check out the [terminal guide](./code-terminal-guide.md)
 * A code project to work with
-* A [Claude subscription](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq) (Pro, Max, Teams, or Enterprise), [Claude Console](https://console.anthropic.com/) account, or access through a [supported cloud provider](./code-third-party-integrations.md)
+* A [Claude subscription](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_prereq) (Pro, Max, Team, or Enterprise), [Claude Console](https://console.anthropic.com/) account, or access through a [supported cloud provider](./code-third-party-integrations.md)
 
 <Note>
   This guide covers the terminal CLI. Claude Code is also available on the [web](https://claude.ai/code), as a [desktop app](./code-desktop.md), in [VS Code](./code-vs-code.md) and [JetBrains IDEs](./code-jetbrains.md), in [Slack](./code-slack.md), and in CI/CD with [GitHub Actions](./code-github-actions.md) and [GitLab](./code-gitlab-ci-cd.md). See [all interfaces](./code-overview.md#use-claude-code-everywhere).
@@ -699,7 +699,7 @@ claude
 
 You can log in using any of these account types:
 
-* [Claude Pro, Max, Teams, or Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login) (recommended)
+* [Claude Pro, Max, Team, or Enterprise](https://claude.com/pricing?utm_source=claude_code\&utm_medium=docs\&utm_content=quickstart_login) (recommended)
 * [Claude Console](https://console.anthropic.com/) (API access with pre-paid credits). On first login, a "Claude Code" workspace is automatically created in the Console for centralized cost tracking.
 * [Amazon Bedrock, Google Vertex AI, or Microsoft Foundry](./code-third-party-integrations.md) (enterprise cloud providers)
 
@@ -871,10 +871,9 @@ Here are the most important commands for daily use:
 | `claude -p "query"` | Run one-off query, then exit                           | `claude -p "explain this function"` |
 | `claude -c`         | Continue most recent conversation in current directory | `claude -c`                         |
 | `claude -r`         | Resume a previous conversation                         | `claude -r`                         |
-| `claude commit`     | Create a Git commit                                    | `claude commit`                     |
 | `/clear`            | Clear conversation history                             | `/clear`                            |
 | `/help`             | Show available commands                                | `/help`                             |
-| `exit` or Ctrl+C    | Exit Claude Code                                       | `exit`                              |
+| `exit` or Ctrl+D    | Exit Claude Code                                       | `exit`                              |
 
 See the [CLI reference](./code-cli-reference.md) for a complete list of commands.
 
