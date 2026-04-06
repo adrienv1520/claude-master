@@ -13,15 +13,6 @@ env:
   DOCS_RESOURCES_FOLDER_NAME: 'resources'
   DOCS_API_FOLDER_NAME: 'api'
   DOCS_IGNORE_PATTERN: '(^.. )?docs/README\.md$|(^.. )?docs/[^/]+/[^/]+-README\.md$'
-
-  DRIVE_FOLDER_ID: ${{ secrets.DRIVE_FOLDER_ID || '' }}
-  DRIVE_SYNC_SAFE_MODE: ${{ vars.DRIVE_SYNC_SAFE_MODE || 'true' }}
-
-  DRIVE_SYNC_DEVELOPER: ${{ vars.DRIVE_SYNC_DEVELOPER || 'false' }}
-  DRIVE_SYNC_API: ${{ vars.DRIVE_SYNC_API || 'false' }}
-  DRIVE_SYNC_RESOURCES: ${{ vars.DRIVE_SYNC_RESOURCES || 'false' }}
-  DRIVE_SYNC_CODE: ${{ vars.DRIVE_SYNC_CODE || 'false' }}
-
   MAX_REMOVED_FILES_PERCENTAGE: "${{ vars.MAX_REMOVED_FILES_PERCENTAGE || '25' }}"
 
 jobs:
@@ -220,65 +211,6 @@ jobs:
           tag_name: "${{ steps.version.outputs.version_number }}"
           name: "${{ steps.version.outputs.version_number }}"
           body: "${{ steps.changelog_generator.outputs.body }}"
-
-      ########################################################################
-      # RCLONE → GOOGLE DRIVE
-      ########################################################################
-      - name: Setup rclone
-        if: steps.git_status.outputs.has_changes == 'true' && env.DRIVE_FOLDER_ID != ''
-        uses: AnimMouse/setup-rclone@v1
-        with:
-          version: 'v1.72.0'
-          rclone_config: "${{ secrets.DRIVE_RCLONE_CONFIG }}"
-          disable_base64: true
-
-      - name: Inject root folder ID
-        if: steps.git_status.outputs.has_changes == 'true' && env.DRIVE_FOLDER_ID != ''
-        run: |
-          CONFIG="$HOME/.config/rclone/rclone.conf"
-
-          if grep -q "^\[drive\]" "$CONFIG"; then
-            # If root_folder_id exists, replace it
-            if grep -q "^root_folder_id" "$CONFIG"; then
-              sed -i "s|^root_folder_id.*|root_folder_id = ${DRIVE_FOLDER_ID}|" "$CONFIG"
-            else
-              # Insert it right after the [drive] block
-              sed -i "/^\[drive\]/a root_folder_id = ${DRIVE_FOLDER_ID}" "$CONFIG"
-            fi
-          fi
-
-          echo "Updated rclone config"
-
-      - name: Upload docs to Google Drive
-        if: steps.git_status.outputs.has_changes == 'true' && env.DRIVE_FOLDER_ID != ''
-        run: |
-          sync_or_copy() {
-            enabled="$1"
-            folder="$2"
-
-            if [ "$enabled" != "true" ] && [ "$enabled" != "1" ]; then
-              echo "→ $folder: skipping (flag=$enabled)"
-              return
-            fi
-
-            mode="copy"
-            if [ "$DRIVE_SYNC_SAFE_MODE" = "false" ]; then
-              mode="sync"
-            fi
-
-            echo "→ $folder: running $mode"
-
-            if [ "$mode" = "sync" ]; then
-              rclone sync "$DOCS_PATH/$folder" "drive:$folder"
-            else
-              rclone copy "$DOCS_PATH/$folder" "drive:$folder" --update
-            fi
-          }
-
-          sync_or_copy "$DRIVE_SYNC_DEVELOPER" "$DOCS_DEVELOPER_FOLDER_NAME"
-          sync_or_copy "$DRIVE_SYNC_API" "$DOCS_API_FOLDER_NAME"
-          sync_or_copy "$DRIVE_SYNC_RESOURCES" "$DOCS_RESOURCES_FOLDER_NAME"
-          sync_or_copy "$DRIVE_SYNC_CODE" "$DOCS_CODE_FOLDER_NAME"
 
       ########################################################################
       # TELEGRAM NOTIFICATIONS

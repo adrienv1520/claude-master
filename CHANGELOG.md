@@ -1,5 +1,9 @@
 # Changelog
 
+## 🧑‍💻 v1.2.0 - 06/04/2026
+
+- feat: update Claude Master's system prompt, remove Google Drive support
+
 ## 🤖 v1.1.109 - 06/04/2026
 
 File Changes:
